@@ -1,0 +1,4 @@
+RewriteEngine on
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond ./app/%{REQUEST_URI} -f
+#RewriteRule (.*) ./app/$1 [NC,L]
