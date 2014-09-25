@@ -15,7 +15,7 @@ return array(
                 'options' => array(
                     'route'    => '/',
                     'defaults' => array(
-                        'controller' => 'Application\Controller\Index',
+                        'controller' => 'SequelDash\Controller\Index',
                         'action'     => 'index',
                     ),
                 ),
@@ -29,7 +29,7 @@ return array(
                 'options' => array(
                     'route'    => '/application',
                     'defaults' => array(
-                        '__NAMESPACE__' => 'Application\Controller',
+                        '__NAMESPACE__' => 'SequelDash\Controller',
                         'controller'    => 'Index',
                         'action'        => 'index',
                     ),
@@ -73,7 +73,7 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'Application\Controller\Index' => 'Application\Controller\IndexController'
+            'SequelDash\Controller\Index' => 'SequelDash\Controller\IndexController'
         ),
     ),
     'view_manager' => array(
