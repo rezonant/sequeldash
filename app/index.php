@@ -13,5 +13,16 @@ if (php_sapi_name() === 'cli-server' && is_file(__DIR__ . parse_url($_SERVER['RE
 // Setup autoloading
 require 'init_autoloader.php';
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+$config = require 'config/application.config.php';
+$timezone = 'America/New_York';
+
+if (isset($config->timezone))
+	$timezone = $config->timezone;
+
+date_default_timezone_set($timezone);
+
 // Run the application!
-Zend\Mvc\Application::init(require 'config/application.config.php')->run();
+Zend\Mvc\Application::init($config)->run();
