@@ -1,0 +1,132 @@
+<?
+
+use Zend\Captcha;
+use Zend\Form\Element;
+use Zend\Form\Fieldset;
+use Zend\Form\Form;
+use Zend\InputFilter\Input;
+use Zend\InputFilter\InputFilter;
+
+$model = $this->viewModel()->getCurrent();
+
+?>
+<div class="inner jumbotron" style="position:relative;text-align:center;">
+    <h1>schema for {{table.name}}</h1>
+
+    <? if ($this->error) { ?>
+	<br/><br/>
+	<span class="alert alert-danger"><?= $this->error ?></span>
+	<br/>
+	<br/>
+    <? } ?>
+
+    <div class="jumbotron-buttons">
+	<a href="<?= $this->basePath() ?>/dbs/<?= $this->database['name'] ?>/tables/<?= $this->table['name'] ?>/search"><button>Search</button></a>
+	<button>Operations</button>
+	<button>Add to Query</button>
+    </div>
+</div>
+<div>
+<script>
+	$(document).ready(function() {
+		$('.hide-details').click(function() {
+			$('.details-sidebar')
+				.css({
+					overflow: 'hidden'
+				})
+				.animate({
+					width: 0,
+					opacity: 0
+				}, {
+					complete: function() {
+						$('.details-sidebar').hide();
+						$('.main-content').removeClass('col-xs-9').addClass('col-xs-12');			
+					}
+				});
+			$('.show-details').slideDown();
+		});
+		$('.show-details').click(function() {
+			$('.details-sidebar')
+				.css({
+					overflow: 'hidden',
+					opacity: 0,
+					width: ''
+				}).show();
+			var width = $('.details-sidebar').width();
+			$('.details-sidebar')
+				.css({width:'0px'})
+				
+				.animate({
+					width: width+'px',
+					opacity: 1
+				}, {
+					complete: function() {
+						$('.details-sidebar').css('width', '');	
+					}
+				});
+			$(this).slideUp();
+			$('.main-content').removeClass('col-xs-12').addClass('col-xs-9');
+		});
+	});
+</script>
+
+<div class="show-details" style="display:none;padding:0 1em;">
+	<button class="btn btn-info">&gt;&gt; Details</button>
+</div>
+<div class="row-fluid">
+        <div class="col-xs-3 details-sidebar">
+		<div class="btn btn-info hide-details" style="width:100%">
+			<div style="float:left;">&lt;&lt;</div>
+			Details
+		</div>
+		<div class="sidebar-section">
+			<strong>Notes</strong><br/>
+			<em>Notes go here</em><br/>
+			<br/>
+		</div>
+		<div class="sidebar-section">
+			<div style="float:right">
+				<input type="text" placeholder="filter" class="filter" data-filter="database.tables" />
+			</div>
+        	        <strong><a href="<?= $this->basePath() ?>/dbs/{{database.name}}/tables">Tables in {{database.name}}</strong>
+			<div ng-repeat="tableName in database.tables">
+				<a href="<?= $this->basePath() ?>/dbs/{{database.name}}/tables/{{tableName}}">{{tableName}}</a>
+			</div>
+
+		</div>
+        </div>
+        <div class="col-xs-9 main-content">
+		<div class="section">
+			<table style="width:100%;">
+			<thead>
+				<tr>
+					<th>Field</th>
+					<th>Type</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="field in table.schema">
+					<td>{{field.name}}
+						<div class="note note-orange" ng-show="field.isUniqueKey">
+							UNIQ
+						</div>
+						<div class="note note-maroon" ng-show="field.isPrimaryKey">
+							PKEY
+						</div>
+						<div class="note note-blue" ng-show="field.increment">
+							AUTO
+						</div>
+					</td>
+					<td>{{field.type}}<br/>
+						<div class="note note-blue" ng-show="field.hasDefault">= {{field.default}}</div>
+					</td>
+				</tr>
+			</tbody>
+			</table>
+	
+		</div>
+	</div>
+</div>
+</div>
+<br/>
+

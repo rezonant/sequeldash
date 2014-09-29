@@ -1,0 +1,40 @@
+<?
+use Zend\Captcha;
+use Zend\Form\Element;
+use Zend\Form\Fieldset;
+use Zend\Form\Form;
+use Zend\InputFilter\Input;
+use Zend\InputFilter\InputFilter;
+
+\SequelDash\View::init($this);
+
+?>
+<div class="inner jumbotron" style="text-align:center;">
+    <h1>db: <?= ngBind('database.name') ?></h1>
+    <? if ($this->error) { ?>
+	<br/><br/>
+	<span class="alert alert-danger"><?= $this->error ?></span>
+	<br/>
+	<br/>
+    <? } ?>
+</div>
+<table class="data">
+<thead>
+	<tr>
+		<th>Name</th>
+		<th>Rows</th>
+		<th>Size</th>
+	</tr>
+</thead>
+<tbody>
+	<tr ng-repeat="table in database.tables">
+		<td>
+			<a href="<?= $this->basePath() ?>/dbs/{{database.name}}/tables/{{table.name}}">{{table.name}}</a>
+		</td>
+		<td>{{table.rows}}</td>
+		<td>{{table.size}}</td>
+	</tr>
+</tbody>
+</table>
+
+

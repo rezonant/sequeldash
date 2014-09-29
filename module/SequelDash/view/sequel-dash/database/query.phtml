@@ -1,0 +1,10 @@
+<?php
+	$db = $this->db;
+	$query = $this->query;
+?>
+<h1>Query</h1>
+<?= $this->partial('sequel-dash/database/query-partial.phtml', array(
+	'db' => $db,
+	'query' => $query,
+)) ?>
+

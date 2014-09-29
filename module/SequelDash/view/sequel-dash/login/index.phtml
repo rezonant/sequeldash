@@ -1,0 +1,26 @@
+<?
+use Zend\Captcha;
+use Zend\Form\Element;
+use Zend\Form\Fieldset;
+use Zend\Form\Form;
+use Zend\InputFilter\Input;
+use Zend\InputFilter\InputFilter;
+
+?>
+<div class="jumbotron" style="text-align:center;">
+    <h1><img src="<?= $this->basePath() ?>/img/sequeldash.png" /></h1>
+    <form action="<?= $this->basePath() ?>/login" method="post">
+	<input type="text" name="username" placeholder="username" />
+	<input type="text" name="password" placeholder="password" />
+	<br/><br/>
+	<button>Login</button>
+
+    <? if ($this->error) { ?>
+	<br/><br/>
+	<span class="alert alert-danger"><?= $this->error ?></span>
+	<br/>
+	<br/>
+    <? } ?>
+
+    </form>
+</div>

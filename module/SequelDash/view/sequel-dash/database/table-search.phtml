@@ -1,0 +1,71 @@
+<?
+
+use Zend\Captcha;
+use Zend\Form\Element;
+use Zend\Form\Fieldset;
+use Zend\Form\Form;
+use Zend\InputFilter\Input;
+use Zend\InputFilter\InputFilter;
+
+$model = $this->viewModel()->getCurrent();
+
+?>
+<div class="inner jumbotron" style="position:relative;text-align:center;">
+    <h1>search {{table.name}}</h1>
+
+    <? if ($this->error) { ?>
+	<br/><br/>
+	<span class="alert alert-danger"><?= $this->error ?></span>
+	<br/>
+	<br/>
+    <? } ?>
+
+    <div class="jumbotron-buttons">
+    </div>
+</div>
+<div>
+
+<form action="<?= $this->basePath() ?>/dbs/<?= $this->database['name'] ?>/tables/<?= $this->table['name'] ?>/search" method="post">
+<div class="section">
+	<table class="data">
+	<thead>
+		<tr>
+		<th></th>
+		<th>Field</th>
+		<th>Type</th>
+		<th>Operator</th>
+		<th>Value</th>
+		</tr>
+	</thead>
+		<? foreach ($this->table['schema'] as $field) { ?>
+			<tr>
+				<td><input type="checkbox" name="select[]" value="<?= $field->name ?>" /></td>
+				<td><?= $field->name ?></td>
+				<td><?= $field->type ?></td>
+				<td>
+					<select>
+						<option>LIKE</option>
+						<option>LIKE %...%</option>
+						<option>=</option>
+						<option>!=</option>
+						<option>&gt;</option>
+						<option>&gt;=</option>
+						<option>&lt;</option>
+						<option>&lt;=</option>
+						<option>BETWEEN</option>
+					</select>
+				</td>
+				<td><input type="text" name="<?= $field->name ?>" /></td>
+			</tr>	
+		<? } ?>
+	</table>
+	<br/><br/>
+	<div style="text-align:center;font-size:125%;">
+		<button class="btn btn-success">Go</button>
+	</div>
+</div>
+</form>
+
+</div>
+<br/>
+
