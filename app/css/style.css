@@ -3,6 +3,130 @@ body {
     padding-bottom: 40px;
 }
 
+* {
+	box-sizing: border-box;
+}
+
+.jumbotron {
+	padding-bottom:0em;
+}
+
+.jumbotron.inner {
+	padding-top:1em;
+	padding-bottom:1em;
+	position:relative;
+	top:-1em;
+	margin-bottom:-0.5em;
+}
+
+.trailer {
+	display:inline-block;
+	max-width:15em;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	max-height:2.8em;
+}
+
+table.data {
+	width:100%;
+}
+
+table.data td {
+	vertical-align:top;
+}
+
+.content-container {
+	width: 100%;
+	padding:1em;
+	margin: 0 auto;
+}
+
+.note {
+	font-size:75%;
+	font-weight:bold;
+	color:white;
+	background:maroon;
+	padding:2px 6px;
+	border-radius:5px;
+	margin:2px;
+	display:inline-block;
+}
+.note-orange {
+	background:rgb(240, 105, 0);
+}
+.note-maroon {
+	background:maroon;
+}
+.note-blue {
+	background:#6A7FD5;
+}
+
+.query-results td.status {
+	font-size:75%;
+	width:10em;
+}
+
+tr.selected {
+	background: rgb(178, 255, 230);
+	border-left: 1px solid rgb(0, 128, 92);
+}
+
+.query-results td.unsaved {
+	background: #ff9999;
+}
+
+.query-results tr.unsaved {
+	background: pink;
+}
+
+.query-input {
+	width:100%;
+	min-height:6em;
+}
+
+.query-results {
+	font-size:75%;
+	width:100%;
+}
+
+.query-results-container {
+	overflow-x: auto;
+	width:100%;
+	display:block;
+}
+
+.query-results thead {
+	background: #eee;
+}
+
+.query-results td, .query-results th {
+	padding:5px;
+}
+
+.sidebar-section, .section {
+	overflow-x: hidden;
+	word-wrap: break-word;
+	border-radius:5px;
+	background:#eee;
+	padding:1em;
+	margin:0 0 1em 0;
+}
+
+.jumbotron {
+	position:relative;
+}
+
+.jumbotron-buttons {
+	
+	position:absolute;
+	bottom:0;
+	right:0;
+}
+
+.jumbotron-buttons button {
+	font-size:60%;
+}
+
 .zf-green {
     color: #68b604;
 }
@@ -34,4 +158,37 @@ div.container a.brand {
     background: url("../img/zf2-logo.png") no-repeat scroll 0 10px transparent;
     margin-left: 0;
     padding: 8px 20px 12px 40px;
+}
+
+@media (max-width:500px) {
+	body {
+		overflow-x:hidden;
+	}
+
+	table.data {
+		margin:0.5em;
+	}
+
+	.jumbotron {
+		padding:0;
+	}
+
+	.jumbotron-buttons {
+		width:100%;
+		text-align:center;
+	}
+
+	.content-container {
+		padding:0;		
+	}
+
+	.details-sidebar {
+		padding-left:0;
+		padding-right:0;
+	}
+
+	.main-content {
+		padding-left:0;
+		padding-right:0;
+	}
 }

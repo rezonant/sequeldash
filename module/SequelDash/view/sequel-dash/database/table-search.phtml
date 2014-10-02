@@ -11,7 +11,7 @@ $model = $this->viewModel()->getCurrent();
 
 ?>
 <div class="inner jumbotron" style="position:relative;text-align:center;">
-    <h1>search {{table.name}}</h1>
+    <h1>search: {{table.name}}</h1>
 
     <? if ($this->error) { ?>
 	<br/><br/>
@@ -30,20 +30,34 @@ $model = $this->viewModel()->getCurrent();
 	<table class="data">
 	<thead>
 		<tr>
-		<th></th>
-		<th>Field</th>
-		<th>Type</th>
-		<th>Operator</th>
-		<th>Value</th>
+		<th style="width:2em;"></th>
+		<th style="text-align:right; width:2em;">Field</th>
+		<th style="width:5em;"></th>
+		<th style="width:auto;">Value</th>
 		</tr>
 	</thead>
 		<? foreach ($this->table['schema'] as $field) { ?>
 			<tr>
-				<td><input type="checkbox" name="select[]" value="<?= $field->name ?>" /></td>
-				<td><?= $field->name ?></td>
-				<td><?= $field->type ?></td>
+				<td> 
+					&nbsp; <input type="checkbox" class="select" name="select[]" value="<?= $field->name ?>" />
+				</td>
+				<td style="text-align:right;">
+					<?= $field->name ?>
+					<br/><span style="opacity:0.5;"><?= $field->type ?></span>
+					<? if ($field->default || $field->default === 0) { ?>
+						<div class="note note-blue"><?= $field->default ?></div>
+					<? } ?>
+
+					<? if ($field->isPrimaryKey) { ?>
+						<div class="note note-maroon">PKEY</div>
+					<? } else if ($field->isUnique) { ?>
+						<div class="note note-orange">UNIQ</div>
+					<? } ?>
+
+					<br/><br/>
+				</td>				
 				<td>
-					<select>
+					<select class="operator" name="<?= $field->name ?>[operator]">
 						<option>LIKE</option>
 						<option>LIKE %...%</option>
 						<option>=</option>
@@ -55,7 +69,19 @@ $model = $this->viewModel()->getCurrent();
 						<option>BETWEEN</option>
 					</select>
 				</td>
-				<td><input type="text" name="<?= $field->name ?>" /></td>
+				<td>
+					<? if ($field->type == 'text' || $field->type == 'longtext') { ?>
+						<textarea name="<?= $field->name ?>[value]" style="width:100%;min-height:3em;"></textarea>
+					<? } else { ?>
+						<div class="one-value">
+							<input type="text" name="<?= $field->name ?>[value]" style="width:100%;"  />
+						</div>
+						<div class="and-value" style="display:none;">
+							<input type="text" name="<?= $field->name ?>[start]" /> AND 
+							<input type="text" name="<?= $field->name ?>[end]" />
+						</div>
+					<? } ?>
+				</td>
 			</tr>	
 		<? } ?>
 	</table>
@@ -66,6 +92,41 @@ $model = $this->viewModel()->getCurrent();
 </div>
 </form>
 
+<script>
+	$(document).ready(function() {
+		$('input[type=text], textarea').change(function() {
+			var $row = $(this).parents('tr:first');
+			var value = true;
+
+			if ($(this).val() == '')
+				value = false;
+
+			$row.find('input.select').prop('checked', value).change();
+		});
+
+		$('input.select').change(function() {
+			var $row = $(this).parents('tr:first');
+			if ($(this).is(':checked')) {
+				$row.addClass('selected');
+			} else {
+				$row.removeClass('selected');
+			}
+		});
+
+		$('select.operator').change(function() {
+			var $row = $(this).parents('tr:first');
+
+			if ($(this).val() == 'BETWEEN') {
+				$row.find('.one-value').slideUp();
+				$row.find('.and-value').slideDown();
+			} else { 
+				$row.find('.one-value').slideDown();
+				$row.find('.and-value').slideUp();
+
+			}
+		});
+	});
+</script>
 </div>
 <br/>
 

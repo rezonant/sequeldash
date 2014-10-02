@@ -227,8 +227,14 @@ class DatabaseController extends Controller
 
 	$results->buffer();
 	$rows = array();
-	foreach ($results as $row)
-		$rows[] = (array)$row;
+	foreach ($results as $row) {
+		$finalRow = array();
+
+		foreach ($row as $k => $v) {
+			$finalRow[$k] = utf8_encode($v);
+		}
+		$rows[] = $finalRow;
+	}
 
 	$queryData = (object)array(
 		'string' => $query,

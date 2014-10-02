@@ -65,7 +65,7 @@ if (isset($query->results))
 								$dv = $v;
 								$dv = ($k == $pkey ? '<strong>'.$dv.'</strong>' : $dv); 
 							?>
-							<td data-value="<?= htmlentities($v) ?>"><span class="trailer"><?= $dv ?></span></td>
+							<td data-value="<?= htmlentities($v) ?>"><span class="trailer" title="<?= htmlentities($v) ?>"><?= $dv ?></span></td>
 						<? } ?>
 						<td class="status"></td>
 						</tr>

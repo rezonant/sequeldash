@@ -10,7 +10,7 @@ $model = $viewmodels[0];
 
 <html lang="en" 
 	ng-app
-	ng-init="loggedIn=false;startup=true"
+	ng-init="state.loggedIn=false;startup=true"
 >
     <head>
         <meta charset="utf-8">
@@ -40,13 +40,11 @@ $model = $viewmodels[0];
     <body>
         <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
             <div class="container">
-		<div style="float:right;color:white;">
+		<div style="float:right;color:white;text-align:right;">
 			<div ng-show="startup">Loading...</div>
-			<div ng-show="!startup && loggedIn">
-				Logged In
-			</div>
-			<div ng-show="!startup && !loggedIn">
-				Logged Out
+			<div ng-show="!startup && state.loggedIn">
+				{{state.username}}<br/>
+				<a href="<?= $this->basePath() ?>/logout">Logout</a>
 			</div>
 		</div>
 
@@ -56,7 +54,9 @@ $model = $viewmodels[0];
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="<?php echo $this->url('home') ?>"><img style="height:42px;" src="<?php echo $this->basePath('img/sequeldash.png') ?>" alt="Zend Framework 2"/>&nbsp;</a>
+		    <? if (!isset($model->layout['showLogo']) || $model->layout['showLogo']) { ?>
+                    	<a class="navbar-brand" href="<?php echo $this->url('home') ?>"><img style="height:1em;" src="<?php echo $this->basePath('img/sequeldash.png') ?>" alt="Zend Framework 2"/>&nbsp;</a>
+		    <? } ?>
                 </div>
                 <div class="collapse navbar-collapse">
                     <ul class="nav navbar-nav">
@@ -68,16 +68,17 @@ $model = $viewmodels[0];
                 </div><!--/.nav-collapse -->
             </div>
         </nav>
-        <div class="container">
+        <div class="content-container">
             <?php echo $this->content; ?>
+	    <div style="clear:both;"></div>
             <hr>
             <footer>
-                <p>&copy; 2005 - <?php echo date('Y') ?> by Zend Technologies Ltd. <?php echo $this->translate('All rights reserved.') ?></p>
+                <p>&copy; 2014 - <?php echo date('Y') ?> the sequeldash project. <?php echo $this->translate('All rights reserved.') ?></p>
             </footer>
         </div> <!-- /container -->
 
 	<script type="text/javascript">
-		$state = <?= isset($model->state) ? json_encode($model->state) : '{}' ?>;
+		$state = <?= isset($model) ? json_encode((array)$model->getVariables()) : '{na:1}' ?>;
 	</script>
 	<script type="text/javascript" src="<?= $this->basePath() ?>/js/app.js"></script>
         <?php echo $this->inlineScript() ?>

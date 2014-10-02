@@ -11,7 +11,7 @@ $model = $this->viewModel()->getCurrent();
 
 ?>
 <div class="inner jumbotron" style="position:relative;text-align:center;">
-    <h1>schema for {{table.name}}</h1>
+    <h1>schema: {{table.name}}</h1>
 
     <? if ($this->error) { ?>
 	<br/><br/>
@@ -107,7 +107,7 @@ $model = $this->viewModel()->getCurrent();
 			<tbody>
 				<tr ng-repeat="field in table.schema">
 					<td>{{field.name}}
-						<div class="note note-orange" ng-show="field.isUniqueKey">
+						<div class="note note-orange" ng-show="field.isUnique">
 							UNIQ
 						</div>
 						<div class="note note-maroon" ng-show="field.isPrimaryKey">

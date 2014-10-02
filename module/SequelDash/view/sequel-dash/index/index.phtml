@@ -1,45 +1,83 @@
 <?
 
 ?>
-<div class="jumbotron">
-    <h1><?php echo sprintf($this->translate('Welcome to %s'), '<img src="'.$this->basePath().'/img/sequeldash.png" />') ?></h1>
+<div class="jumbotron clearfix">
+    <div class="pull-left col-md-8">
+	<h1><?php echo sprintf($this->translate('Welcome to %s'), '<img style="max-width:100%;" src="'.$this->basePath().'/img/sequeldash.png" />') ?></h1>
+	<br/>
+    </div>
+    <div class="col-md-4 pull-right" style="font-size:50%;">
+        <div class="panel panel-default" style="position:relative;top:-3.0em;">
+            <div class="panel-heading">
+		<div style="float:right;"><a href="#" class="btn btn-success">Users</a></div>
+                <h3 class="panel-title"><?php echo $this->translate('Service') ?></h3>
+            </div>
+            <div class="panel-body">
+		{{state.service.status}}
+		<br/>
+		<strong>PID: </strong>{{state.service.pid}}<br/>
+		<strong>RAM: </strong>{{state.service.ram}}</span><br/>    		
+	    </div>
+        </div>
+    </div>
 </div>
 
 <div class="row">
 
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title"><?php echo $this->translate('Workbooks') ?></h3>
-            </div>
+                <h3 class="panel-title">Recent</h3>
+	    </div>
             <div class="panel-body">
-                <p><?php echo sprintf($this->translate('Zend Framework 2 is under active development. If you are interested in following the development of ZF2, there is a special ZF2 portal on the official Zend Framework website which provides links to the ZF2 %swiki%s, %sdev blog%s, %sissue tracker%s, and much more. This is a great resource for staying up to date with the latest developments!'), '<a href="http://framework.zend.com/wiki/display/ZFDEV2/Home">', '</a>', '<a href="http://framework.zend.com/zf2/blog">', '</a>', '<a href="https://github.com/zendframework/zf2/issues">', '</a>') ?></p>
-                <p><a class="btn btn-success pull-right" href="http://framework.zend.com/zf2" target="_blank"><?php echo $this->translate('ZF2 Development Portal') ?> &raquo;</a></p>
-            </div>
+            	<em>Coming soon</em>
+	    </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">About Sequeldash</h3>
+	    </div>
+            <div class="panel-body">
+		<p><em>You are using Sequeldash, a powerful SQL management application.</em></p>
+		<br/>
+            	<em>Version 1.0a</em>
+
+		<span class="alert alert-info"><a href="javascript:;">An update is available!</a></span>
+	    </div>
         </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-9">
         <div class="panel panel-default">
             <div class="panel-heading">
+		<div style="float:right;"><a href="#" class="btn btn-success">Add</a></div>
                 <h3 class="panel-title"><?php echo $this->translate('Databases') ?></h3>
             </div>
             <div class="panel-body">
-                <p><?php echo sprintf($this->translate('The community is working on developing a community site to serve as a repository and gallery for ZF2 modules. The project is available %son GitHub%s. The site is currently live and currently contains a list of some of the modules already available for ZF2.'), '<a href="https://github.com/zendframework/modules.zendframework.com">', '</a>') ?></p>
-                <p><a class="btn btn-success pull-right" href="http://modules.zendframework.com/" target="_blank"><?php echo $this->translate('Explore ZF2 Modules') ?> &raquo;</a></p>
+		<div style="float:right">
+			<input type="text" class="filter" placeholder="filter" data-filter="databases" />
+		</div>
+		<table class="data">
+		<thead>
+			<tr>
+				<th><input type="checkbox" name="selectAll" class="selectAll" /></th>
+				<th>Name</th>
+				<th>Size</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="db in databases">
+				<th><input type="checkbox" name="select[]" value="{{db}}" /></th>
+				<td>
+					<a href="dbs/{{db}}">{{db}}</a>
+				</td>
+				<td>
+					0 kb
+				</td>
+			</tr>
+		</tbody>
+		</table>
             </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div id="service-panel" class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title"><?php echo $this->translate('Service') ?></h3>
-            </div>
-            <div class="panel-body">
-		<div style="float:right;"><a href="#" class="btn btn-success">Users</a></div>
-	    	MySQL: <ng:="service-status"></span>
-	    </div>
         </div>
     </div>
 </div>

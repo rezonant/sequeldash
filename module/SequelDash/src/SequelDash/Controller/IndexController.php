@@ -11,16 +11,26 @@ namespace SequelDash\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
+use SequelDash\Controller;
 
-class IndexController extends AbstractActionController
+class IndexController extends Controller
 {
     public function indexAction()
     {
-        return new ViewModel(array(
+	$connector = \SequelDash\Db\Connector::getConnector();
+	if (!$connector)
+		$this->redirect('errors/connectionFailed');
+
+        return $this->model(array(
 		'breadcrumbs' => array(
-			'a' => 'Yeah',
-			'x' => 'Yeah'
-		)
+                        $this->getRequest()->getBasePath().'/' => \SequelDash\Db\Connector::getActiveHostname(),
+		),
+		'databases' => $connector->getDatabases()
 	));
+    }
+
+    public function loginAction()
+    {
+	die("hokay");
     }
 }

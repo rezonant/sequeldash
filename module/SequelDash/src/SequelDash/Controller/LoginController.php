@@ -46,6 +46,9 @@ class LoginController extends Controller
 
         return $this->model(array(
 		'breadcrumbs' => array(),
+		'layout' => array(
+			'showLogo' => false
+		),
 		'error' => $error
 	));
     }

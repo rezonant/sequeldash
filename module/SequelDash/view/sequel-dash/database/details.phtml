@@ -18,12 +18,14 @@ use Zend\InputFilter\InputFilter;
 	<br/>
     <? } ?>
 </div>
+<div style="float:right;">
+	<input type="text" class="filter" data-filter="database.tables" data-target="name" placeholder="filter" />
+</div>
 <table class="data">
 <thead>
 	<tr>
 		<th>Name</th>
 		<th>Rows</th>
-		<th>Size</th>
 	</tr>
 </thead>
 <tbody>
@@ -32,7 +34,6 @@ use Zend\InputFilter\InputFilter;
 			<a href="<?= $this->basePath() ?>/dbs/{{database.name}}/tables/{{table.name}}">{{table.name}}</a>
 		</td>
 		<td>{{table.rows}}</td>
-		<td>{{table.size}}</td>
 	</tr>
 </tbody>
 </table>
