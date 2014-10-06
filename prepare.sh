@@ -25,6 +25,12 @@ if [ "$bad" = 1 ]; then
 fi
 
 echo
+echo "Installing server-side packages (composer)..."
+echo
+
+php composer.phar install
+
+echo
 echo "Installing local dependencies (tools)..."
 echo
 npm install
