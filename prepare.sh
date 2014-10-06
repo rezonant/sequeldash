@@ -39,3 +39,8 @@ echo
 echo "Installing client side components..."
 echo
 bower install
+
+echo
+echo "Setting permissions..."
+echo
+chmod a+rX . -R
