@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * Here is a simple deployment configuration
+ */
+return array(
+	'stage' => 'dev'
+);

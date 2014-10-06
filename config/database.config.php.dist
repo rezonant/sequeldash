@@ -1,0 +1,9 @@
+<?php
+
+/**
+ * Here is a sample database configuration
+ */
+return array(
+	'connector' => 'MySQL',
+	'hostname' => 'localhost',
+);
