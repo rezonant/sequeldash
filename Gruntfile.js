@@ -6,7 +6,7 @@ module.exports = function(grunt) {
     concat: {
 	css: {
 		src: [
-			'components/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css'
+			'components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css'
 		],
 
 		dest: 'app/css/platform.css'
@@ -58,8 +58,9 @@ module.exports = function(grunt) {
 		'components/jquery/dist/jquery.js',
 		'js/jquery.animate-colors.min.js',
 		'components/angular/angular.js',
+		'components/moment/moment.js',
 		'components/bootstrap/dist/js/bootstrap.js',
-		'components/bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js',
+		'components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js',
 		'components/prism/prism.js',
 		'components/prism/components/prism-sql.js',
 	],
