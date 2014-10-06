@@ -1,26 +1,28 @@
 #!/bin/bash
 
 app_name="SequelDash"
-npm_global_deps="bower grunt-cli"
-
 if ! which npm &>/dev/null; then
-	echo "You must install NPM to continue. Consult your operating system guidelines or visit http://npm.org/."
+	echo "You must install NPM to continue. Consult your operating system guidelines or visit http://npmjs.org/."
 	exit 1
 fi
 
-echo
-echo "Installing global dependencies (tools)..."
-echo "  $npm_global_deps"
-echo
+bad=0
 
-for item in $npm_global_deps; do
-	sudo npm install -g "$item"
-	if [ "$?" != 0 ]; then
-		echo
-		echo "Failed to install global dependency '$item'"
-		exit 1
-	fi
-done
+if ! which bower &>/dev/null; then
+	echo "Bower not found. Install with:"
+	echo "  npm install -g bower"
+	bad=1
+fi
+
+if ! which grunt &>/dev/null; then
+	echo "Grunt not found. Install with:"
+	echo "  npm install -g grunt-cli"
+	bad=1
+fi
+
+if [ "$bad" = 1 ]; then
+	exit 1
+fi
 
 echo
 echo "Installing local dependencies (tools)..."
