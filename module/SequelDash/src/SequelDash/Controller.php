@@ -18,6 +18,7 @@ class Controller extends AbstractActionController {
 			die(json_encode($data));
 		}
 
+		$data->request = $this->getRequest();
 		return new ViewModel((array)$data);
 	}
 

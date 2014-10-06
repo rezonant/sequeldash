@@ -16,6 +16,20 @@ abstract class Connector {
 
 	public function getTableFromQuery($db, $query)
 	{
+		$parser = new \PHPSQL\Parser($query);
+		$ir = (object)$parser->parsed;
+
+		if (isset($ir->FROM)) {
+			foreach ($ir->FROM as $fromArray) {
+				$from = (object)$fromArray;
+				if ($from->expr_type == 'table')
+					return str_replace('`', '', $from->table);
+			}
+		}
+
+		return null;
+		// The following implementation is very troublesome:
+
 		$adapter = $this->getAdapter();
 
 		$adapter->getDriver()->getConnection()->getResource()->select_db($db);

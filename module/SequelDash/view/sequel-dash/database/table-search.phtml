@@ -69,7 +69,7 @@ $model = $this->viewModel()->getCurrent();
 						<option>BETWEEN</option>
 					</select>
 				</td>
-				<td>
+				<td class="field" data-name="<?= $field->name ?>">
 					<? if ($field->type == 'text' || $field->type == 'longtext') { ?>
 						<textarea name="<?= $field->name ?>[value]" style="width:100%;min-height:3em;"></textarea>
 					<? } else { ?>
@@ -85,15 +85,107 @@ $model = $this->viewModel()->getCurrent();
 			</tr>	
 		<? } ?>
 	</table>
-	<br/><br/>
+	<h2>Preview Query</h2>
+	<pre><code class="query-preview language-sql"></code></pre>
 	<div style="text-align:center;font-size:125%;">
-		<button class="btn btn-success">Go</button>
+		<button class="btn btn-success go" type="button" style="font-size:125%;min-width:5em;">Go</button>
+		<button class="btn btn-primary query" type="button">Query</button>
+	</div>
+
+	<div class="results-container">
+
 	</div>
 </div>
 </form>
 
 <script>
 	$(document).ready(function() {
+		var $state = window.$state;
+		function generateQuery()
+		{
+			var criteria = {};
+			var table = $state.table.name; 
+			var sql = 'SELECT * FROM `'+table+'`';
+
+			var parts = [];
+
+			$('td.field').each(function() {
+				var name = $(this).data('name');
+				var $field = $('[name=\''+name+'[value]\']');
+				var $oper = $('[name=\''+name+'[operator]\']');
+				var checked = $(this).parents('tr:first').find('input[type=checkbox]').is(':checked');
+				if (!checked)
+					return;
+				var oper = $oper.val();
+
+				if (oper == 'LIKE %...%') {
+					parts.push('`'+name+'` LIKE "%'+$field.val().replace(/"/, '""')+'%"');
+					
+				} else if (oper == 'BETWEEN') {
+					var $start = $('[name=\''+name+'[start]\']');
+					var $end = $('[name=\''+name+'[end]\']');
+
+					parts.push('`'+name+'` '+oper+' \"'+$start.val().replace(/"/, '""')+'" '+
+							'AND "'+$end.val().replace(/"/, '""')+'"');
+				} else {
+					parts.push('`'+name+'` '+$oper.val()+' "'+$field.val().replace(/"/, '""')+'"');
+				}
+			});
+			
+			if (parts.length > 0) {
+				sql += ' WHERE\n';
+				sql += '      '+parts.join('\n  AND ')+'\n';
+			}
+
+//			queryGenerator.select($state.table, ['*'], criteria);
+			return sql;
+		}
+
+		function refreshPreview()
+		{
+			$('.query-preview').html(generateQuery());
+			$('.query-preview').each(function() {
+				Prism.highlightElement(this);
+			});
+		}
+		
+		// TODO: pathing shit
+		var basePath = '/sequeldash/app';
+
+		$('button.go').click(function() {
+			var query = generateQuery();
+			var $state = window.$state;
+
+			// Get 
+			$.post(basePath+'/dbs/ns4/query', {
+				inline: 1,
+				query: query
+			}, function(r) {
+				$('.results-container').html(r);
+				initializeQueryUi($('.results-container .query-ui'));
+			});
+		});
+
+		$('button.query').click(function() {
+			var query = generateQuery();
+			var $state = window.$state;
+		
+			// Off we go!
+			// TODO: pathing shit
+			$('<form></form>')
+				.attr('action', basePath+'/dbs/ns4/tables/'+$state.table.name)
+				.attr('method', 'post')
+				.html(
+					$('<input />')
+						.attr('type', 'hidden')
+						.attr('name', 'query')
+						.val(query)
+				)
+				.appendTo($('body'))
+				.submit();
+
+		});
+
 		$('input[type=text], textarea').change(function() {
 			var $row = $(this).parents('tr:first');
 			var value = true;
@@ -102,6 +194,29 @@ $model = $this->viewModel()->getCurrent();
 				value = false;
 
 			$row.find('input.select').prop('checked', value).change();
+		});
+
+		var keyTimeout;
+		$('input[type=text], textarea').keydown(function() {
+			var $row = $(this).parents('tr:first');
+			var $area = $(this);
+			if (keyTimeout)
+				clearTimeout(keyTimeout);
+
+			setTimeout(function() {
+				var value = true;
+
+				if ($area.val() == '')
+					value = false;
+
+				$row.find('input.select').prop('checked', value).change();
+				refreshPreview();
+
+			}, 500);
+		});
+
+		$('.operator, input.select').change(function() {
+			refreshPreview();
 		});
 
 		$('input.select').change(function() {

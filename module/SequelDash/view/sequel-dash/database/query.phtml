@@ -1,9 +1,13 @@
 <?php
 	$db = $this->db;
 	$query = $this->query;
+	$post = $this->request->getPost();
+
+	if (!isset($post->inline))
+		echo '<h1>Query '.$db.'</h1>';
 ?>
-<h1>Query</h1>
 <?= $this->partial('sequel-dash/database/query-partial.phtml', array(
+	'inline' => isset($post->inline),
 	'db' => $db,
 	'query' => $query,
 )) ?>

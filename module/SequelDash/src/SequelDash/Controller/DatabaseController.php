@@ -112,6 +112,33 @@ class DatabaseController extends Controller
 
 	$db = $route->getParam('db', null);
 	$query = $post->query;
+
+	// Determine if we have multiple queries
+	$token = '::@@SEQUELDASH-QUERY-SPLIT@@::';
+	$translated = preg_replace('/(;)(?=(?:[^"]|"[^"]*")*$)/x', $token, $query);
+	$translated = preg_replace('/(;)(?=(?:[^\']|\'[^\']*\')*$)/x', $token, $query);
+	$rawQueries = explode($token, $translated);
+	$queries = array();
+
+	foreach ($rawQueries as $q) {
+		if (trim($q, "\n\t ") == "")
+			continue;
+		$queries[] = $q;
+	}
+
+	$allQueries = array();
+	$wholeQuery = $query;
+
+	if (count($queries) > 1) {
+		// Multiple query mode.
+		// Execute all but the last one, and leave all paging etc for that one
+		for ($i = 0, $max = count($queries) - 1; $i < $max; ++$i) {
+			$allQueries[] = $this->executeUserQuery($db, $queries[$i], 1, 0, null, null);
+		}
+
+		$query = $queries[count($queries)-1];
+	}
+
 	$offset = 0;
 	$limit = 30;
 	$orderBy = '';
@@ -146,6 +173,11 @@ class DatabaseController extends Controller
 		);
 	}
 
+	$queryData->string = $wholeQuery;
+
+	// Better not to send this. Its redundant. Sucks though kinda
+	$allQueries[] = $queryData;
+
 	// Pass what we have to the view layer if we are doing the markup phase
 	// of the request
 
@@ -159,6 +191,7 @@ class DatabaseController extends Controller
 		'error' => $error,
 		'db' => $db,
 		'query' => $queryData,
+		'queries' => $allQueries
 	));
     }
 
@@ -172,8 +205,6 @@ class DatabaseController extends Controller
 	if (!$connector)
 		$this->serviceError('Failed to acquire database connector');
 
-	$mainTable = $connector->getTableFromQuery($db, $query);
-	$primaryKey = $connector->getPrimaryKey($db, $mainTable);
 
 	$adapter = $connector->getAdapter();
 	
@@ -184,66 +215,124 @@ class DatabaseController extends Controller
 	$adapter->getDriver()->getConnection()->getResource()->select_db($db);
 	
 	// Analyze the query to determine the verb (SELECT, UPDATE, INSERT, etc)
+	
+	$analysis = null;
+	$verb = '';
+	try {
+		$analysis = new \SequelDash\Db\QueryAnalyzer($query);
+		$verb = $analysis->verb;
+	} catch (\Exception $e) {
+		throw $e;
+		return (object)array(
+			'string' => $query,
+			'error' => $e->getMessage(),
+			'table' => '',
+			'primaryKey' => '',
+			'verb' => '',
+			'offset' => 0+$offset,
+			'limit' => 0+$limit,
+			'count' => 0,
+			'affected' => 0,
+			'generatedValue' => '',
+			'results' => array()
+		);
+	}
 
-	$analysis = new \SequelDash\Db\QueryAnalyzer($query);
+
 	$count = null;
+	$execMode = false;
+	$mainTable = '';
+	$primaryKey = '';
+	$qi = function($name) use ($adapter) { return $adapter->platform->quoteIdentifier($name); };
+	$affectedRows = 0;
+	$rows = null;
+	$generatedValue = null;
 
 	// SELECT verbs can be pre-executed with a count query, which can hint the best strategy
 	// on how to pull results later on
 
-	if ($analysis->verb == 'SELECT') {
+	if ($verb == 'SELECT') {
+		try {
+			$mainTable = $connector->getTableFromQuery($db, $query);
+			$primaryKey = $connector->getPrimaryKey($db, $mainTable);
+		} catch (\Exception $e) {
+			throw $e;
+			return (object)array(
+				'string' => $query,
+				'error' => $e->getMessage(),
+				'table' => '',
+				'primaryKey' => '',
+				'verb' => '',
+				'offset' => 0+$offset,
+				'limit' => 0+$limit,
+				'count' => 0,
+				'affected' => 0,
+				'generatedValue' => '',
+				'results' => array()
+			);
+		}
+
 		$count_results = $adapter->query("SELECT COUNT(*) AS ct FROM ( $query ) query", \Zend\Db\Adapter\Adapter::QUERY_MODE_EXECUTE);
 		$count = count($count_results);
 		foreach ($count_results as $row) {
 			$count = $row->ct;
 			break;
 		}
-	}
 
-	$orderByClause = '';
-
-	if ($orderBy) {
-		$orderByClause = " ORDER BY `$orderBy` ".(strtolower($orderByDir) == "asc" ? "ASC" : "DESC")." ";
-	}
-
-	$qi = function($name) use ($adapter) { return $adapter->platform->quoteIdentifier($name); };
-	$fp = function($name) use ($adapter) { return $adapter->driver->formatParameterName($name); };
-	$limitClause = '';
-	$params = array();
-
-	if ($limit) {
-		$limitClause = " LIMIT {$fp('limit')} OFFSET {$fp('offset')} ";
-		$params += array(
-			'limit' => $limit, 
-			'offset' => $offset,
-		);
-	}
-
-	// Setup the bounded query
-	$boundedQuery = $adapter->query( "$query "
-					. $limitClause
-					. $orderByClause);
-	$results = $boundedQuery->execute($params);
-
-	$results->buffer();
-	$rows = array();
-	foreach ($results as $row) {
-		$finalRow = array();
-
-		foreach ($row as $k => $v) {
-			$finalRow[$k] = utf8_encode($v);
+		$orderByClause = '';
+		if ($orderBy) {
+			$orderByClause = " ORDER BY `$orderBy` ".(strtolower($orderByDir) == "asc" ? "ASC" : "DESC")." ";
 		}
-		$rows[] = $finalRow;
+		$limitClause = '';
+		if ($limit) {
+			$limitClause = " LIMIT $limit OFFSET $offset";
+		}
+
+		$finalQuery = "$query $limitClause$orderByClause";
+		$boundedQuery = $adapter->query($finalQuery);
+		$results = $boundedQuery->execute(array());
+
+		$generatedValue = $results->getGeneratedValue();
+		if ($results->isQueryResult()) {
+			$results->buffer();
+			$rows = array();
+			foreach ($results as $row) {
+				$finalRow = array();
+
+				foreach ($row as $k => $v) {
+					$finalRow[$k] = utf8_encode($v);
+				}
+				$rows[] = $finalRow;
+			}
+			$affectedRows = $results->getAffectedRows();
+		}
+	} else {
+		$results = $adapter->query($query, $adapter::QUERY_MODE_EXECUTE);
+		if ($results instanceof \Zend\Db\ResultSet\ResultSet) {
+			$rows = array();
+			foreach ($results as $row) {
+				$finalRow = array();
+				foreach ($row as $k => $v) {
+					$finalRow[$k] = utf8_encode($v);
+				}
+
+				$rows[] = $finalRow;
+			}
+			$affectedRows = count($rows);
+		}
 	}
 
 	$queryData = (object)array(
 		'string' => $query,
+		'error' => '',
 		'table' => $mainTable,
 		'primaryKey' => $primaryKey,
 		'verb' => $analysis? $analysis->verb : null,
-		'offset' => $offset,
-		'limit' => $limit,
-		'count' => $count,
+		'offset' => 0+$offset,
+		'limit' => 0+$limit,
+		'count' => 0+$count,
+		'affected' => $affectedRows,
+		'generatedValue' => $generatedValue,
 		'results' => $rows,
 	);
 	return $queryData;
@@ -253,6 +342,7 @@ class DatabaseController extends Controller
     {
 	$error = '';
 	$route = $this->getEvent()->getRouteMatch();
+	$post = $this->getRequest()->getPost();
 	$db = $route->getParam('db', null);
 	$table = $route->getParam('table', null);
 
@@ -262,6 +352,12 @@ class DatabaseController extends Controller
 	$adapter = $connector->getAdapter();
 	
 	$schema = $connector->getTableSchema($db, $table);
+
+	$query = 'SELECT * FROM `'.$table.'`';
+
+	if (isset($post->query)) {
+		$query = $post->query;
+	}
 
 	return $this->model(array(
 		'breadcrumbs' => array(
@@ -274,7 +370,7 @@ class DatabaseController extends Controller
 			'name' => $db,
 			'tables' => $connector->getTables($db),
 		),
-		'query' => $this->executeUserQuery($db, 'SELECT * FROM `'.$table.'`'),
+		'query' => $this->executeUserQuery($db, $query),
 		'table' => array(
 			'name' => $table,
 			'schema' => $schema
