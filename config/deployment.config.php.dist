@@ -1,8 +1,18 @@
 <?php
 
 /**
- * Here is a simple deployment configuration
+ * Here is a simple deployment configuration.
+ * If any value is not specified or if deployment.config.php
+ * does not exist, the defaults (shown in this example)
+ * are used.
  */
 return array(
+	/**
+	 * Determine what stage to run the application in.
+	 * 'dev' means errors and exceptions are shown to the user,
+	 * application will use unminified files within the browser
+	 * amongst other things.
+ 	 * Any other value will be treated as production.
+	 */
 	'stage' => 'dev'
 );

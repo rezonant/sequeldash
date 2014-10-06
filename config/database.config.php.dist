@@ -1,7 +1,11 @@
 <?php
 
 /**
- * Here is a sample database configuration
+ * Here is a sample database configuration.
+ * If anything is unspecified here or database.config.php
+ * does not exist, the defaults (shown in this example)
+ * are used.
+ *
  */
 return array(
 	'connector' => 'MySQL',

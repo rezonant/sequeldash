@@ -2,8 +2,14 @@
 
 echo $this->doctype(); 
 
-$deployment = require dirname(__FILE__).'/../../../../config/deployment.config.php';
-$deployment = (object)$deployment;
+$deploymentConfigFile = dirname(__FILE__).'/../../../../config/deployment.config.php';
+$deployment = (object)array();
+
+if (is_file($deploymentConfigFile)) {
+	$deployment = require $deploymentConfigFile;
+	$deployment = (object)$deployment;
+}
+
 $stage = 'dev';
 if (isset($deployment->stage))
 	$stage = $deployment->stage;

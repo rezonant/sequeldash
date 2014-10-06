@@ -3,8 +3,8 @@
 namespace SequelDash\Db;
 
 class Config {
-	public $hostname;
-	public $connector;
+	public $hostname = 'localhost';
+	public $connector = 'mysql';
 
 	public function realizeConnector(Credential $credential = null)
 	{
@@ -18,8 +18,14 @@ class Config {
 	 */
 	public static function getPrimary()
 	{
-		$data = require dirname(__FILE__).'/../../../../../config/database.config.php';
+		$file = dirname(__FILE__).'/../../../../../config/database.config.php';
+		if (is_file($file))
+			$data = require $file;
+		else
+			$data = (object)array();
+
 		$config = new self;
+
 		foreach ($data as $k => $v)
 			$config->$k = $v;
 		return $config;
