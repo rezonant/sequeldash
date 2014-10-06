@@ -7,7 +7,6 @@ module.exports = function(grunt) {
 	css: {
 		src: [
 			'components/prism/themes/prism.css',
-			'components/prism/themes/prism-okaidia.css',
 			'components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css'
 		],
 
