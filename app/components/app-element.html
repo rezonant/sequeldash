@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<link rel="import" href="data-view.html" />
+<link rel="import" href="data-item.html" />
+<link rel="import" href="data-schema.html" />
+<link rel="import" href="data-field.html" />
+
+<polymer-element name="app-element" attributes="app basePath">
+	<style>
+		:host {
+			display:block;
+		}
+	</style>
+	<script>
+		Polymer({
+			app: null,
+			basePath: '/foo/bar',
+
+			publish: {
+				app: {},
+				basePath: {
+					value: '/foo/bar',
+					reflect: true 
+				}
+			},
+
+			created: function() {
+				var self = this;
+				self.basePath = '';
+				self.app = {};
+
+				if (window.$state && window.$state.state && window.$state.state.basePath && $('html').scope()) {
+					// App is already initialized
+					
+					self.basePath = window.$state.state.basePath;
+					self.app = $('html').scope();
+				} else {
+					$(document).on('app-ready', function() {
+						self.basePath = window.$state.state.basePath;
+						self.app = $('html').scope();
+					});
+				}
+				
+				var $shadowNodes = $(this.shadowRoot).children();
+				$shadowNodes.on('click', 'a', function() {
+					alert('fuck');
+				});
+			}
+		});
+	</script>
+</polymer-element>

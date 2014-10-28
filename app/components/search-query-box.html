@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<polymer-element name="search-query-box" extends="app-element" attributes="database table query preview">
+	<template>
+		<style>
+			:host {
+				display:block;
+			}
+
+			table {
+				
+			}
+
+			th, td {
+				text-align:left;
+				vertical-align:top;
+			}
+		</style>
+                <div id="mainLayout">
+                        <table class="data">
+                        <thead>
+                                <tr>
+                                <th style="width:2em;"></th>
+                                <th style="text-align:right; width:2em;">Field</th>
+                                <th style="width:auto;">Value</th>
+                                </tr>
+                        </thead>
+				<template repeat="{{field in table.schema}}">
+                                        <tr>
+                                                <td>
+                                                        &nbsp; <paper-checkbox class="select" name="select[]" value="{{field.name}}" />
+                                                </td>
+                                                <td style="text-align:right;">
+                                                        {{field.name}}
+                                                        <br/><span style="opacity:0.5;">{{field.type}}</span>
+							<template if="{{field.default || field.default == 0}}">
+                                                                <div class="note note-blue">{{field.default}}</div>
+							</template>
+							<template if="{{field.isPrimaryKey}}">
+                                                                <div class="note note-maroon">PKEY</div>
+							</template>
+							<template if="{{!field.isPrimaryKey && field.isUnique}}">
+                                                                <div class="note note-orange">UNIQ</div>
+                                                        </template>
+
+                                                        <br/><br/>
+                                                </td>
+                                                <td class="field" data-name="{{field.name}}">
+                                                        <select class="operator" name="{{field.name}}[operator]">
+                                                                <option>LIKE</option>
+                                                                <option>LIKE %...%</option>
+                                                                <option>=</option>
+                                                                <option>!=</option>
+                                                                <option>&gt;</option>
+                                                                <option>&gt;=</option>
+                                                                <option>&lt;</option>
+                                                                <option>&lt;=</option>
+                                                                <option>BETWEEN</option>
+                                                        </select><br/>
+							<template if="{{field.type == 'text' || field.type == 'longtext'}}">
+                                                                <textarea name="{{field.name}}[value]" style="width:100%;min-height:3em;"></textarea>
+							</template>
+							<template if="{{field.type != 'text' && field.type != 'longtext'}}">
+                                                                <div class="one-value">
+                                                                        <input type="text" name="{{field.name}}[value]" style="width:100%;"  />
+                                                                </div>
+                                                                <div class="and-value" style="display:none;">
+                                                                        <input type="text" name="{{field.name}}[start]" /> AND
+                                                                        <input type="text" name="{{field.name}}[end]" />
+                                                                </div>
+							</template>
+                                                </td>
+                                        </tr>
+				</template>
+                        </table>
+			<template if="{{preview}}">
+	                        <h2>Preview Query</h2>
+        	                <pre><code class="query-preview language-sql"></code></pre>
+                        <div style="text-align:center;font-size:125%;margin-top:1.5em;margin-bottom:0.5em;">
+                        </div>
+			</template>
+                </div>
+                </form>
+	</template>
+	<script>
+		Polymer({
+			publish: {
+				query: {
+					value: "",
+					reflect: true
+				}
+			},
+
+			generateQuery: function() {
+				var criteria = {};
+				var table = this.table.name;
+				var sql = 'SELECT * FROM `'+table+'`';
+				var self = this;
+				var parts = [];
+
+				$(this).shadow('td.field').each(function() {
+					var name = $(this).data('name');
+					var $field = $(self).shadow('[name=\''+name+'[value]\']');
+					var $oper = $(self).shadow('[name=\''+name+'[operator]\']');
+					var checked = $(this).parents('tr:first').find('paper-checkbox').prop('checked');
+					if (!checked)
+						return;
+					var oper = $oper.val();
+
+					if (oper == 'LIKE %...%') {
+						parts.push('`'+name+'` LIKE "%'+$field.val().replace(/"/, '""')+'%"');
+
+					} else if (oper == 'BETWEEN') {
+						var $start = $(self).shadow('[name=\''+name+'[start]\']');
+						var $end = $(self).shadow('[name=\''+name+'[end]\']');
+
+						parts.push('`'+name+'` '+oper+' \"'+$start.val().replace(/"/, '""')+'" '+
+								'AND "'+$end.val().replace(/"/, '""')+'"');
+					} else {
+						parts.push('`'+name+'` '+$oper.val()+' "'+$field.val().replace(/"/, '""')+'"');
+					}
+				});
+
+				if (parts.length > 0) {
+					sql += ' WHERE\n';
+					sql += '      '+parts.join('\n  AND ')+'\n';
+				}
+
+	//                      queryGenerator.select($state.table, ['*'], criteria);
+				return sql;
+			},
+
+			refreshPreview: function()
+			{
+				this.query = this.generateQuery();
+				$(this).change();
+				$(this).shadow('.query-preview').html(this.generateQuery());
+				$(this).shadow('.query-preview').each(function() {
+					Prism.highlightElement(this);
+				});
+			},
+
+			ready: function () {
+				this.super();
+
+				// TODO: pathing shit
+				var self = this;
+				var basePath = '/sequeldash/app';
+
+				var $layout = $(this.$.mainLayout);
+
+				this.refreshPreview();
+
+				$layout.on('change', 'input[type=text], textarea', function() {
+					var $row = $(this).parents('tr:first');
+					var value = true;
+
+					if ($(this).val() == '')
+						value = false;
+
+					$row.find('paper-checkbox.select').prop('checked', value).change();
+				});
+
+				var keyTimeout;
+				$layout.on('keydown', 'input[type=text], textarea', function() {
+					var $row = $(this).parents('tr:first');
+					var $area = $(this);
+					if (keyTimeout)
+						clearTimeout(keyTimeout);
+
+					setTimeout(function() {
+						var value = true;
+
+						if ($area.val() == '')
+							value = false;
+
+						$row.find('paper-checkbox.select').prop('checked', value).change();
+						self.refreshPreview();
+
+					}, 500);
+				});
+
+				$layout.on('change', 'paper-checkbox.select', function() {
+					self.refreshPreview();
+				});
+
+				$layout.on('change', 'input.select', function() {
+					var $row = $(this).parents('tr:first');
+					if ($(this).is(':checked')) {
+						$row.addClass('selected');
+					} else {
+						$row.removeClass('selected');
+					}
+				});
+
+				$layout.on('change', 'select.operator', function() {
+					var $row = $(this).parents('tr:first');
+
+					if ($(this).val() == 'BETWEEN') {
+						$row.find('.one-value').hide(); //slideUp();
+						$row.find('.and-value').show(); //slideDown();
+					} else {
+						$row.find('.one-value').show(); //slideDown();
+						$row.find('.and-value').hide(); //slideUp();
+
+					}
+					self.refreshPreview();
+				});
+			},
+
+			created: function() {
+				this.database = {};
+				this.table = {};
+				this.query = "";
+
+				this.super();
+			},
+
+			tableChanged: function() {
+				if (typeof this.table == 'string' && this.table != '') {
+					this.table = JSON.parse(this.table);
+				}
+
+				this.refreshPreview();
+			},
+
+			databaseChanged: function() {
+				if (typeof this.database == 'string' && this.database != '') {
+					this.database = JSON.parse(this.database);
+				}
+
+				this.refreshPreview();
+			}
+		});
+	</script>
+</polymer>

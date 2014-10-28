@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<polymer-element name="ng-filter" attributes="name within">
+	<template>
+		<style>
+			input.filter {
+				display:none;
+			}
+			
+			core-icon-button {
+				background: white;
+			}
+
+			#mainLayout {
+				display:inline-block;
+				padding:0.5em 1em;
+				transition: box-shadow 500ms, background 500ms;
+			}
+
+			#mainLayout.open {
+
+			}
+
+			#inputContainer {
+				display:inline-block;
+				vertical-align:middle;
+			}
+
+			#inputContainer paper-input {
+				display:block;
+				width:0;
+				padding:0;
+				opacity:0;
+				transition: width 500ms, opacity 500ms;
+			}
+
+			#mainLayout.open {
+				background: white;
+				transition: box-shadow 500ms, background 500ms;
+				box-shadow: 0px 0px 20px rgba(0,0,0,0.5);
+				border-radius:5px;
+			}
+			#mainLayout.open #inputContainer paper-input {
+				transition: width 500ms, opacity 500ms;
+				width: 300px;
+				max-width:100%;
+				opacity: 1;
+			}
+
+			@media (max-width:460px) {
+				#mainLayout.open #inputContainer paper-input {
+					width: 200px;
+				}
+			}
+
+			#mainLayout paper-fab {
+				background: rgb(255, 136, 0);
+			}
+		</style>
+		<div id="mainLayout" layout horizontal center>
+			<div id="inputContainer">
+				<paper-input id="input" 
+					floatinglabel 
+					label="Filter"></paper-input>
+			</div>
+
+			<paper-fab id="activator" mini raised icon="search"></paper-fab>
+			<input id="filter" type="text" class="filter" placeholder="filter" data-filter="{{name}}" />
+		</div>
+	</template>
+	<script>
+		!function($) {
+
+			function bindEvents()
+			{
+				
+			}
+
+			Polymer({
+				open: function() {
+					$(this.$.mainLayout).addClass('open');
+					$(this.$.input).focus();
+				},
+
+				close: function() {
+					$(this.$.mainLayout).removeClass('open');
+				},
+	
+				ready: function() {
+					var self = this;
+
+					if ($('html').scope())
+						this.initialize();
+					else
+						$(document).on('app-ready', function() { self.initialize(); });
+				},
+
+				initialize: function() {
+					var self = this;
+					var $input = $(this.$.input);
+					var $mainLayout = $(this.$.mainLayout);
+
+					$(this).click(function(ev) {
+						ev.stopPropagation();
+						return false;
+					});
+					$('body').click(function(ev) {
+						if ($(ev.target).closest('ng-filter').length > 0)
+							return;
+						if ($mainLayout.hasClass('open')) {
+							self.close();
+						}
+					});
+
+					$(this.$.activator).click(function() {
+						self.open();
+					});
+
+					var $scope = $('html').scope();
+					if (!$scope) {
+						console.log('failed to get angular scope for ng-filter');
+						return;
+					}
+					
+					var $filter = $(this.$.filter);
+					var property = this.name;
+					var data = $scope.$eval(property); 
+					var filtering = false;
+					var subprop = this.within;
+
+					function escapeRegExp(str) {
+					  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+					}
+
+					var doFilter = function(data, filter) {
+						var filteredData = [];
+
+						if (!filter)
+							return data;
+						for (var key in data) {
+							var row = data[key];
+							var target = row;
+							if (subprop)
+								target = row[subprop];
+							if (typeof target != 'string')
+								target = JSON.stringify(target);
+
+							if (new RegExp(escapeRegExp(filter), 'i').test(target)) 
+								filteredData.push(row);
+						}
+
+						return filteredData;
+					};
+
+					$scope.$watch(property, function(newValue, oldValue) {
+						if (filtering)
+							return;
+						data = newValue;
+						filterChanged();	
+					});
+
+					var timeout = null;
+					$input.keyup(function() {
+						if (timeout)
+							clearTimeout(timeout);
+						timeout = setTimeout(function() {
+							console.log("keydownnn");
+							$input.change();
+						}, 500);
+					});
+
+					var filterChanged = function() {
+						var filterValue = $input.get(0).$.input.value;
+						console.log("input changedd");
+						filtering = true;
+						var innerScope = $scope;
+						var comps = property.split('.');
+						for (var i in comps) {
+							if (parseInt(i) + 1 == comps.length)
+								break;
+							var key = comps[i];
+							if (!innerScope[key])
+								innerScope[key] = {};
+
+							innerScope = innerScope[key];
+						}
+
+						console.log("filtering for '"+$input.prop('value')+"'");
+						innerScope[comps[comps.length - 1]] = doFilter(data, filterValue);
+					};
+
+					$input.change(function() {
+						$scope.$apply(function($scope) {
+							filterChanged();
+						});
+					});
+				}
+			});
+		}(jQuery);
+	</script>
+</polymer-element>

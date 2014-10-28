@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<link rel="import" href="data-field.html" />
+
+<polymer-element name="data-item">
+        <template>
+                <style>
+                </style>
+
+                <!-- // -->
+                <div id="mainLayout">
+			<content></content>
+                </div>
+        </template>
+        <script>
+                !function($) {
+                        // Static constructor
+
+                        // Private properties
+                        // (None)
+
+                        // Public object
+                        Polymer({
+                                ready: function() {
+									// TODO
+                                },
+										
+								attached: function() {
+									// Notify our parent of our existence if possible...
+									var rent = $(this).parents('data-view').first().get(0);
+									if (rent && rent.childAdded) {
+										rent.childAdded(this);
+									}
+								}
+
+                        });
+                }(jQuery);
+        </script>
+</polymer-element>

@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+
+<link rel="import" href="app-element.html" />
+
+<polymer-element name="query-box" extends="app-element" attributes="database query">
+	<template>
+		<style>
+			:host {
+				display:block;
+			}
+
+			.btn-danger {
+				background: rgb(207, 0, 0);
+				color: white;
+			}
+
+			.btn-info {
+				background: blue;
+				color:white;
+			}
+
+			.btn-primary {
+				background: green;
+				color: white;
+			}
+
+			.btn-success {
+				background: green;
+				color:white;
+			}
+
+
+			table {
+				width:100%;
+				text-align:left;
+			}
+
+			table td {
+
+			}
+
+			table th.status {
+				width:1px;
+				text-align:right;
+			}
+
+			table td.status {
+				white-space: nowrap;
+			}
+
+			.query-results td.unsaved {
+				background: #ff9999;
+			}
+
+			.query-results tr.unsaved {
+				background: pink;
+			}
+
+			.alert {
+				padding:1em;
+				margin:0.5em 0;
+			}
+
+			.alert-info {
+				color: white;
+				background: rgb(0, 96, 189);
+			}
+
+			.alert-danger {
+				color: white;
+				background: rgb(208, 31, 31);
+			}
+
+			tr.selected {
+				background: #ddd;
+			}
+		</style>
+		<div class="query-ui">
+			<form action="{{basePath}}/dbs/{{database}}/query" method="post">
+				<div style="height:8em;position:relative;">
+					<ace-element mode="sql" theme="chrome" style="z-index:0;" value="{{query.string}}"></ace-element>
+				</div>
+				<div class="query-ace" style="display:none;height:5em;z-index:0;"></div>
+
+				<div style="text-align:right;">
+					<span style="color:#888;margin-right:1em;position:relative;top:2px;">
+					  <em>Showing {{query.results | count}} / {{query.count}} results, from row {{query.offset}}</em>
+					</span>
+					<paper-button class="execute btn btn-danger">Execute</paper-button>
+				</div>
+				<div class="query-results-container">
+					<template if="{{query.string}}">
+						<div class="alert alert-{{query.error ? 'danger' : 'info'}}">
+							<template if="{{query.error}}">
+								{{query.error}}
+							</template>
+
+							<template if="{{query.table}}">
+								Table: 
+								  <a href="{{basePath}}/dbs/{{database}}/tables/{{query.table}}"
+									 >`{{database}}`.`{{query.table}}`</a><br/>
+							</template>
+
+							<template if="{{query.primaryKey}}">
+								Primary Key: `{{query.primaryKey}}`<br/>
+							</template>
+
+							<template if="{{query.affected}}">
+								Affected Rows: {{query.affected}}<br/>
+							</template>
+						</div>
+					</template>
+                                        <div style="text-align:right;position:relative;top:-40px;height:15px;">
+						<ng-filter name="query.results"></ng-filter>
+					</div>
+
+					<div style="overflow-x: auto; overflow-y: visible;">
+					<table class="query-results" data-table="{{query.table}}" data-db="{{database}}">
+					<thead>
+						<tr>
+							<template if="{{query.results}}">
+								<th class="selectAll">
+									<paper-checkbox id="selectAll"></paper-checkbox>
+								</th>
+								<template repeat="{{column in query.schema}}">
+									<th
+									  style="display: {{ column != '__id' ? 'table-cell' : 'none' }}"
+									>
+										<template if="{{ column == query.primaryKey }}">
+											<strong>{{column}}</strong>
+										</template>
+										<template if="{{ column != query.primaryKey }}">
+											{{column}}
+										</template>
+									</th>
+								</template>
+								<th class="status"></th>
+							</template>
+							<template if="{{!query.results}}">
+								<th>Hah.</th>
+							</template>
+						</tr>
+					</thead>
+					<tbody class="empty">
+						<template repeat="{{row in query.results}}" if="{{query.results}}">
+							<tr data-id="{{row.__id}}" data-pkey="{{row.__id}}">
+								<td class="select">
+									<paper-checkbox class="selected"></paper-checkbox>
+								</td>
+								<template repeat="{{ pair in pairs(row) }}">
+									<td 
+										data-key="{{ pair.key }}" 
+										data-primary="{{ pair.key == query.primaryKey ? 1 : 0 }}" 
+										data-value="{{ pair.value }}"
+										style="display: {{ pair.key != '__id' ? 'table-cell' : 'none' }}"
+									><span class="trailer" 
+										   title="{{ pair.value }}"
+										>{{pair.value}}</span></td>
+								</template>
+								<td class="status"></td>
+							</tr>
+						</template>
+						<template if="{{!query.results}}">
+							<tr>
+								<td colspan="3" style="text-align:center;">
+									<em>No results</em>
+								</td>
+							</tr>
+						</template>
+					</tbody>
+					<tbody class="data">
+
+					</tbody>
+					</table>
+					</div>
+				</div>
+			</form>
+		</div>
+	</template>
+	<script>
+		Polymer({
+			count: function(value) {
+				if (!value)
+					return 0;
+
+				return value.length;
+			},
+
+			pairs: function(obj) {
+				var pairs = [];
+				for (var k in obj) {
+					pairs.push({key: k, value:  obj[k]});
+				}
+
+				return pairs;
+			},
+
+			queryChanged: function() {
+				// Gyah, I must report this bug. This is the second time 
+				// I have worked around it.
+
+				if (typeof this.query == 'string' && this.query != '') {
+					this.query = JSON.parse(this.query);
+				}
+			},
+
+			__updateButtonTimeout: 0,
+
+			updateButton: function() {
+				var $queryInput = $(this).shadow('ace-element');
+				var $button = $(this).shadow('paper-button.execute');
+				var $queryResults = $(this).shadow('.query-results');
+				var self = this;
+				if (this.__updateButtonTimeout)
+					clearTimeout(this.__updateButtonTimeout);
+				this.__updateButtonTimeout = setTimeout(function() {
+					var query = $queryInput.prop('editor').getValue();
+					query = query.replace(/--.*$/mg, '');
+					query = query.replace(/^\s+/, '');
+					query = query.replace(/\s+$/, '');
+					parts = query.split(' ');
+					verb = parts[0].toUpperCase();
+
+					$button
+						.removeClass('refresh')
+						.removeClass('btn-primary')
+						.removeClass('btn-danger')
+						.removeClass('btn-success');
+
+					if (query == "") {
+						$button.addClass('btn-primary');
+						$button.prop('disabled', true);
+						return;
+					}
+					$button.prop('disabled', false);
+					if (self.query.string == query) {
+						$button.prop('disabled', false);
+						$button.addClass('btn-primary');
+						$button.addClass('refresh');
+						$button.html('Refresh');
+					} else if (verb == "UPDATE" || verb == "DELETE" || verb == "CREATE"
+						|| verb == "INSERT" || verb == "TRUNCATE") {
+						$button
+							.html('Execute')
+							.addClass('btn-danger');
+					} else {
+						var validated = false;
+						if (verb == "SELECT" || verb == "SHOW")
+							validated = true;
+
+						$button
+							.html('Query')
+							.addClass(validated? 'btn-success' : 'btn-primary');
+
+
+					}
+				}, 500);
+			},
+
+			ready: function() {
+				// ACE events
+
+				var self = this;
+
+				var $ace = $(this).shadow('ace-element');
+				var ace = $ace.get(0);
+				
+				var aceReady = function() {
+					var editor = ace.editor;
+
+					if (editor.setUseWrapMode)
+						editor.setUseWrapMode(true);
+
+					editor.setShowPrintMargin(true);
+					editor.getSession().on('change', function(e) {
+						self.updateButton();
+					});
+					
+					editor.commands.addCommand({
+						name: 'execute',
+						bindKey: {win: 'Ctrl-E',  mac: 'Command-E' },
+						exec: function(editor) {
+						$queryInput.val($ace.getValue());
+						// FIXME $button.click();
+						},
+						readOnly: true 
+					});
+	
+				};
+				
+				if (ace.editor) {
+					aceReady();
+				} else {
+					console.log("have to delay $ace");
+					$ace.on('ready', function() {
+						aceReady();
+					});
+				}
+			
+				// Button!
+
+				var self = this;
+				$(this).shadow('.execute').click(function() {
+					var query = ace.editor.getValue();
+					var db = new api.db(self.database);
+					db.query(query)
+					    .then(function(r) {
+						console.log(r);
+						var $scope = $('html').scope();
+						$scope.$apply(function($scope) {
+							$scope.query = r.query;
+						});
+					    });
+				});
+				this.updateButton();
+
+
+				$(this).shadow('.query-ui').on('change', 'th.selectAll paper-checkbox', function() {
+					var $queryUi = $(this).parents('.query-ui:first');
+					if ($(this).prop('checked')) {
+						$queryUi.find('tbody tr').addClass('selected');
+						$queryUi.find('tbody tr td.select paper-checkbox').attr('checked', true);
+					} else {
+						$queryUi.find('tbody tr').removeClass('selected');
+						$queryUi.find('tbody tr td.select paper-checkbox').attr('checked', false);
+					}
+				});
+
+				$(this).shadow('.query-ui').on('change', 'td.select paper-checkbox', function() {
+					if ($(this).prop('checked'))
+						$(this).parents('tr:first').addClass('selected');
+					else
+						$(this).parents('tr:first').removeClass('selected');
+				});
+
+				function updateMassSaveButton() {
+					var $queryResults = $(self).shadow('.query-results');
+					var $overallStatus = $queryResults.find('thead th.status');
+					var total = $queryResults.find('tr.unsaved').length;
+
+					if (total > 1) {
+
+						$overallStatus
+							.html(
+							'<paper-button raised class="do-save-all btn btn-danger" type="button">'+
+							'Save '+total+' rows</paper-button>'
+							)
+							.find('.do-save-all')
+							.click(function() {
+							var queries = [];
+							var queryState = [];
+							var warned = false;
+
+							if ($queryResults.find('tr.unsaved').length == 0) {
+								$queryResults.find('tr th.status').html('');
+								return;
+							}
+
+							$queryResults.find('tr.unsaved').each(function() {
+								var $row = $(this);
+
+								var pkey = $row.data('pkey');
+								var id = $row.data('id');
+								var table = $queryResults.data('table');
+								var row = $row.extractRow();
+								var dbName = $queryResults.data('db');
+								var db = new api.db(dbName);
+
+								if (!warned && !pkey) {
+									var message = 
+										'Warning: This table does not have a primary key.\n'+
+										'The requested update operations may affect more rows '+
+											'than expected.\n\n'+
+										'Click OK to proceed, or Cancel to abort.';
+
+									if (!confirm(message)) {
+										throw "userAbort";
+									}
+
+									warned = true;
+								}
+
+								if (pkey) {
+									var updateSql = queryGenerator.updatePkey(table, pkey, id, 
+										row.getProposed());
+
+									queries.push(updateSql);
+								} else {
+									var updateSql = queryGenerator.update(table, 
+										row.getData(),
+										row.getProposed());
+									queries.push(updateSql);
+								}
+
+								queryState.push({
+									row: row,
+									$row: $row,
+									table: table,
+									db: dbName,
+									pkey: pkey,
+									id: id
+								});
+							});
+
+							var db = new api.db($queryResults.data('db'));
+							db  .query(queries.join('; '))
+								.catch(function(r) { return r; }) // going to process anyway
+								.then(function(r) {
+								for (var i in queryState) {
+									var state = queryState[i];
+									var result = r.queries[i];
+									var $row = state.$row;
+									var row = state.row;
+
+									if (result.error) {
+										console.log('Failed to save row with state: ');
+										console.log(state);
+										console.log('Query and result:');
+										console.log(result);
+										alert('Failed to save row: '+result.error);
+										continue;
+									}
+
+									if (!$row.data('pkey'))
+										updateDisplayRowsByCriteria(
+											$queryResults, row.getData(), row.getProposed());
+									markRowSaved($row);
+								}
+								$queryResults.find('th.status').html('');
+								});
+							});
+					} else {
+						// Only one 
+						$overallStatus.html('');
+					}
+				}
+
+				/**
+				 * Updates the display of the given data values for all matching rows which are not pending 
+				 * changes within the given result set.  
+				 * This is used to fix display of rows which we implicitly know have changed server side, such as 
+				 * when doing an update on a table without primary keys when there are (or could be) multiple
+				 * identical rows.
+				 */	
+				function updateDisplayRowsByCriteria($queryResults, criteria, data)
+				{
+					$queryResults.find('tbody tr').not('.unsaved').each(function() {
+						var row = $(this).extractRow();
+						var skip = false;
+						for (var field in criteria) {
+							if (criteria[field] != row[field]) {
+								skip = true; break;
+							}
+						}
+
+						if (skip)
+							return;
+
+						// Matching row, update
+
+						$(this).find('td').each(function() {
+							if (!data[$(this).data('key')]) {
+								return;
+							}
+
+							var value = data[$(this).data('key')];
+
+							$(this).removeClass('unsaved');
+							$(this).data('value', value);
+							$(this).html('<span class="trailer"></span>');
+							$(this).find('.trailer').attr('title', value).html(value);
+						});
+						flashRow($(this));
+					});
+				}
+
+				function markRowSaved($row) {
+					$row.removeClass('unsaved');
+					$row.find('td.unsaved').each(function() {
+						$(this).data('value', $(this).data('proposedValue'));
+					}).removeClass('unsaved');
+					flashRow($row);
+
+					$row.find('td.status').html('');
+				}
+
+				function flashRow($row) {
+					$row.css({backgroundColor: 'rgba(255, 163, 102, 1)'});
+					$row.animate({
+						backgroundColor: 'rgba(255, 163, 102, 0)'
+					}, {
+						duration: 4000,
+						complete: function() {
+							$row.css('background-color', '');
+						}
+					});
+				}
+
+				$(this).shadow('.query-ui').on('click', 'td', function() {
+
+					if ($(this).parents('thead:first').length)
+						return;
+
+					if ($(this).hasClass('select'))
+						return;
+
+					var $queryResults = $(this).parents('.query-results:first');
+					if (!$queryResults.data('table'))
+						return;
+
+					if ($(this).hasClass('status') || $(this).hasClass('select'))
+						return;
+
+					var value = $(this).data('value');
+
+					if ($(this).data('proposedValue')) {
+						value = $(this).data('proposedValue');
+					}
+
+					var $cell = $(this);
+					$cell.html('<input type="text" style="width:100%;height:100%;" />');
+					var $input = $cell.find('input');
+
+					var $editingCell = $(this);
+					var $editingRow = $(this).parent();
+
+					$input.val(value);
+					$input.focus();
+					$input.keydown(function(ev) {
+						if (ev.which == 27) {
+							$input.val(value);
+						}
+
+						if (ev.which == 13 || ev.which == 27) {
+							$input.blur();
+						}
+					});
+
+
+					$input.blur(function() {
+						$cell.html('<span class="trailer"></span>');
+						$cell.find('.trailer').attr('title', $input.val()).html($input.val());
+
+						if ($input.val() != value) {
+							$editingRow
+								.addClass('unsaved')
+								.find('td.status')
+								.html(
+								'<paper-button raised class="do-save-row btn-danger" '+
+								  'type="button">Save</paper-button>'+
+								'<paper-button raised class="btn-primary do-revert-row" '+
+								  'type="button">Revert</paper-button>'
+								)
+								.find('.do-save-row')
+								.click(function() {
+
+								var pkey = $editingRow.data('pkey');
+								var id = $editingRow.data('id');
+								var table = $queryResults.data('table');
+								var row = $editingRow.extractRow();
+								var dbName = $queryResults.data('db');
+								var db = new api.db(dbName);
+
+								if (pkey) {
+									var updateSql = queryGenerator.updatePkey(table, pkey, id, 
+										row.getProposed());
+
+									alert('Save row #'+id+' ('+pkey+')  \n\n'+updateSql);
+
+									db  .query(updateSql)
+										.then(function(r) {
+										// Update the UI
+										markRowSaved($editingRow);
+										}).catch(function(r) {
+										console.log('query failed:');
+										console.log(r);
+										alert('query failed');
+										});	
+								} else {
+									var updateSql = queryGenerator.update(table, 
+										row.getData(),
+										row.getProposed());
+									var selectSql = queryGenerator.select(
+										table,
+										['COUNT(*) ct'],
+										row.getData()
+									);
+									var updateAllMatches = false;
+
+									db  .query(selectSql)
+										.then(function(r) {
+										if (r.query.count < 1) {
+											alert('Invalid result (should be 1 count row)');
+											return;
+										}
+
+										if (r.query.results[0].ct > 1) {
+											updateAllMatches = true;
+											var confirmed = confirm(
+												'Warning:\n'+
+												'This action will update multiple rows.\n'+
+												'Rows affected: '+r.query.results[0].ct+"\n\n"+
+												"OK to continue, Cancel to abort\n\n"+
+												"Query:\n\n"+updateSql);
+											if (!confirmed)
+												throw "userAborted";
+										}
+
+										return true;
+										})
+										.then(function() {
+										return db.query(updateSql);
+										}).then(function(r) {
+										if (r.error) {
+											alert(r.error);
+											throw "queryError";
+										}
+										// Update the UI
+										markRowSaved($editingRow);
+
+										if (updateAllMatches) {
+											updateDisplayRowsByCriteria($queryResults, row.getData(), row.getProposed());
+										}
+										});
+								}
+
+
+
+
+								});
+
+							$editingRow.find('paper-button.do-revert-row').click(function() {
+								$editingRow.find('td').each(function() {
+									if (!$(this).data('key'))
+										return;
+									$(this).html($(this).data('value'));
+									$(this).removeClass('unsaved');
+								});
+								$editingRow.removeClass('unsaved');
+								$editingRow.find('td.status').html('');
+								updateMassSaveButton();
+							});
+
+							$cell
+								.data('proposedValue', $input.val())
+								.addClass('unsaved');
+							updateMassSaveButton();
+						}
+
+					});
+				});
+			},
+
+			created: function() {
+				this.query = {};
+			}
+		});
+	</script>
+</polymer-element>

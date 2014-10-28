@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<polymer-element name="table-schema" extends="app-element" attributes="table database">
+	<template>
+		<style>
+		:host {
+			display: block;
+		}
+
+		.note {
+			font-size:75%;
+			font-weight:bold;
+			color:white;
+			background:maroon;
+			padding:2px 6px;
+			border-radius:5px;
+			margin:2px;
+			display:inline-block;
+		}
+		.note-orange {
+			background:rgb(240, 105, 0);
+		}
+		.note-maroon {
+			background:maroon;
+		}
+		.note-blue {
+			background:#6A7FD5;
+		}
+
+		div[layout] {
+			flex-wrap: wrap;
+		}
+
+		.field {
+			display:inline-block;
+			vertical-align:top;
+			min-width: 10em;
+			padding: 0 0.5em;
+			border-bottom:1px solid #CFCFCF;
+			border-left:1px solid rgba(0,0,0,0);
+			margin: 0.5em 0;
+			position:relative;
+		}
+
+		.field + .field {
+			border-left:1px solid #CFCFCF;
+		}
+
+		.field core-menu-button.menu {
+			position:absolute;
+			bottom:0;
+			right:0;
+		}
+
+		</style>
+		<div layout horizontal flex>
+			<template repeat="{{field in table.schema}}">
+				<div class="field" flex>
+					<strong>{{field.name}}</strong>
+					<template repeat="{{attr in fieldAttrs(field)}}">
+						<div class="note note-{{ attr.class }}">
+							{{ attr.label }}
+						</div>
+					</template>
+					<br/>
+					{{field.type}}<br/>
+					<template if="{{field.hasDefault}}">
+						<div class="note note-blue">= {{field.default}}</div>
+					</template>
+					<core-menu-button halign="right" icon="arrow-drop-down-circle" class="menu">
+						<core-item data-name="rename"
+							   icon="loyalty"
+							   label="Rename"></core-item>
+						<core-item data-name="index"
+							   icon="query-builder"
+							   label="Index"></core-item>
+						<core-item data-name="alter"
+							   icon="perm-data-setting"
+							   label="Alter"></core-item>
+						<core-item data-name="drop"
+							   icon="delete"
+							   label="Drop"></core-item>
+					</core-menu-button>
+				</div>
+			</template>
+		</div>
+		<br/>
+	</template>
+	<script>
+		Polymer({
+			ready: function() {
+				this.super();
+			},
+
+			fieldAttrs: function(field)
+			{
+				var attrs = [];
+				if (field.isPrimaryKey)
+					attrs.push({
+						label: 'PKEY',
+						class: 'maroon'
+					});
+				if (field.isUnique && !field.isPrimaryKey)
+					attrs.push({
+						label: 'UNIQ',
+						class: 'orange'
+					});
+				if (field.increment)
+					attrs.push({
+						label: 'AUTO',
+						class: 'blue'
+					});
+				return attrs;
+			},
+
+			attributeLabel: function(field)
+			{
+				if (field.isPrimaryKey)
+					return 'PKEY';
+				if (field.isUnique)
+					return 'UNIQ';
+				if (field.increment) 
+					return 'AUTO';
+
+				return '';
+			},
+
+			attributeColor: function(field)
+			{
+				if (field.isPrimaryKey)
+					return 'maroon';
+				if (field.isUnique)
+					return 'orange';
+				if (field.increment)
+					return 'blue';
+
+				return '';
+			},
+
+                        tableChanged: function() {
+                                if (typeof this.table == 'string' && this.table != '') {
+                                        this.table = JSON.parse(this.table);
+                                }
+
+                        },
+
+                        databaseChanged: function() {
+                                if (typeof this.database == 'string' && this.database != '') {
+                                        this.database = JSON.parse(this.database);
+                                }
+
+                        }	
+		});
+	</script>
+</polymer>

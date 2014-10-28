@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<link rel="import" href="data-field.html" />
+<link rel="import" href="data-schema.html" />
+<link rel="import" href="data-item.html" />
+<link rel="import" href="data-actions.html" />
+
+<polymer-element name="data-view">
+	<template>
+		<style>
+			:host {
+				display:block;
+			}
+
+			table.ellipse {
+				table-layout: fixed;
+				text-overflow: ellipse;
+				word-wrap: break-word;
+				width:100%;
+				border-collapse:collapse;
+				border-spacing:0;
+				border:0;
+			}
+
+			div.ellipsis {
+				max-width:100%;
+				display:inline-block;
+				text-overflow:ellipsis;
+				word-wrap: break-word;
+				white-space: nowrap;
+				overflow: hidden;
+			}
+
+			#mainLayout {
+			}
+
+			#mainLayout > table {
+				width:100%;
+			}
+
+			#mainLayout > table > thead > tr > th {
+				text-align:left;
+			}
+
+			#mainLayout > table > thead > tr > th.actions {
+				width:1px;
+			}
+
+			#mainLayout > table > tbody > tr > td.actions {
+				white-space: nowrap;
+			}
+
+			#mainLayout > table > thead > tr > th.selectAll {
+				width:2.5em;
+			}
+		</style>
+
+		<!-- // -->
+		<div id="mainLayout">
+			<table>
+			<thead>
+				<tr>
+					<th class="selectAll insertAfter">
+						<sqldash-checkbox class="selectAll"></sqldash-checkbox>
+					</th>
+					<th class="actions">
+					
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<content select="data-item::shadow tr.candidate"></content>	
+			</tbody>
+			</table>
+		</div>
+	</template>
+	<script>
+		!function($) {
+			// Static constructor
+			
+
+
+			// Public object
+			Polymer({
+				
+				// "Private" data
+				// Off limits for external changes by convention
+				
+				__priv: { 
+					rowCount: 0
+				},
+				
+				// Methods
+				_delayedRefresh: null,	
+				delayedRefresh: function() {
+					if (this._delayedRefresh)
+						clearTimeout(this._delayedRefresh);
+					
+					var self = this;
+					this._delayedRefresh = setTimeout(function() {
+//						console.log('data-view delayed refresh firing');
+						self.refresh();
+					}, 1);
+				},
+
+				childAdded: function(childElement) {
+				//	this.delayedRefresh();
+				},
+			
+					
+				refreshColumns: function() {
+					this._mutationLocked = true;
+
+					var self = this;
+					var $schema = $(this).find('> data-schema').first();
+					var $fields = $schema.children('data-field');
+					$(this.$.mainLayout).find('> table > thead > tr > th.dataField').remove();
+					var $insert = $(self.$.mainLayout).find('> table > thead > tr > .insertAfter').first();
+
+					$fields.each(function() {
+						var name = $(this).attr('name');
+						var label = $(this).attr('label');
+						var width = $(this).attr('width');
+						var nowrap = $(this).hasAttr('nowrap');
+						var $th = $('<th></th>')
+								.text(label)
+								.addClass('dataField')
+								.attr('data-name', name);
+
+						if (width)
+							$th.css('width', width);
+						if (nowrap)
+							$th.css('white-space', 'nowrap');
+
+						$insert.after($th);
+						$insert = $th;
+					});
+					this._mutationLocked = false;
+				},
+
+				getRowCount: function()
+				{
+					return this.__priv.rowCount;
+				},
+				
+				refresh: function() {
+					this.refreshColumns();
+					this.refreshData();
+					
+					console.log("Refreshed with "+this.getRowCount()+" items");
+				},
+
+				serializeRowData: function($dataItem) {
+					var data = {};
+					$($dataItem).find('> data-field').each(function() {
+						var name = $(this).attr('name');
+						var value = $(this).html();
+						data[name] = {
+							value: value,
+							$field: $(this)
+						};
+					});
+					return data;
+				},
+
+				getSchema: function() {
+					var $schema = $(this).find('> data-schema').first();
+					var $fields = $schema.find('data-field');
+					var schema = [];
+
+					$fields.each(function() {
+						var name = $(this).attr('name');
+						schema.push(name);
+					});
+
+					return schema;
+				},
+
+				constructRowForSchema: function(schema) {
+					var $tr = $('<tr></tr>');
+					$tr.append('<td><sqldash-checkbox class="select"></sqldash-checkbox></td>');
+
+					for (var i = 0, max = schema.length; i < max; ++i) {
+						var name = schema[i];
+
+						var $td =
+						    $('<td></td>')
+							.attr('data-name', name);
+						$tr.append($td);
+					}
+
+					var $actionsTd = $('<td></td>').addClass('actions');
+					$actionsTd.css('white-space', 'nowrap');
+					$tr.append($actionsTd);
+
+					return $tr;
+				},
+
+				registerForMutation: function($dataItem, $tr)
+				{
+					var self = this;
+					$dataItem = $($dataItem);
+					$tr = $($tr);
+
+					if ($dataItem.data('dataView_mutationRegistered'))
+						return;
+
+					$dataItem.mutate('all', function(records, observer) {
+						if (self._mutationLocked)
+							return;
+						for (var i in records) {
+							var record = records[i];
+							if (record.type == "attributes") {
+								if (record.attributeName == "id")
+									continue;
+							}
+							
+							var data = self.serializeRowData($dataItem);
+							var schema = self.getSchema();
+							self.bindRowWithSchema($dataItem, $tr, data, schema);
+							//self.delayedRefresh();
+						}
+					});
+
+					$dataItem.data('dataView_mutationRegistered', true);
+				},
+
+				bindRowWithSchema: function($dataItem, $tr, data, schema)
+				{
+					var tdMap = {};
+
+					$tr.children().each(function() {
+						tdMap[$(this).data('name')] = $(this);
+					});
+
+					for (var i in schema) {
+						var item = schema[i];
+						var value = data[item];
+						if (!tdMap[item]) {
+							continue;
+						}
+						var $td = tdMap[item];
+//						$td.html(value.value);	
+						$td.html('<div class="ellipsis">'+value.value+'</div>');
+						var tooltip = $td.find('div.ellipsis').text();
+						tooltip = tooltip.replace(/^[ \n\t]*/g, '');
+						tooltip = tooltip.replace(/[ \n\t]*$/g, '');
+						$td.find('div.ellipsis').attr('title', tooltip);
+					}
+					
+					var $actions = $dataItem.find('> data-actions');
+					$tr.find('td.actions').html($actions.html());
+				},
+
+				refreshData: function() {
+					this._mutationLocked = true;
+					var self = this;
+					var schema = this.getSchema();
+
+					// Remove existing children
+					$(this).shadow('#mainLayout > table tbody').children().remove();
+
+					var rowNumber = 0;
+					$(this).find('> data-item').each(function() {
+
+						rowNumber += 1;
+						var data = self.serializeRowData($(this));
+						var $tr = self.constructRowForSchema(schema);
+						
+						self.registerForMutation(this, $tr);
+						self.bindRowWithSchema($(this), $tr, data, schema);
+						$(self).shadow('#mainLayout > table > tbody').append($tr);
+					});
+					
+					self.__priv.rowCount = rowNumber;
+					self._mutationLocked = false;
+					
+				},
+
+				_mutationLocked: false,
+				
+				ready: function() {
+                        	        var $shadowNodes = $(this.shadowRoot).children();
+                	                $shadowNodes.on('click', 'a', function(ev) {
+						console.log('clicked on shadow');
+						ev.preventDefault();
+						if ($('body > a#navigate-helper').length == 0)
+	        	                                $('body').append($('<a></a>').attr('id', 'navigate-helper'));
+
+						var $a = $(ev.currentTarget);
+						var $bodyClone = $a.clone(false);
+						$bodyClone.css({
+							position: 'absolute',
+							zIndex: -50,
+							visibility: 'hidden'
+						});
+
+						$('body').append($bodyClone);
+						setTimeout(function() {
+							$bodyClone.detach();
+						}, 1000);
+						$bodyClone.click();
+						ev.stopPropagation();
+						return false;
+	                                });
+
+					var self = this;
+					var adjustTable = function() {
+						var $table = $(self).shadow('#mainLayout > table');
+
+						var availableWidth = $(self).width();
+						var usedWidth = $table.width();
+
+						var excessWidth = usedWidth - availableWidth;
+						$table.find('div.ellipsis').css('max-width', (availableWidth - 200)+'px');
+					};
+
+					var resizeTimeout = null;
+					$(window).resize(function() {
+						if (resizeTimeout)
+							clearTimeout(resizeTimeout);
+
+						resizeTimeout = setTimeout(function() {
+							adjustTable();
+						}, 500);
+					});
+
+					setTimeout(function() {
+						console.log('resizing');
+						$(window).resize();
+					}, 5000);
+
+					var self = this;
+					$(this).mutate('all', function(records, observer) {
+						if (self._mutationLocked)
+							return;
+						for (var i in records) {
+							var record = records[i];
+							if (record.addedNodes.length > 0) {
+//								console.log("NODES ADDED, refreshing");
+								self.delayedRefresh();
+							}
+						}
+					});
+					this.refresh();
+				}
+			});
+		}(jQuery);
+	</script>
+</polymer-element>

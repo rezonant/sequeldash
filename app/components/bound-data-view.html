@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<link rel="import" href="data-view.html" />
+<link rel="import" href="data-item.html" />
+<link rel="import" href="data-schema.html" />
+<link rel="import" href="data-field.html" />
+<link rel="import" href="app-element.html" />
+
+<polymer-element name="bound-data-view" extends="app-element" attributes="data">
+	<style>
+		:host {
+			display:block;
+		}
+	</style>
+	<script>
+		Polymer({
+			data: null,
+
+			publish: {
+				data: { value: [], reflect: true } 
+			},
+
+			dataChanged: function() {
+				// Work around what I can only assume to be a Polymer bug
+				// where in certain circumstances Polymer will refuse to properly cast
+				// arrays and objects from strings due to some race condition (50/50 that it happens)
+				if (typeof this.data === 'string' && this.data != "") {
+					console.log('Polymer bug workaround: fixing this string data!');
+					this.data = JSON.parse(this.data);
+				}
+				
+				// Workaround?
+				
+				/*
+				 * 
+				var $templates = $(this).shadow('template');
+				$templates.each(function() {
+					$(this).get(0).iterator_.updateIteratedValue(); // Force Polymer to refresh template
+				});
+		
+				 */
+			},
+
+			created: function() {
+				this.data = {};
+				this.super();
+			}
+		});
+	</script>
+</polymer-element>

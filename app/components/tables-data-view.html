@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<link rel="import" href="bound-data-view.html" />
+
+<polymer-element name="tables-data-view" extends="bound-data-view" attributes="database" noscript>
+	<template>
+		<data-view id="dataView">
+			<data-schema id="dataSchema">
+				<data-field name="name" label="Name"></data-field>
+				<data-field name="rows" label="Rows" width="5em"></data-field>
+			</data-schema>			
+			<template id="repeater" repeat="{{data.tables as table}}">
+				<data-item>
+					<data-field name="name">
+						<a href="{{basePath}}/dbs/{{data.name}}/tables/{{table.name}}">{{table.name}}</a>
+					</data-field>
+					<data-field name="rows">
+						{{table.rows}}
+					</data-field>
+					<data-actions>
+						<core-menu-button halign="right"
+								  icon="arrow-drop-down-circle">
+							<core-item data-name="drop"
+								   icon="delete"
+								   label="Drop"></core-item>
+							<core-item data-name="truncate"
+								   icon="clear"
+								   label="Truncate"></core-item>
+							<core-item data-name="export"
+								   icon="file-download"
+								   label="Export"></core-item>
+						</core-menu-button>
+					</data-actions>
+				</data-item>
+			</template>
+		</data-view>
+	</template>
+</polymer-element>

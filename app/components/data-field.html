@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+
+<polymer-element name="data-field" attributes="name label width nowrap">
+	<template>
+		<style>			
+		</style>
+		<content></content>
+	</template>
+	<script>
+		Polymer({
+			ready: function() {
+				if (this.label)
+					this.innerHtml = this.label;
+			}
+		});
+	</script>
+</polymer-element>

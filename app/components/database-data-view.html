@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<link rel="import" href="bound-data-view.html" />
+
+<polymer-element name="database-data-view" extends="bound-data-view" noscript>
+	<template>
+		<data-view id="dataView">
+			<data-schema id="dataSchema">
+				<data-field name="name" label="Name"></data-field>
+				<data-field name="tables" label="Tables" width="5em"></data-field>
+				<data-field name="size" label="Size" width="5em"></data-field>
+			</data-schema>			
+			<template id="repeater" repeat="{{db in data}}">
+				<data-item>
+					<data-field name="name">
+						<a href="{{basePath}}/dbs/{{db.name}}">{{db.name}}</a>
+					</data-field>
+					<data-field name="tables">
+						{{db.tables}}
+					</data-field>
+					<data-field name="size">
+						{{db.size}}
+					</data-field>
+					<data-actions>
+						<core-menu-button halign="right" icon="arrow-drop-down-circle">
+							<core-item data-name="drop"
+								   icon="delete" 
+								   label="Drop"></core-item>
+							<core-item data-name="empty"
+								   icon="close" 
+								   label="Empty"></core-item>
+							<core-item data-name="export"
+								   icon="file-download" 
+								   label="Export"></core-item>
+						</core-menu-button>
+					</data-actions>
+				</data-item>
+			</template>
+		</data-view>
+	</template>
+</polymer-element>
