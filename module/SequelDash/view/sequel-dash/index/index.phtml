@@ -1,83 +1,134 @@
 <?
 
 ?>
-<div class="jumbotron clearfix">
-    <div class="pull-left col-md-8">
-	<h1><?php echo sprintf($this->translate('Welcome to %s'), '<img style="max-width:100%;" src="'.$this->basePath().'/img/sequeldash.png" />') ?></h1>
-	<br/>
-    </div>
-    <div class="col-md-4 pull-right" style="font-size:50%;">
-        <div class="panel panel-default" style="position:relative;top:-3.0em;">
-            <div class="panel-heading">
-		<div style="float:right;"><a href="#" class="btn btn-success">Users</a></div>
-                <h3 class="panel-title"><?php echo $this->translate('Service') ?></h3>
-            </div>
-            <div class="panel-body">
-		{{state.service.status}}
-		<br/>
-		<strong>PID: </strong>{{state.service.pid}}<br/>
-		<strong>RAM: </strong>{{state.service.ram}}</span><br/>    		
-	    </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-
-    <div class="col-md-3">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">Recent</h3>
-	    </div>
-            <div class="panel-body">
-            	<em>Coming soon</em>
-	    </div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">About Sequeldash</h3>
-	    </div>
-            <div class="panel-body">
-		<p><em>You are using Sequeldash, a powerful SQL management application.</em></p>
-		<br/>
-            	<em>Version 1.0a</em>
-
-		<span class="alert alert-info"><a href="javascript:;">An update is available!</a></span>
-	    </div>
-        </div>
-    </div>
-
-    <div class="col-md-9">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-		<div style="float:right;"><a href="#" class="btn btn-success">Add</a></div>
-                <h3 class="panel-title"><?php echo $this->translate('Databases') ?></h3>
-            </div>
-            <div class="panel-body">
-		<div style="float:right">
-			<input type="text" class="filter" placeholder="filter" data-filter="databases" />
+<div class="meta template-name" data-value="index"></div>
+<div class="hero-content" style="display:none;">
+	<div class="header-card">
+		<paper-shadow z="1"></paper-shadow>
+		<div class="content">
+			<h3 class="panel-title">Recent</h3>
+			<em>Coming soon</em>
 		</div>
-		<table class="data">
-		<thead>
-			<tr>
-				<th><input type="checkbox" name="selectAll" class="selectAll" /></th>
-				<th>Name</th>
-				<th>Size</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr ng-repeat="db in databases">
-				<th><input type="checkbox" name="select[]" value="{{db}}" /></th>
-				<td>
-					<a href="dbs/{{db}}">{{db}}</a>
-				</td>
-				<td>
-					0 kb
-				</td>
-			</tr>
-		</tbody>
-		</table>
-            </div>
-        </div>
+	</div>
+	<div class="header-card">
+		<paper-shadow z="1"></paper-shadow>
+		<div class="content">
+			<div style="float:right;"><a href="#" class="btn btn-success">Users</a></div>
+			<h3 class="panel-title"><?php echo $this->translate('Service') ?></h3>
+			{{state.service.status}}
+			<br/>
+			<strong>PID: </strong>{{state.service.pid}}<br/>
+			<strong>RAM: </strong>{{state.service.ram}}</span><br/>
+		</div>
+	</div>
+	<div class="header-card">
+		<paper-shadow z="1"></paper-shadow>
+		<div class="content">
+			<h3 class="panel-title">About Sequeldash</h3>
+			<p><em>You are using Sequeldash, a powerful SQL management application.</em></p>
+			<br/>
+			<em>Version 1.0a</em>
+
+			<div style="display:inline-block;" class="alert alert-info"><a href="javascript:;">An update is available!</a></div>
+		</div>
+	</div>
+</div>
+<div class="row" style="padding:1em;">
+    <div>
+	<paper-shadow z="2"></paper-shadow>
+	<polymer-ui-card id="databases">
+            <div class="card-header">
+		<div style="float:right;">
+			<ng-filter name="databases" within="name"></ng-filter>
+		</div>
+		<h3 class="panel-title"><?= T($this, 'Databases')?></h3>
+	    </div>
+            <div class="panel-body">
+
+		<database-data-view data="{{databases}}"></database-data-view>
+
+		<? if (0) { ?>
+		<!--
+		<data-view>
+			<data-schema>
+				<data-field name="name" label="Name"></data-field>
+				<data-field name="tables" width="5em" label="Tables"></data-field>
+				<data-field name="size" width="5em" label="Size"></data-field>
+			</data-schema>
+			<? foreach ($this->databases as $db) { ?>
+				<data-item>
+					<data-field name="name">
+						<a href="dbs/<?= $db ?>"><?= $db ?></a>
+					</data-field>
+					<data-field name="tables">233</data-field>
+					<data-field name="size">0 kb</data-field>
+					<data-actions>
+						<core-tooltip label="Delete">
+							<core-icon-button icon="delete">
+							</core-icon-button>
+						</core-tooltip>
+						
+						<core-tooltip label="Clear">
+							<core-icon-button icon="clear">
+							</core-icon-button>
+						</core-tooltip>
+			
+						<core-tooltip label="Export">
+							<core-icon-button icon="file-download">
+							</core-icon-button>
+						</core-tooltip>
+					</data-actions>			
+				</data-item>
+			<? } ?>
+		</data-view>
+		-->
+		
+		<!--
+			<table class="data">
+			<thead>
+				<tr>
+					<th style="width:2em;">
+						<sqldash-checkbox class="selectAll" name="selectAll"></sqldash-checkbox>
+					<th>Name</th>
+					<th style="width:5em;" class="no-phone">Tables</th>
+					<th class="no-phone" style="width:5em;">Size</th>
+					<th style="width:5em;">Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="db in databases">
+					<th>
+						<sqldash-checkbox name="select[]" value="{{db}}"></sqldash-checkbox>
+					<td>
+						<a href="dbs/{{db}}">{{db}}</a>
+					</td>
+					<td class="no-phone">
+						233
+					</td>
+					<td class="no-phone">
+						0 kb
+					</td>
+					<td layout horizontal>
+						<core-tooltip label="Delete">
+							<core-icon-button icon="delete">
+							</core-icon-button>
+						</core-tooltip>
+
+						<core-tooltip label="Clear">
+							<core-icon-button icon="clear">
+							</core-icon-button>
+						</core-tooltip>
+
+						<core-tooltip label="Export">
+							<core-icon-button icon="file-download">
+							</core-icon-button>
+						</core-tooltip>
+					</td>
+				</tr>
+			</tbody>
+			</table>
+			-->
+		<? } // if 0 ?>
+        </polymer-ui-card>
     </div>
 </div>

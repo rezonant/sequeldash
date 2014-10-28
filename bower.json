@@ -13,6 +13,15 @@
     "angular": "~1.3.0-rc.4",
     "prism": "git@github.com:LeaVerou/prism.git#gh-pages",
     "ace": "~1.1.7",
-    "eonasdan-bootstrap-datetimepicker": "~3.1.3"
+    "eonasdan-bootstrap-datetimepicker": "~3.1.3",
+    "polymer": "~0.4.2",
+    "core-elements": "polymer/core-elements#~0.4.2",
+    "platform": "polymer/platform#~0.4.2",
+    "polymer-ui-card": "Polymer/polymer-ui-card#~0.3.0",
+    "ace-element": "PolymerLabs/ace-element#~0.4.0"
+  },
+  "resolutions": {
+    "platform": "~0.4.2",
+    "core-component-page": "^0.4.0"
   }
 }

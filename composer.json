@@ -10,6 +10,7 @@
     "require": {
         "php": ">=5.3.3",
         "zendframework/zendframework": "2.3.*",
-        "soundintheory/php-sql-parser": "~1.0"
+        "soundintheory/php-sql-parser": "~1.0",
+        "slim/slim": "~2.4"
     }
 }

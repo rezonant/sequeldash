@@ -302,6 +302,11 @@ class DatabaseController extends Controller
 				foreach ($row as $k => $v) {
 					$finalRow[$k] = utf8_encode($v);
 				}
+
+				if (isset($row->{$primaryKey})) 
+					$finalRow['__id'] = $row->{$primaryKey};
+				else
+					$finalRow['__id'] = 0;	
 				$rows[] = $finalRow;
 			}
 			$affectedRows = $results->getAffectedRows();
@@ -310,6 +315,7 @@ class DatabaseController extends Controller
 		$results = $adapter->query($query, $adapter::QUERY_MODE_EXECUTE);
 		if ($results instanceof \Zend\Db\ResultSet\ResultSet) {
 			$rows = array();
+			
 			foreach ($results as $row) {
 				$finalRow = array();
 				foreach ($row as $k => $v) {
@@ -322,6 +328,15 @@ class DatabaseController extends Controller
 		}
 	}
 
+	$schema = array();
+	
+	if (count($rows) > 0) {
+		$first = $rows[0];
+		foreach ($first as $k => $v) {
+			$schema[] = $k;
+		}
+	}
+	
 	$queryData = (object)array(
 		'string' => $query,
 		'error' => '',
@@ -333,6 +348,7 @@ class DatabaseController extends Controller
 		'count' => 0+$count,
 		'affected' => $affectedRows,
 		'generatedValue' => $generatedValue,
+		'schema' => $schema,
 		'results' => $rows,
 	);
 	return $queryData;

@@ -9,6 +9,24 @@ class SessionManager {
 		self::setCredential($credential);
 	}
 
+	public static function setReturnUrl($url)
+	{
+		$container = new \Zend\Session\Container('auth');
+		$container->returnUrl = $url;
+	}
+
+	public static function consumeReturnUrl()
+	{
+		$container = new \Zend\Session\Container('auth');
+		if (!isset($container->returnUrl))
+			return null;
+
+		$url = $container->returnUrl;
+		unset($container->returnUrl);
+
+		return $url;
+	}
+
 	public static function isLoggedIn()
 	{
 		$container = new \Zend\Session\Container('auth');

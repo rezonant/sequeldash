@@ -12,25 +12,152 @@ $model = $this->viewModel()->getCurrent();
 \SequelDash\View::init($this);
 
 ?>
-<div class="inner jumbotron" style="position:relative;text-align:center;padding-bottom:1.75em;">
-    <h1>table: <?= ngBind('table.name') ?></h1>
-
-    <? if ($this->error) { ?>
+<div class="inner jumbotron" style="position:relative;text-align:center;padding-bottom:1.75em;" ng-show="error">
 	<br/><br/>
-	<span class="alert alert-danger"><?= $this->error ?></span>
+	<span class="alert alert-danger">{{error}}</span>
 	<br/>
 	<br/>
-    <? } ?>
-
-    <div class="jumbotron-buttons">
-	<a href="<?= $this->basePath() ?>/dbs/<?= $this->database['name'] ?>/tables/<?= $this->table['name'] ?>/search"><button>Search</button></a>
-	<button>Operations</button>
-	<button>Add to Query</button>
-    </div>
 </div>
 <div>
+
+<div class="row-fluid">
+        <div class="col-sm-3 details-sidebar" style="display:none;">
+		<paper-button class="hide-details primary" style="width:100%">
+			<div style="float:left;">&lt;&lt;</div>
+			Jump to Table
+		</paper-button>
+		<div class="sidebar-section">
+			<div style="float:right">
+				<input style="width:8em;" type="text" placeholder="filter" class="filter" data-filter="database.tables" />
+			</div>
+        	        <h2><a href="{{state.basePath}}/dbs/{{database.name}}/tables">Tables</h2>
+			<div ng-repeat="tableName in database.tables">
+				<a href="{{state.basePath}}/dbs/{{database.name}}/tables/{{tableName}}">{{tableName}}</a>
+			</div>
+
+		</div>
+        </div>
+        <div class="col-sm-12 main-content">
+			<div class="row" style="padding:1em;">
+			    <div>
+				<paper-shadow z="2"></paper-shadow>
+				<polymer-ui-card id="databases">
+				    <div class="card-header">
+					<div style="float:right;position:relative;top:-0.5em;">
+						<core-icon-button raised class="search" icon="search"></core-icon-button>
+						<core-menu-button class="table-menu" 
+								  halign="right" 
+								  icon="drive-form" 
+								  raised>
+							<core-item data-name="schema" 
+								   icon="explore" 
+								   label="Schema"></core-item>	
+							<core-item data-name="notes" 
+								   icon="book" 
+								   label="Notes"></core-item>
+							<core-item data-name="alter" 
+								   icon="perm-data-setting" 
+								   label="Alter"></core-item>
+							<hr/>
+							<core-item data-name="copy" 
+								   icon="content-copy" 
+								   label="Copy"></core-item>
+							<core-item data-name="truncate" 
+								   icon="delete" 
+								   label="Truncate"></core-item>
+							<core-item data-name="drop" 
+								   icon="delete" 
+								   label="Drop"></core-item>
+						</core-menu-button>
+						<core-menu-button halign="right" 
+								  icon="arrow-drop-down-circle" 
+								  class="other-menu">
+							<core-item data-name="table-jump" 
+								   icon="explore" 
+								   label="Jump to Table"></core-item>
+							<core-item data-name="add-to-query" 
+								   icon="add-box" 
+								   label="Add to Query" class="xbtn-success"></core-item>
+						</core-menu-button>
+
+						<core-tooltip label="Add to Query">
+						</core-tooltip>
+					</div>
+					<h4>Table `{{database.name}}`</h4>
+				    </div>
+				    <div class="schema-panel schema" style="display:none;">
+					<table-schema database="{{database}}" table="{{table}}"></table-schema>
+					<core-icon-button icon="close" class="close"></core-icon-button>
+				    </div>
+				    <div class="schema-panel search" style="display:none;overflow-y:auto;">
+					<search-query-box database="{{database}}" table="{{table}}"></search-query-box>
+					<core-icon-button icon="close" class="close"></core-icon-button>
+				    </div>
+				    <div class="panel-body" style="padding-top:2em;">
+					<query-box database="{{database.name}}" query="{{query}}"></query-box>
+				    </div>
+				</polymer-ui-card>
+			    </div>
+			</div>
+	</div>
+</div>
+</div>
+<br/>
+
+
 <script>
 	$(document).ready(function() {
+
+		$('.schema-panel .close').click(function() {
+			$(this).parents('.schema-panel:first').slideUp();
+		});
+		$('core-icon-button.search').click(function() {
+			$('.schema-panel.search').slideDown();
+		});
+
+		$('core-menu-button.other-menu core-item').click(function() {
+			var name = $(this).data('name');
+			if (name == 'table-jump') {
+				$('.details-sidebar')
+					.css({
+						overflow: 'hidden',
+						opacity: 0,
+						width: ''
+					}).show();
+				var width = $('.details-sidebar').width();
+				$('.details-sidebar')
+					.css({width:'0px'})
+					
+					.animate({
+						width: width+'px',
+						opacity: 1
+					}, {
+						complete: function() {
+							$('.details-sidebar').css('width', '');	
+						}
+					});
+				$('.main-content').removeClass('col-sm-12').addClass('col-sm-9');
+			}
+		});
+
+		$('core-menu-button.table-menu core-item').click(function() {
+			var name = $(this).data('name');
+
+			if (name == 'schema') {
+				$('.schema-panel.schema').slideDown();
+			}
+		});
+
+		$('search-query-box').change(function() {
+			var query = this.query;
+			var $scope = $('html').scope();
+			if ($scope) {
+				$scope.$apply(function($scope) {
+					$scope.query.string = query;
+				});
+			}
+		});
+
 		$('.hide-details').click(function() {
 			$('.details-sidebar')
 				.css({
@@ -71,63 +198,3 @@ $model = $this->viewModel()->getCurrent();
 		});
 	});
 </script>
-
-<div class="show-details" style="display:none;padding:0 1em 0.5em 1em;">
-	<button class="btn btn-info">&gt;&gt; Details</button>
-</div>
-<div class="row-fluid">
-        <div class="col-sm-3 details-sidebar">
-		<div class="btn btn-info hide-details" style="width:100%">
-			<div style="float:left;">&lt;&lt;</div>
-			Details
-		</div>
-		<div class="sidebar-section">
-	                <h2><a href="<?= $this->basePath() ?>/dbs/{{database.name}}/tables/{{table.name}}/schema">Schema</a></h2>
-			<br/><br/>
-			<div ng-repeat="field in table.schema">
-				<strong>{{field.name}}</strong>
-					<div class="note note-orange" ng-show="field.isUnique">
-						UNIQ
-					</div>
-					<div class="note note-maroon" ng-show="field.isPrimaryKey">
-						PKEY
-					</div>
-					<div class="note note-blue" ng-show="field.increment">
-						AUTO
-					</div>
-				<br/>
-				{{field.type}}<br/>
-					<div class="note note-blue" ng-show="field.hasDefault">= {{field.default}}</div>
-				<br/>
-			</div>
-			<br/>
-		</div>
-		<div class="sidebar-section">
-			<h2>Notes</h2><br/>
-			<em>Notes go here</em><br/>
-			<br/>
-		</div>
-		<div class="sidebar-section">
-			<div style="float:right">
-				<input style="width:8em;" type="text" placeholder="filter" class="filter" data-filter="database.tables" />
-			</div>
-        	        <h2><a href="<?= $this->basePath() ?>/dbs/{{database.name}}/tables">Tables</h2>
-			<div ng-repeat="tableName in database.tables">
-				<a href="<?= $this->basePath() ?>/dbs/{{database.name}}/tables/{{tableName}}">{{tableName}}</a>
-			</div>
-
-		</div>
-        </div>
-        <div class="col-sm-9 main-content">
-		<div class="section">
-			<?= $this->partial('/sequel-dash/database/query-partial.phtml', array(
-				'db' => $model->database['name'],
-				'query' => $this->query
-			)) ?>
-
-		</div>
-	</div>
-</div>
-</div>
-<br/>
-

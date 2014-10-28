@@ -9,36 +9,61 @@ use Zend\InputFilter\InputFilter;
 \SequelDash\View::init($this);
 
 ?>
-<div class="inner jumbotron" style="text-align:center;">
-    <h1>db: <?= ngBind('database.name') ?></h1>
-    <? if ($this->error) { ?>
+<div class="meta template-name" data-value="database-details"></div>
+<div class="inner jumbotron" style="text-align:center;" ng-show="{{error}}">
 	<br/><br/>
-	<span class="alert alert-danger"><?= $this->error ?></span>
+	<span class="alert alert-danger">{{error}}</span>
 	<br/>
 	<br/>
-    <? } ?>
-	<div class="jumbotron-buttons">
-		<a href="{{database.name}}/query"><button>Query</button></a>
-	</div>
 </div>
-<div style="float:right;">
-	<input type="text" class="filter" data-filter="database.tables" data-target="name" placeholder="filter" />
+<div class="row" style="padding:1em;">
+    <div>
+        <paper-shadow z="2"></paper-shadow>
+        <polymer-ui-card id="databases">
+            <div class="card-header">
+                <div style="float:right;">
+			<ng-filter name="database.tables" within="name"></ng-filter>
+			<paper-button raised class="primary">Query</paper-button>
+                </div>
+    		<h4>Tables in `{{database.name}}`</h4>
+            </div>
+            <div class="panel-body">
+		<tables-data-view data="{{database}}"></tables-data-view>
+	    </div>
+	</polymer-ui-card>
+    </div>
 </div>
+
+<? if (0) { ?>
 <table class="data">
 <thead>
 	<tr>
+		<th><sqldash-checkbox name="selectAll" class="selectAll" /></th>
 		<th>Name</th>
-		<th>Rows</th>
+		<th style="width:2em;">Rows</th>
+		<th style="width:5em;">Actions</th>
 	</tr>
 </thead>
 <tbody>
 	<tr ng-repeat="table in database.tables">
+		<td><sqldash-checkbox name="selectAll" class="selectAll" /></td>
 		<td>
 			<a href="<?= $this->basePath() ?>/dbs/{{database.name}}/tables/{{table.name}}">{{table.name}}</a>
 		</td>
 		<td>{{table.rows}}</td>
+		<td style="white-space:nowrap;">
+			<core-tooltip label="Drop">
+				<paper-icon-button icon="delete"></paper-button>
+			</core-tooltip>
+			<core-tooltip label="Truncate">
+				<paper-icon-button icon="clear"></paper-button>
+			</core-tooltip>
+			<core-tooltip label="Export">
+				<paper-icon-button icon="file-download"></paper-button>
+			</core-tooltip>
+		</td>
 	</tr>
 </tbody>
 </table>
-
+<? } ?>
 

@@ -10,93 +10,103 @@ use Zend\InputFilter\InputFilter;
 $model = $this->viewModel()->getCurrent();
 
 ?>
-<div class="inner jumbotron" style="position:relative;text-align:center;">
-    <h1>search: {{table.name}}</h1>
-
-    <? if ($this->error) { ?>
+<div class="inner jumbotron" style="position:relative;text-align:center;" ng-show="{{error}}">
 	<br/><br/>
-	<span class="alert alert-danger"><?= $this->error ?></span>
+	<span class="alert alert-danger">{{ error }}</span>
 	<br/>
 	<br/>
-    <? } ?>
+</div>
 
-    <div class="jumbotron-buttons">
+<div>
+<div class="row" style="padding:1em;">
+    <div>
+	<paper-shadow z="2"></paper-shadow>
+	<polymer-ui-card id="databases">
+	    <div class="card-header">
+		<div style="float:right;">
+			<a href="{{state.basePath}}/dbs/{{database.name}}/tables/{{table.name}}/search"><paper-button>Search</paper-button></a>
+			<paper-button>Operations</paper-button>
+			<paper-button>Add to Query</paper-button>
+		</div>
+		<h4>Search `{{table.name}}`</h4>
+	    </div>
+	    <div class="panel-body">
+		<form action="<?= $this->basePath() ?>/dbs/<?= $this->database['name'] ?>/tables/<?= $this->table['name'] ?>/search" method="post">
+			<table class="data">
+			<thead>
+				<tr>
+				<th style="width:2em;"></th>
+				<th style="text-align:right; width:2em;">Field</th>
+				<th style="width:5em;"></th>
+				<th style="width:auto;">Value</th>
+				</tr>
+			</thead>
+				<? foreach ($this->table['schema'] as $field) { ?>
+					<tr>
+						<td> 
+							&nbsp; <input type="checkbox" class="select" name="select[]" value="<?= $field->name ?>" />
+						</td>
+						<td style="text-align:right;">
+							<?= $field->name ?>
+							<br/><span style="opacity:0.5;"><?= $field->type ?></span>
+							<? if ($field->default || $field->default === 0) { ?>
+								<div class="note note-blue"><?= $field->default ?></div>
+							<? } ?>
+
+							<? if ($field->isPrimaryKey) { ?>
+								<div class="note note-maroon">PKEY</div>
+							<? } else if ($field->isUnique) { ?>
+								<div class="note note-orange">UNIQ</div>
+							<? } ?>
+
+							<br/><br/>
+						</td>				
+						<td style="padding-right:1em;padding-left:1em;">
+							<select class="operator" name="<?= $field->name ?>[operator]">
+								<option>LIKE</option>
+								<option>LIKE %...%</option>
+								<option>=</option>
+								<option>!=</option>
+								<option>&gt;</option>
+								<option>&gt;=</option>
+								<option>&lt;</option>
+								<option>&lt;=</option>
+								<option>BETWEEN</option>
+							</select>
+						</td>
+						<td class="field" data-name="<?= $field->name ?>">
+							<? if ($field->type == 'text' || $field->type == 'longtext') { ?>
+								<textarea name="<?= $field->name ?>[value]" style="width:100%;min-height:3em;"></textarea>
+							<? } else { ?>
+								<div class="one-value">
+									<input type="text" name="<?= $field->name ?>[value]" style="width:100%;"  />
+								</div>
+								<div class="and-value" style="display:none;">
+									<input type="text" name="<?= $field->name ?>[start]" /> AND 
+									<input type="text" name="<?= $field->name ?>[end]" />
+								</div>
+							<? } ?>
+						</td>
+					</tr>	
+				<? } ?>
+			</table>
+			<h2>Preview Query</h2>
+			<pre><code class="query-preview language-sql"></code></pre>
+			<div style="text-align:center;font-size:125%;margin-top:1.5em;margin-bottom:0.5em;">
+				<button class="btn btn-success go" type="button" style="font-size:125%;min-width:5em;">Go</button>
+				<button class="btn btn-primary query" type="button">Query</button>
+			</div>
+
+			<div class="results-container">
+
+			</div>
+		</div>
+		</form>
+	    
+	    </div>
+	</polymer-ui-card>
     </div>
 </div>
-<div>
-
-<form action="<?= $this->basePath() ?>/dbs/<?= $this->database['name'] ?>/tables/<?= $this->table['name'] ?>/search" method="post">
-<div class="section">
-	<table class="data">
-	<thead>
-		<tr>
-		<th style="width:2em;"></th>
-		<th style="text-align:right; width:2em;">Field</th>
-		<th style="width:5em;"></th>
-		<th style="width:auto;">Value</th>
-		</tr>
-	</thead>
-		<? foreach ($this->table['schema'] as $field) { ?>
-			<tr>
-				<td> 
-					&nbsp; <input type="checkbox" class="select" name="select[]" value="<?= $field->name ?>" />
-				</td>
-				<td style="text-align:right;">
-					<?= $field->name ?>
-					<br/><span style="opacity:0.5;"><?= $field->type ?></span>
-					<? if ($field->default || $field->default === 0) { ?>
-						<div class="note note-blue"><?= $field->default ?></div>
-					<? } ?>
-
-					<? if ($field->isPrimaryKey) { ?>
-						<div class="note note-maroon">PKEY</div>
-					<? } else if ($field->isUnique) { ?>
-						<div class="note note-orange">UNIQ</div>
-					<? } ?>
-
-					<br/><br/>
-				</td>				
-				<td>
-					<select class="operator" name="<?= $field->name ?>[operator]">
-						<option>LIKE</option>
-						<option>LIKE %...%</option>
-						<option>=</option>
-						<option>!=</option>
-						<option>&gt;</option>
-						<option>&gt;=</option>
-						<option>&lt;</option>
-						<option>&lt;=</option>
-						<option>BETWEEN</option>
-					</select>
-				</td>
-				<td class="field" data-name="<?= $field->name ?>">
-					<? if ($field->type == 'text' || $field->type == 'longtext') { ?>
-						<textarea name="<?= $field->name ?>[value]" style="width:100%;min-height:3em;"></textarea>
-					<? } else { ?>
-						<div class="one-value">
-							<input type="text" name="<?= $field->name ?>[value]" style="width:100%;"  />
-						</div>
-						<div class="and-value" style="display:none;">
-							<input type="text" name="<?= $field->name ?>[start]" /> AND 
-							<input type="text" name="<?= $field->name ?>[end]" />
-						</div>
-					<? } ?>
-				</td>
-			</tr>	
-		<? } ?>
-	</table>
-	<h2>Preview Query</h2>
-	<pre><code class="query-preview language-sql"></code></pre>
-	<div style="text-align:center;font-size:125%;">
-		<button class="btn btn-success go" type="button" style="font-size:125%;min-width:5em;">Go</button>
-		<button class="btn btn-primary query" type="button">Query</button>
-	</div>
-
-	<div class="results-container">
-
-	</div>
-</div>
-</form>
 
 <script>
 	$(document).ready(function() {

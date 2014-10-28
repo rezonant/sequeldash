@@ -102,4 +102,4 @@ var queryGenerator = {
 	}
 };
 
-exports = queryGenerator;
+module.exports = queryGenerator;

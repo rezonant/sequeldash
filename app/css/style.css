@@ -1,10 +1,197 @@
 body {
-    padding-top: 60px;
-    padding-bottom: 40px;
+	font-family: 'Roboto';
 }
 
 * {
 	box-sizing: border-box;
+}
+
+.schema-panel {
+	position:relative;
+	padding:1em;
+	background-color:rgb(234, 234, 234);
+}
+
+.schema-panel .close {
+	position:absolute;
+	bottom:0;
+	right:0;
+}
+
+.loading-indicator {
+	opacity: 0;
+	transition: opacity 2s;
+}
+
+.loading-indicator.active {
+	opacity: 1;
+	transition: opacity 1s;
+}
+
+body /deep/ paper-button.primary {
+
+}
+
+body /deep/ paper-button.danger {
+	background: rgb(207, 0, 0);
+	color: white;
+}
+
+body /deep/ paper-button.info {
+	background: blue;
+	color:white;
+}
+
+body /deep/ paper-button.primary {
+	background: green;
+	color: white;
+}
+
+body /deep/ paper-button.success {
+	background: green;
+	color:white;
+}
+
+/* background for toolbar when it is at its full size */
+core-scroll-header-panel::shadow #headerBg {
+  background-image: url(../img/bg8.jpg);
+}
+
+.card-header {
+	background:rgb(192, 192, 192);
+	color:black;
+	padding:1em;
+	height:4em;
+	position:relative;
+}
+
+.card-header h3, .card-header h4 {
+	position:absolute;
+	bottom:1em;
+}
+
+/* background for toolbar when it is condensed */
+core-scroll-header-panel::shadow #condensedHeaderBg {
+  background-color: #0372C1;
+}
+
+/* background for toolbar when it is condensed */
+core-scroll-header-panel::shadow #headerContainer {
+	margin-right:15px;
+}
+
+.mobile-breadcrumbs {
+	display:none;
+	text-wrap: none;
+}
+
+@media (max-width:900px) {
+	/* background for toolbar when it is condensed */
+	core-scroll-header-panel::shadow #headerContainer {
+		margin-right:0;
+	}
+
+	.mobile-breadcrumbs {
+		display:block;
+	}	
+	.breadcrumbs {
+		display:none;
+	}
+	
+	paper-menu-button paper-item {
+		min-width: 200px; 
+	}
+}
+
+.breadcrumbs paper-button {
+	background: rgba(128, 128, 128, 0.45);
+}
+
+.breadcrumbs a paper-button {
+	color: white;
+}
+
+.breadcrumbs a {
+	color: white;
+}
+
+core-toolbar.hero {
+	height:400px;
+	background:rgba(0,0,0,0.5);
+}
+
+core-toolbar.hero .middle {
+	height:275px;
+}
+
+core-toolbar {
+	color: #f1f1f1;
+	fill: #f1f1f1;
+	background-color: transparent;
+}
+
+core-toolbar::shadow #middleBar {
+	align-items: flex-start;
+}
+
+.header-card {
+	position:relative;
+	width:300px;
+	background:white;
+	flex:1;
+	-webkit-flex:1;
+	-ms-flex:1;
+	margin:1em;
+	clear:both;
+	height:250px;
+	color:black;
+	min-width:360px;
+	font-family: 'Roboto';
+	font-weight: 300;
+	color:#555;
+	opacity:0.95;
+	
+}
+
+.header-card .content {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	overflow: hidden;
+	
+	padding:1em 1.5em;
+}
+
+.logo {
+	font-size:42pt;
+	font-weight:300;
+	text-shadow:0px 0px 5px black;
+	margin-top:5px;
+}
+
+.header-card h3 {
+	font-size:xx-large;
+	text-transform: lowercase;
+	margin:0.5em 0;
+	font-weight: 100;
+}
+
+.show-when-short {
+	display:block;
+}
+
+.show-when-tall {
+	display:none;
+}
+
+.tall .show-when-tall {
+	display:block;
+}
+
+.tall .show-when-short {
+	display:none;
 }
 
 .jumbotron {
@@ -27,8 +214,25 @@ body {
 	max-height:2.8em;
 }
 
+body /deep/ a {
+	color: #428bca;
+	text-decoration:none;
+}
+
+body /deep/ a:visited {
+	color: #428bca;
+}
+
+body /deep/ a:hover {
+	text-decoration:underline;
+}
+
 table.data {
 	width:100%;
+}
+
+table.data tr:hover {
+	background: #eee;
 }
 
 table.data td {
@@ -100,7 +304,7 @@ tr.selected {
 }
 
 .query-results td, .query-results th {
-	padding:5px;
+	padding:5px; 
 }
 
 .sidebar-section, .section {
@@ -160,7 +364,53 @@ div.container a.brand {
     padding: 8px 20px 12px 40px;
 }
 
+@media (min-width:1024px) {
+	.phone-only {
+		display:none;
+	}
+	
+	.tablet-only {
+		display:block;
+	}
+	
+	.desktop-only {
+		display:block;
+	}
+}
+@media (max-width:1023px) {
+	.phone-only {
+		display:none;
+	}
+	
+	.tablet-only {
+		display:block;
+	}
+	
+	.desktop-only {
+		display:none;
+	}
+	
+	.no-mobile {
+		display:none;
+	}
+}
+
 @media (max-width:500px) {
+	.phone-only {
+		display:block;
+	}
+
+	.no-phone {
+		display:none;
+	}
+	.tablet-only, .desktop-only {
+		display:none;
+	}
+	
+	.no-mobile {
+		display:none;
+	}
+	
 	body {
 		overflow-x:hidden;
 	}

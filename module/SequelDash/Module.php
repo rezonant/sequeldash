@@ -41,6 +41,10 @@ class Module
 			    && $event->getRouteMatch()->getParam("action") == "index")
 				return; // let them through
 
+			$url = $event->getRequest()->getRequestUri();
+			$url = substr($url, strlen($event->getRequest()->getBasePath()));
+
+			SessionManager::setReturnUrl($url);
 			header('Location: '.$event->getRequest()->getBasePath().'/login');
 			die();
 		}

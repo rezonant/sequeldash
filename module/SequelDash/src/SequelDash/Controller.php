@@ -11,7 +11,7 @@ class Controller extends AbstractActionController {
 		$data = (object)$data;
 		$stateProvider = new StateProvider;
 		$data->state = new \stdclass;
-		$stateProvider->prepare($data->state);
+		$stateProvider->prepare($data->state, $this);
 
 		if (isset($_REQUEST['ajax'])) {
 //			header('Content-Type: application/x-json');

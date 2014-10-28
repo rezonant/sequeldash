@@ -3,11 +3,12 @@
 namespace SequelDash;
 
 class StateProvider {
-	public function prepare($data)
+	public function prepare($data, $controller)
 	{
 		$data->loggedIn = SessionManager::isLoggedIn();
 		$data->username = null;
 		$data->service = null;
+		$data->basePath = $controller->getRequest()->getBasePath();
 
 		if ($data->loggedIn) {
 			if (SessionManager::getCredential())

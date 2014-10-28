@@ -16,6 +16,28 @@
  * most users, however, feel free to configure autoloading however you'd like.
  */
 
+/**
+ * Shortcut for translating things
+ */
+function T($self, $str)
+{
+	return $self->translate($str);
+}
+
+/**
+ * Shortcut for making direct object instantiation
+ * PHP 5.3 compatible
+ * 
+ * Use like:
+ * 
+ * fresh(new foo_bar('stuff'))->execute();
+ * 
+ */
+function fresh($newObject)
+{
+	return $newObject;
+}
+
 // Composer autoloading
 if (file_exists('vendor/autoload.php')) {
     $loader = include 'vendor/autoload.php';

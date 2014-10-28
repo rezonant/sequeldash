@@ -25,4 +25,4 @@ var api = {
 };
 
 window.api = api;
-exports = api;
+module.exports = api;

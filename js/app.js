@@ -3,10 +3,89 @@
 var assert = require('./assert.js');
 var api = require('./api.js');
 var queryGenerator = require('./queryGenerator.js');
+window.queryGenerator = queryGenerator;
 
 /** UI **/
 
-$(document).ready(function() {
+window.addEventListener('polymer-ready', function() {
+	$(document).ready(function() {
+		sequeldashInit();
+	});
+});
+
+window.sequeldash = {
+};
+
+function sequeldashInit() {
+	$('.loading-indicator').addClass('active');
+
+	// Initialize Angular
+	angular.module('sequeldash', []);
+	angular.bootstrap(document, ['sequeldash']);
+
+	function updateHeroHeader(firstPage)
+	{
+
+		if ($('.content-container .hero-content').length > 0) {
+			$('core-toolbar .middle').html($('.content-container .hero-content').children());
+			$('core-toolbar').addClass('hero');
+		} else {
+			$('core-toolbar').removeClass('hero');
+		}
+
+		$('core-toolbar .middle').hide();
+		$('.content-container .hero-content').remove();
+
+		var size = 131;
+		var duration = 1000;
+		var hideBar = true;
+		var container = $('core-scroll-header-panel::shadow #mainContainer').get(0);
+
+		if ($('core-toolbar').hasClass('hero')) {
+			size = 341;
+			hideBar = false;
+			duration = 3000;
+		}
+		
+
+		if (container) {
+			$(container).css('padding-top', $('core-toolbar').height());
+
+			setTimeout(function() {
+
+				$('core-scroll-header-panel').get(0).async('measureHeaderHeight');
+
+				if (!hideBar || !firstPage) {
+					console.log('not hide, scrolling down immediately');
+					$(container).scrollTop(size);
+				}
+
+				console.log('remeasure');
+				$('core-toolbar .middle').show();
+				// Make the header pretty
+				if (!hideBar) {
+					setTimeout(function() {
+						$(container).animate({scrollTop: 0}, {duration:duration});
+					}, 500);
+
+				} else if (firstPage) {
+					setTimeout(function() {
+						$(container).animate({scrollTop: size}, {duration:duration});
+					}, 250);
+				}
+			}, 500);
+		}
+	}
+
+	updateHeroHeader(true);
+
+	var $coreScrollHeaderPanel = $( 'core-scroll-header-panel' );
+	$coreScrollHeaderPanel.shadow('#headerContainer').on( 'wheel', function (e) {
+		var $mainContainer = $coreScrollHeaderPanel.shadow('#mainContainer');
+		var val = $mainContainer.scrollTop() + e.originalEvent.deltaY;
+		console.log(val + " / " + e.offsetY);
+		$mainContainer.scrollTop(val);
+	});
 
 	// Make sure we have a state
 	if (!window.$state) {
@@ -14,84 +93,138 @@ $(document).ready(function() {
 		alert('An application error has occurred: No state provided');
 		return;
 	}
+	
 
 	// Apply it
 	var $scope = $('html').scope();
-
 	for (var key in $state) {
 		$scope[key] = $state[key];
 	}
-
 	$scope.startup = false;
 	$scope.$apply();
 
-	jQuery.fn.extractRow = function() {
-		var row = $(this).data('resultRow');
-		if (row)
-			return resultRow;
-
-		row = {};
-
-		if ($(this).data('pkey'))
-			row.__primaryKey = $(this).data('pkey');
-		if ($(this).data('id'))
-			row.__id = $(this).data('id');
-
-		row.__table = $(this).parents('table:first').data('table');
-		row.__proposed = {};
-		row.__unsaved = $(this).hasClass('unsaved');
-		row.getProposed = function() {
-			var clone = {};
-			for (var name in this.__proposed) {
-				if (name.indexOf('__') == 0)
-					continue;
-				if (typeof this.__proposed[name] == 'function')
-					continue;
-
-				clone[name] = this.__proposed[name];
-			}
-
-			return clone;
-
-		}
-
-		row.getData = function() {
-			var clone = {};
-			for (var name in this) {
-				if (name.indexOf('__') == 0)
-					continue;
-				if (typeof this[name] == 'function')
-					continue;
-
-				clone[name] = this[name];
-			}
-
-			return clone;
-		}
-
-		$(this).find('td').each(function() {
-			var key = $(this).data('key');
-			var value = $(this).data('value');
-			var proposedValue = $(this).data('proposedValue');
-
-			if (!key)
-				return;
-
-			row[key] = value;
-			if (proposedValue)
-				row.__proposed[key] = proposedValue;
-		});
-
-		return row;
-	}
+	$(document).trigger('app-ready');
 
 	// Install custom behaviors
+
+	var $templateCache = {};
+	var $urlToTemplate = {};
+
+	/**
+	 * Quick mode, store the template we need for that page for later return
+	 */
+	$(window).on('popstate', function(e) {
+		var url = document.location+"";
+		var $scope = $('html').scope();
+		var data = e.state;
+
+		console.log("goin: "+url);
+		loadPage(url);
+		//applyPage($scope, data.model);
+		//data.$template($scope);
+	});
+
+	$('body').on('click', 'a', function(e) {
+		e.preventDefault();
+		var $a = $(e.currentTarget);
+		var url = $a.attr('href');
+
+		loadPage(url);
+	});
+
+	function applyPage($scope, $model, content)
+	{
+		$scope.$apply(function($scope) { 
+			for (var key in window.$state) 
+				delete $scope[key];
+			
+			for (var key in $model) 
+				$scope[key] = $model[key];
+		});
+		
+		var $injector = angular.injector(['ng']);
+		var $compileState = null;
+		$injector.invoke(function($compile) {
+
+			var $dom = $('<template>'+content+'</template>');
+			var templateName = $dom.get(0).content.querySelector("div.meta.template-name");
+			if (templateName)
+				templateName = templateName.getAttribute('data-value');
+			else
+				templateName = null;
+
+			$dom.remove();
+
+			var $template = null;
+			var cached = null;
+			
+			if (templateName)
+				cached = $templateCache[templateName];
+
+			// It appears that there's no fucking way to make this template caching
+			// work correctly, because the second page load of a template (ie 
+			// when the template is already cached), the result will have the OLD
+			// template data and there is no way to change this ever again.
+			
+			if (false && cached) {
+				$template = cached;	
+			} else {
+				$template = $compile(content);
+				$templateCache[templateName] = $template;				
+			}
+
+			$('.content-container').html('<div></div>');
+			$('.content-container').find('div').html('');
+			$('.content-container').find('div').replaceWith($template($scope));
+			$scope.$apply();
+
+			$compileState = {
+				template: $template, 
+				state: $model
+			};
+			$('.loading-indicator').removeClass('active');
+		});
+
+		return $compileState;
+	}
+
+	var viewStackState = {};
+
+	function loadPage(url) {
+		var self = this;
+		$('.loading-indicator').addClass('active');
+		$.post(url, {
+			inline: 1
+		}, function(r) {
+			var $model = JSON.parse(r.model);
+			var $scope = $('html').scope();
+			if ($scope) {
+				var $compileState = applyPage($scope, $model, r.content);
+				$('core-toolbar .middle').html('');
+				updateHeroHeader();	
+
+				window.history.pushState({}, "Another", url);
+			}
+			
+		}, 'json').error(function(e) {
+			alert('Error: '+e);
+			console.log(e);
+		});
+
+		return false;
+	}
 
 	$('input[type=text].filter').each(function() {
 		var $filter = $(this);
 		var $ngApp = $('[ng-app]');
 		var $scope = $ngApp.scope();
 		var property = $filter.data('filter');
+
+		if (!$scope) {
+			console.log('failed to find angular scope for filter');
+			return;
+		}
+
 		var data = $scope.$eval(property); 
 		var filtering = false;
 		var subprop = $filter.data('target');	
@@ -214,27 +347,6 @@ $(document).ready(function() {
 		var $queryAce = $queryUi.find('.query-ace');
 
 		var $queryResults = $queryUi.find('.query-results');
-		var $button = $queryUi.find('button.execute');
-
-		$queryAce.html($queryInput.val()).show();
-		$queryInput.hide();
-    		var $ace = ace.edit($queryAce.get(0));
-	        $ace.setTheme("ace/theme/chrome");
-	        $ace.getSession().setMode("ace/mode/sql");
-		$ace.setUseWrapMode(true);
-		$ace.setShowPrintMargin(true);
-
-		$button.prop('disabled', true);
-		$button.removeClass('btn-danger').addClass('btn-primary');
-		$button.html('Query');
-
-		$button.click(function(ev) {
-			if ($button.hasClass('refresh')) {
-				ev.stopPropagation();
-				window.location.reload();
-				return false;
-			}
-		});
 
 		$queryUi.find('th.selectAll input').change(function() {
 			if ($(this).is(':checked')) {
@@ -535,40 +647,7 @@ $(document).ready(function() {
 			}, 500);
 		    };
 		}();	
-
-		// ACE events
-
-		$ace.getSession().on('change', function(e) {
-		    $queryInput.val($ace.getValue());
-			console.log($ace.getValue());
-		    updateButton();
-		});
-		
-		$ace.commands.addCommand({
-		    name: 'execute',
-		    bindKey: {win: 'Ctrl-E',  mac: 'Command-E'},
-		    exec: function(editor) {
-			$queryInput.val($ace.getValue());
-			$button.click();
-		    },
-		    readOnly: true // false if this command should not apply in readOnly mode
-		});
-
-		// Legacy mode support (with regular textbox)
-		$queryInput.keydown(function(ev) {
-			if ((ev.metaKey || ev.ctrlKey) && ev.which == 69) {
-				$button.click();
-			}
-
-			updateButton();
-		});
-		$queryInput.keydown();
+	
 	}
-	window.initializeQueryUi = initializeQueryUi;
-
-	$('.query-ui').each(function() {
-		initializeQueryUi($(this));
-	});
-
-
-});
+	$('.loading-indicator').removeClass('active');
+}
