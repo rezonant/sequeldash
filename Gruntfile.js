@@ -95,6 +95,7 @@ module.exports = function(grunt) {
 		'js/jquery.animate-colors.min.js',
 		'js/jquery.rezonant.js',
 		'components/angular/angular.js',
+		'components/angular-route/angular-route.js',
 		'components/moment/moment.js',
 		'components/bootstrap/dist/js/bootstrap.js',
 		'components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js',

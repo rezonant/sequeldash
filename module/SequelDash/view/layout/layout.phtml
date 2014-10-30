@@ -99,12 +99,15 @@ if (isset($post->inline)) {
 			
 		</core-toolbar>
         <div content class="content-container">
+			<ng-view></ng-view>
+			<? if (0) { ?>
             <?php echo $this->content; ?>
 			<div style="clear:both;"></div>
             <hr>
             <footer style="text-align:center;">
                 <p>&copy; 2014 the sequeldash project. All rights reserved.</p>
             </footer>
+			<? } ?>
         </div> <!-- /container -->
 	</core-scroll-header-panel>
 
