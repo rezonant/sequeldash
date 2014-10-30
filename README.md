@@ -3,13 +3,9 @@ sequeldash
 
 > Please Note: This is an incomplete alpha version. Development is ongoing. New features are coming very soon!
 
-Sequeldash is a modern, thoughtfully-designed SQL administration tool written in PHP, similar to phpMyAdmin or Adminer.
-While being built with the latest web technologies, Sequeldash is built to gracefully degrade for use on
-older or less capable browsers.
+Sequeldash is a modern, thoughtfully-designed SQL administration tool written in PHP, similar to phpMyAdmin or Adminer. It was born out of my frustrations with the existing tools- particularly phpMyAdmin which, while very reliable, is far from a well-designed tool. Furthermore, while PMA is good for simple one-time SQL administration, it leaves much to be desired for seasoned developers and system administrators. 
 
-It was born out of my frustrations with the existing tools- particularly phpMyAdmin which, while very reliable,
-is far from a well-designed tool. Furthermore, while PMA is very useful for simple one-time SQL administration, it 
-pales when faced with more difficult and dangerous SQL operations.
+For instance, inline editing can be dangerous in PMA. Sequeldash **stages** inline edits, so you can commit one or all rows simultaneously.
 
 For example, SequelDash has inline editing, but changes made inline are never immediately saved to the database. Instead 
 changes are "staged", allowing the user to save changes when they are ready-- and not a moment sooner.
