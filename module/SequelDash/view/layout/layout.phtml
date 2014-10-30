@@ -36,30 +36,21 @@ echo $this->doctype();
 >
 <head>
 	<meta charset="utf-8">
-	<?php echo $this->headTitle('SequelDash')->setSeparator(' - ')->setAutoEscape(false) ?>
+	<title>SequelDash</title>
 
-	<?php echo $this->headMeta()
-		->appendName('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
-		->appendHttpEquiv('X-UA-Compatible', 'IE=edge')
-	?>
-
-	<!-- Styles -->
-	<?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
-					->appendStylesheet($this->basePath() . '/build/css/platform.css')
-					->appendStylesheet($this->basePath() . '/build/css/app.css')
-	; ?>    
-
+	<?= $this->headMeta() ?>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	
+	<link rel="shortcut icon" type="image/vnd.microsoft.icon" href="<?= $this->basePath() ?>/img/favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="<?= $this->basePath() ?>/build/css/platform.css" />
+	<link rel="stylesheet" type="text/css" href="<?= $this->basePath() ?>/build/css/app.css" />
+	
 	<!-- Scripts -->
-	<?php echo $this->headScript()
-		->appendFile($this->basePath() . '/build/js/platform.min.js')
-	//	->appendFile($this->basePath() . '/js/ace/ace.js')
-	; ?>
-	<link href='http://fonts.googleapis.com/css?family=Roboto:300,700,300italic,400italic,100italic,100,400,700italic' rel='stylesheet' type='text/css'>
-	<link rel="import" href="<?= $this->basePath() ?>/../components/paper-elements/paper-elements.html" />
-	<link rel="import" href="<?= $this->basePath() ?>/../components/core-elements/core-elements.html" />
-	<link rel="import" href="<?= $this->basePath() ?>/../components/polymer-ui-card/polymer-ui-card.html" />
-	<link rel="import" href="<?= $this->basePath() ?>/../components/ace-element/ace-element.html" />
-	<link rel="import" href="<?= $this->basePath() ?>/components/sequeldash.html" />
+	<?= $this->headScript() ?>
+	<script src="<?= $this->basePath() ?>/build/js/platform.min.js"></script>
+	<link href='http://fonts.googleapis.com/css?family=Roboto:300,700,300italic,400italic,100italic,100,400,700italic' 
+		  rel='stylesheet' type='text/css'>
 </head>
 <body fullbleed layout vertical unresolved>
 	<div class="top-bar" horizontal layout>
@@ -131,7 +122,8 @@ echo $this->doctype();
             </footer>
         </div> <!-- /container -->
 	</core-scroll-header-panel>
-
+	
+	<link rel="import" href="<?= $this->basePath() ?>/components/sequeldash.html" />
 	<script type="text/javascript">
 		$state = <?= isset($model) ? json_encode((array)$model->getVariables()) : '{na:1}' ?>;
 	</script>
