@@ -45,13 +45,13 @@ echo $this->doctype();
 
 	<!-- Styles -->
 	<?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
-					->appendStylesheet($this->basePath() . '/css/platform.css')
-					->appendStylesheet($this->basePath() . '/css/style.css')
+					->appendStylesheet($this->basePath() . '/build/css/platform.css')
+					->appendStylesheet($this->basePath() . '/build/css/app.css')
 	; ?>    
 
 	<!-- Scripts -->
 	<?php echo $this->headScript()
-		->appendFile($this->basePath() . '/js/platform.min.js')
+		->appendFile($this->basePath() . '/build/js/platform.min.js')
 	//	->appendFile($this->basePath() . '/js/ace/ace.js')
 	; ?>
 	<link href='http://fonts.googleapis.com/css?family=Roboto:300,700,300italic,400italic,100italic,100,400,700italic' rel='stylesheet' type='text/css'>
@@ -137,9 +137,9 @@ echo $this->doctype();
 	</script>
         <?php echo $this->inlineScript() ?>
 	<? if ($stage == 'dev') { ?>
-		<script type="text/javascript" src="<?= $this->basePath() ?>/js/app.js"></script>            
+		<script type="text/javascript" src="<?= $this->basePath() ?>/build/js/app.js"></script>            
 	<? } else { ?>
-		<script type="text/javascript" src="<?= $this->basePath() ?>/js/app.min.js"></script>            
+		<script type="text/javascript" src="<?= $this->basePath() ?>/build/js/app.min.js"></script>            
 	<? } ?>
 
 	  <script>

@@ -22,7 +22,7 @@ module.exports = function(grunt) {
     },
 
     concat: {
-	css: {
+	platformCss: {
 		src: [
 			'components/prism/themes/prism.css',
 			'components/bootstrap/dist/css/bootstrap.css',
@@ -30,7 +30,15 @@ module.exports = function(grunt) {
 			'components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css',
 		],
 
-		dest: 'app/css/platform.css'
+		dest: 'app/build/css/platform.css'
+	},
+
+	appCss: {
+		src: [
+			'app/css/style.css'
+		],
+
+		dest: 'app/build/css/app.css'
 	}
     },
 
@@ -46,7 +54,7 @@ module.exports = function(grunt) {
 			'js/entry.js'
 		],
 
-		dest: 'app/js/app.js'
+		dest: 'app/build/js/app.js'
 	}
     },
 
@@ -93,13 +101,13 @@ module.exports = function(grunt) {
 		'components/prism/prism.js',
 		'components/prism/components/prism-sql.js',
 	],
-        dest: 'app/js/platform.min.js'
+        dest: 'app/build/js/platform.min.js'
       },
       app: {
 	src: [
-		'app/js/app.js'
+		'app/build/js/app.js'
 	],
-	dest: 'app/js/app.min.js'
+	dest: 'app/build/js/app.min.js'
       },
     }
   });

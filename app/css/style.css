@@ -59,7 +59,7 @@ body /deep/ paper-button.success {
 
 /* background for toolbar when it is at its full size */
 core-scroll-header-panel::shadow #headerBg {
-  background-image: url(../img/bg8.jpg);
+  background-image: url(../../img/bg8.jpg);
 }
 
 .card-header {
