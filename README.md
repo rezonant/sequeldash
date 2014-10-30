@@ -28,27 +28,46 @@ In order to properly run a copy of sequeldash you will need to have the followin
 
 Build Prerequisites
 ==========
+  * NPM
+  * Bower (installed using NPM)
+  * Grunt (installed using NPM)
+  * PHP
 
 In order to build sequeldash, you must first install nodejs, npm, bower and grunt
-NodeJS and npm installation instructions are outside the scope of this document. For instructions specific to your platform, see http://npmjs.org/.
+NodeJS and npm installation instructions are outside the scope of this README. For instructions specific to your platform, see http://npmjs.org/.
 
-Once node and npm are installed:
+Once node and npm are installed, you can install Bower and Grunt by running:
 
     $ npm install -g bower
     $ npm install -g grunt-cli
 
+Preparation (First build)
+========
+
+The quick way, for UNIX users:
+   $ ./prepare.sh
+
+The long way, for everyone else:
+
+   $ php composer.phar install
+   $ npm install
+   $ bower install
+
 Building
 ========
 
-To build sequeldash:
+   $ grunt
 
-    user@host sequeldash$ ./prepare.sh
-    user@host sequeldash$ grunt
-    user@host sequeldash$ chmod a+r app -R
+> Note: You may have to rerun the Preparation step if you are pulling changes which add dependencies
+
+Configuring
+===========
+
+In order to run, Sequeldash only needs to know what DBMS connector must be used and which database server
+you'd like this instance to connect to. You can do that by creating the file config/database.config.php and
+filling in the required details. A sample database.config.php is provided along with the codebase as config/database.config.php.dist.
 
 Running
 =======
-
-Once you have a fully built copy, you can then simply visit the web root in your browser. The application may be installed in any subdirectory. You also may optionally install sequeldash with the 'app' subdirectory as the web root for your server. This mode of operation is not well tested. Please submit a bug report if you experience issues with this configuration.
 
 You will then need to log in with valid MySQL server credentials.
