@@ -7,4 +7,9 @@ nbproject
 .project
 .settings
 composer.lock
-vendor/bin
+vendor
+app/build
+build
+node_modules
+components
+data
