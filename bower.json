@@ -20,7 +20,8 @@
     "core-elements": "polymer/core-elements#~0.4.2",
     "platform": "polymer/platform#~0.4.2",
     "polymer-ui-card": "Polymer/polymer-ui-card#~0.3.0",
-    "ace-element": "PolymerLabs/ace-element#~0.4.0"
+    "ace-element": "PolymerLabs/ace-element#~0.4.0",
+    "angular-route": "~1.3.0"
   },
   "resolutions": {
     "platform": "~0.4.2",
