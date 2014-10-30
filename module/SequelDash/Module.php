@@ -17,7 +17,7 @@ class Module
     public function onBootstrap(MvcEvent $e)
     {
         $eventManager        = $e->getApplication()->getEventManager();
-	$serviceManager	     = $e->getApplication()->getServiceManager();
+		$serviceManager	     = $e->getApplication()->getServiceManager();
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
         
@@ -45,7 +45,7 @@ class Module
 			$url = substr($url, strlen($event->getRequest()->getBasePath()));
 
 			SessionManager::setReturnUrl($url);
-			header('Location: '.$event->getRequest()->getBasePath().'/login');
+			header('Location: '.$event->getRequest()->getBasePath().'/login/#/login');
 			die();
 		}
 	}

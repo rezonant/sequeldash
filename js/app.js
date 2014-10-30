@@ -74,6 +74,10 @@ window.queryGenerator = queryGenerator;
 				var basePath = $('html').attr('data-base-path');
 				loadPageEx($scope, basePath+window.location.hash.substr(1));
 			}]);
+			app.controller('LoginController', ['$scope', '$http', function($scope) {
+				var basePath = $('html').attr('data-base-path');
+//				loadPageEx($scope, basePath+'/');
+			}]);
 			app.controller('IndexController', ['$scope', '$http', function($scope) {
 				var basePath = $('html').attr('data-base-path');
 				loadPageEx($scope, basePath+'/');
@@ -89,6 +93,10 @@ window.queryGenerator = queryGenerator;
 			app.config(['$routeProvider',
 				function($routeProvider) {
 					$routeProvider.
+						when('/login', {
+							templateUrl: 'html/login/index.html',
+							controller: 'LoginController'
+						}).
 						when('/dbs', {
 							templateUrl: 'html/index/index.html',
 							controller: 'IndexController'
