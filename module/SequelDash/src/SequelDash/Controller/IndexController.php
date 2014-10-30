@@ -29,7 +29,7 @@ class IndexController extends Controller
 		
 		return $this->model(array(
 			'breadcrumbs' => array(
-				$this->getRequest()->getBasePath().'/' => \SequelDash\Db\Connector::getActiveHostname(),
+				'#/' => \SequelDash\Db\Connector::getActiveHostname(),
 			),
 			'layoutHero' => true,
 			'layoutDashboard' => true,

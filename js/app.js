@@ -86,11 +86,9 @@ function sequeldashInit() {
 				$('core-scroll-header-panel').get(0).async('measureHeaderHeight');
 
 				if (!hideBar || !firstPage) {
-					console.log('not hide, scrolling down immediately');
 					$(container).scrollTop(size);
 				}
 
-				console.log('remeasure');
 				$('core-toolbar .middle').show();
 				// Make the header pretty
 				if (!hideBar) {
@@ -123,7 +121,6 @@ function sequeldashInit() {
 		
 		var $mainContainer = $coreScrollHeaderPanel.shadow('#mainContainer');
 		var val = $mainContainer.scrollTop() + e.originalEvent.deltaY;
-		console.log(val + " / " + e.offsetY);
 		$mainContainer.scrollTop(val);
 	});
 
@@ -153,6 +150,7 @@ function sequeldashInit() {
 	/**
 	 * Quick mode, store the template we need for that page for later return
 	 */
+	/*
 	$(window).on('popstate', function(e) {
 		var url = document.location+"";
 		var $scope = $('html').scope();
@@ -170,11 +168,27 @@ function sequeldashInit() {
 		var url = $a.attr('href');
 
 		loadPage(url);
+	});*/
+	
+	$(window).on('hashchange', function() {
+		var basePath = $('html').data('base-path');
+		var hash = "/";
+		
+		if (window.location.hash)
+			hash = (window.location.hash + "").substr(1);
+		
+		var path = basePath+hash;
+		
+		loadPage(path, false);
 	});
+	
+	if (window.location.hash) {
+		$(window).trigger('hashchange');
+	}
  
 	$('body').on('click', '.navigate', function(e) {
 		var href = $(this).attr('data-href');
-		loadPage(href);
+		window.location.hash = "#"+href;
 	});
 
 	function applyPage($scope, $model, content)
@@ -198,8 +212,6 @@ function sequeldashInit() {
 			else
 				templateName = null;
 
-			$dom.remove();
-
 			var $template = null;
 			var cached = null;
 			
@@ -210,6 +222,8 @@ function sequeldashInit() {
 			// work correctly, because the second page load of a template (ie 
 			// when the template is already cached), the result will have the OLD
 			// template data and there is no way to change this ever again.
+			
+			$dom.remove();
 			
 			if (false && cached) {
 				$template = cached;	
@@ -235,7 +249,10 @@ function sequeldashInit() {
 
 	var viewStackState = {};
 
-	function loadPage(url) {
+	function loadPage(url, pushState) {
+		if (typeof pushState == 'undefined')
+			pushState = true;
+		
 		var self = this;
 		$('.loading-indicator').addClass('active');
 		$.post(url, {
@@ -248,7 +265,8 @@ function sequeldashInit() {
 				$('core-toolbar .middle').html('');
 				updateHeroHeader();	
 
-				window.history.pushState({}, "Another", url);
+				if (pushState)
+					window.history.pushState({}, "Another", url);
 			}
 			
 		}, 'json').error(function(e) {

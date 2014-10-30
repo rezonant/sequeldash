@@ -1,20 +1,5 @@
 <?php 
 
-
-$deploymentConfigFile = dirname(__FILE__).'/../../../../config/deployment.config.php';
-$deployment = (object)array();
-
-if (is_file($deploymentConfigFile)) {
-	$deployment = require $deploymentConfigFile;
-	$deployment = (object)$deployment;
-}
-
-$stage = 'dev';
-if (isset($deployment->stage))
-	$stage = $deployment->stage;
-	
-// Zend, we are not off to a good start.
-// The next two lines provide access to the primary ViewModel instance, and is also fucktarded.
 $viewmodels = $this->viewModel()->getCurrent()->getChildren();
 $model = $viewmodels[0];
 $request = new stdclass;
@@ -26,19 +11,23 @@ if (isset($model->request)) {
 }
 
 if (isset($post->inline)) {
-	echo json_encode(array('content' => $this->content, 'model' => isset($model) ? json_encode((array)$model->getVariables()) : new stdclass));
+	echo json_encode(array(
+		'content' => $this->content, 
+		'model' => isset($model) ? 
+			json_encode((array)$model->getVariables()) 
+			: new stdclass
+	));
 	return;
 }
 
-echo $this->doctype(); 
-?><html lang="en" 
+?><!DOCTYPE html>
+<html lang="en" 
 	ng-init="state.loggedIn=false;startup=true"
+	data-base-path="<?= $this->basePath() ?>"
 >
 <head>
 	<meta charset="utf-8">
 	<title>SequelDash</title>
-
-	<?= $this->headMeta() ?>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	
@@ -47,8 +36,8 @@ echo $this->doctype();
 	<link rel="stylesheet" type="text/css" href="<?= $this->basePath() ?>/build/css/app.css" />
 	
 	<!-- Scripts -->
-	<?= $this->headScript() ?>
 	<script src="<?= $this->basePath() ?>/build/js/platform.min.js"></script>
+	<link rel="import" href="<?= $this->basePath() ?>/components/sequeldash.html" />
 	<link href='http://fonts.googleapis.com/css?family=Roboto:300,700,300italic,400italic,100italic,100,400,700italic' 
 		  rel='stylesheet' type='text/css'>
 </head>
@@ -62,11 +51,7 @@ echo $this->doctype();
 		</div>
 
 		<div>
-			<div class="logo">
-			<? if (!isset($model->layout['showLogo']) || $model->layout['showLogo']) { ?>
-				<a href="<?php echo $this->url('home') ?>" style="color:white;">sequeldash</a>
-			<? } ?>
-			</div>
+			<div class="logo">sequeldash</div>
 			<br/>
 			<span class="loading-indicator"
 				  ><img class="logo-loading" src="{{state.basePath}}/img/loading.gif" style="position:relative;top:0.5em;" 
@@ -88,18 +73,18 @@ echo $this->doctype();
 				<div class="menu-section">
 					Recent
 				</div>
-				<paper-item><a href="{{state.basePath}}/users">ns4.users</a></paper-item>
-				<paper-item><a href="{{state.basePath}}/users">ns4.settings</a></paper-item>
+				<paper-item><a href="#/dbs/ns4/tables/users">ns4.users</a></paper-item>
+				<paper-item><a href="#/dbs/ns4/tables/settings">ns4.settings</a></paper-item>
 				<hr/>
-				<paper-item><a href="{{state.basePath}}/users">Manage Users</a></paper-item>
-				<paper-item><a href="{{state.basePath}}/service">Service Status</a></paper-item>
-				<paper-item><a href="{{state.basePath}}/about">About / Updates</a></paper-item>
-				<paper-item><a rel="external" href="{{state.basePath}}/logout">Logout</a></paper-item>
+				<paper-item><a href="#/users">Manage Users</a></paper-item>
+				<paper-item><a href="#/service">Service Status</a></paper-item>
+				<paper-item><a href="#/about">About / Updates</a></paper-item>
+				<paper-item><a rel="external" href="#/logout">Logout</a></paper-item>
 			</paper-menu-button>
 		</div>
 	</div>
 	<core-scroll-header-panel condenses flex keepCondensedHeader="true" headerHeight="1200px" condensedheaderheight="60px">
-        <core-toolbar layout vertical class="tall <?= isset($model->layoutHero) && $model->layoutHero ? 'hero' : '' ?>">
+        <core-toolbar layout vertical class="tall">
 			<div flex layout horizontal class="top" style="width:100%;">
 			</div>
 			
@@ -115,50 +100,47 @@ echo $this->doctype();
 		</core-toolbar>
         <div content class="content-container">
             <?php echo $this->content; ?>
-	    <div style="clear:both;"></div>
+			<div style="clear:both;"></div>
             <hr>
             <footer style="text-align:center;">
-                <p>&copy; 2014 - <?php echo date('Y') ?> the sequeldash project. <?php echo $this->translate('All rights reserved.') ?></p>
+                <p>&copy; 2014 the sequeldash project. All rights reserved.</p>
             </footer>
         </div> <!-- /container -->
 	</core-scroll-header-panel>
-	
-	<link rel="import" href="<?= $this->basePath() ?>/components/sequeldash.html" />
+
+	<script>
+	  // custom transformation: scale header's title
+	  var titleStyle = document.querySelector('.logo').style;
+	  addEventListener('core-header-transform', function(e) {
+		var d = e.detail;
+		var m = d.height - d.condensedHeight;
+
+		var scale = Math.max(0.40, (m - d.y) / (m / 0.25)  + 0.40);
+		titleStyle.transform = titleStyle.webkitTransform =
+		  'scale(' + scale + ') translateZ(0)';
+
+		$('.logo-loading').css('transform', 'scale('+(scale*2)+') translateZ(0)')
+			  .css('opacity', (m - d.y) / m);
+		titleStyle.opacity = (m - d.y) / m;
+
+
+		m = 60;
+		var opac = (m - d.y + 30) / (m);
+		opac = Math.max(0, opac);
+
+		$('core-toolbar .middle').css('opacity', opac);
+//		  $('#username').css('opacity', opac);
+		$('#condensed-logo').css('opacity', 1-opac);
+	  });
+
+	</script>
+	  
+	<!-- // -->
+
 	<script type="text/javascript">
 		$state = <?= isset($model) ? json_encode((array)$model->getVariables()) : '{na:1}' ?>;
 	</script>
-        <?php echo $this->inlineScript() ?>
-	<? if ($stage == 'dev') { ?>
-		<script type="text/javascript" src="<?= $this->basePath() ?>/build/js/app.js"></script>            
-	<? } else { ?>
-		<script type="text/javascript" src="<?= $this->basePath() ?>/build/js/app.min.js"></script>            
-	<? } ?>
-
-	  <script>
-	    // custom transformation: scale header's title
-	    var titleStyle = document.querySelector('.logo').style;
-	    addEventListener('core-header-transform', function(e) {
-	      var d = e.detail;
-	      var m = d.height - d.condensedHeight;
-		  
-	      var scale = Math.max(0.40, (m - d.y) / (m / 0.25)  + 0.40);
-	      titleStyle.transform = titleStyle.webkitTransform =
-			'scale(' + scale + ') translateZ(0)';
-
-	      $('.logo-loading').css('transform', 'scale('+(scale*2)+') translateZ(0)')
-				.css('opacity', (m - d.y) / m);
-		  titleStyle.opacity = (m - d.y) / m;
-  
-  
-		  m = 60;
-		  var opac = (m - d.y + 30) / (m);
-		  opac = Math.max(0, opac);
-		  
-		  $('core-toolbar .middle').css('opacity', opac);
-//		  $('#username').css('opacity', opac);
-		  $('#condensed-logo').css('opacity', 1-opac);
-	    });
-
-	  </script>
+	
+	<script type="text/javascript" src="<?= $this->basePath() ?>/build/js/app.js"></script>
 </body>
 </html>

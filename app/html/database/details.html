@@ -1,0 +1,24 @@
+<div class="meta template-name" data-value="database-details"></div>
+<div class="inner jumbotron" style="text-align:center;" ng-show="{{error}}">
+	<br/><br/>
+	<span class="alert alert-danger">{{error}}</span>
+	<br/>
+	<br/>
+</div>
+<div class="row" style="padding:1em;">
+    <div>
+        <paper-shadow z="2"></paper-shadow>
+        <polymer-ui-card id="databases">
+            <div class="card-header">
+                <div style="float:right;">
+					<ng-filter name="database.tables" within="name"></ng-filter>
+					<paper-button raised class="primary navigate" data-href="/dbs/{{database.name}}/query">Query</paper-button>
+                </div>
+    		<h4>Tables in `{{database.name}}`</h4>
+            </div>
+            <div class="panel-body">
+		<tables-data-view data="{{database}}"></tables-data-view>
+	    </div>
+	</polymer-ui-card>
+    </div>
+</div>

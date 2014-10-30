@@ -33,10 +33,10 @@ class DatabaseController extends Controller
 
 	return $this->model(array(
 		'breadcrumbs' => array(
-			$this->getRequest()->getBasePath().'/' => \SequelDash\Db\Connector::getActiveHostname(),
-			$this->getRequest()->getBasePath().'/dbs/'.$db => $db,
-			$this->getRequest()->getBasePath().'/dbs/'.$db.'/tables/'.$table => $table,
-			$this->getRequest()->getBasePath().'/dbs/'.$db.'/tables/'.$table.'/schema' => 'Schema'
+			'#/' => \SequelDash\Db\Connector::getActiveHostname(),
+			'#/dbs/'.$db => $db,
+			'#/dbs/'.$db.'/tables/'.$table => $table,
+			'#/dbs/'.$db.'/tables/'.$table.'/schema' => 'Schema'
 		),
 		'error' => $error,
 		'database' => array(
@@ -67,10 +67,10 @@ class DatabaseController extends Controller
 
 	return $this->model(array(
 		'breadcrumbs' => array(
-			"$bp/" => \SequelDash\Db\Connector::getActiveHostname(),
-			"$bp/dbs/$db" => $db,
-			"$bp/dbs/$db/tables/$table" => $table,
-			"$bp/dbs/$db/tables/$table/search" => 'Search'
+			"#/" => \SequelDash\Db\Connector::getActiveHostname(),
+			"#/dbs/$db" => $db,
+			"#/dbs/$db/tables/$table" => $table,
+			"#/dbs/$db/tables/$table/search" => 'Search'
 		),
 
 		'database' => array(
@@ -184,8 +184,8 @@ class DatabaseController extends Controller
 	$bp = $this->getRequest()->getBasePath();
 	return $this->model(array(
 		'breadcrumbs' => array(
-			"$bp/" => \SequelDash\Db\Connector::getActiveHostname(),
-			"$bp/dbs/$db" => "$db",
+			"#/" => \SequelDash\Db\Connector::getActiveHostname(),
+			"#/dbs/$db" => "$db",
 		),
 
 		'error' => $error,
@@ -378,9 +378,9 @@ class DatabaseController extends Controller
 
 	return $this->model(array(
 		'breadcrumbs' => array(
-			$this->getRequest()->getBasePath().'/' => \SequelDash\Db\Connector::getActiveHostname(),
-			$this->getRequest()->getBasePath().'/dbs/'.$db => $db,
-			$this->getRequest()->getBasePath().'/dbs/'.$db.'/tables/'.$table => $table
+			'#/' => \SequelDash\Db\Connector::getActiveHostname(),
+			'#/dbs/'.$db => $db,
+			'#/dbs/'.$db.'/tables/'.$table => $table
 		),
 		'error' => $error,
 		'database' => array(
@@ -429,9 +429,9 @@ class DatabaseController extends Controller
 
 	return $this->model(array(
 		'breadcrumbs' => array(
-			$this->getRequest()->getBasePath().'/' => \SequelDash\Db\Connector::getActiveHostname(),
-			$this->getRequest()->getBasePath().'/dbs/'.$db => $db,
-			$this->getRequest()->getBasePath().'/dbs/'.$db.'/tables' => 'Tables'
+			'#/' => \SequelDash\Db\Connector::getActiveHostname(),
+			'#/dbs/'.$db => $db,
+			'#/dbs/'.$db.'/tables' => 'Tables'
 		),
 		'error' => $error,
 		'database' => array(
@@ -476,8 +476,8 @@ class DatabaseController extends Controller
 
 	return $this->model(array(
 		'breadcrumbs' => array(
-			$this->getRequest()->getBasePath().'/' => \SequelDash\Db\Connector::getActiveHostname(),
-			$this->getRequest()->getBasePath().'/dbs/'.$db => $db
+			'#/' => \SequelDash\Db\Connector::getActiveHostname(),
+			'#/dbs/'.$db => $db
 		),
 		'error' => $error,
 		'database' => array(
@@ -490,10 +490,10 @@ class DatabaseController extends Controller
 
     public function indexAction()
     {
-	$error = 'Huh';
+		$error = 'Huh';
         return $this->model(array(
-		'breadcrumbs' => array(),
-		'error' => $error
-	));
+			'breadcrumbs' => array(),
+			'error' => $error
+		));
     }
 }

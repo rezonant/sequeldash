@@ -279,29 +279,28 @@
 				_mutationLocked: false,
 				
 				ready: function() {
-                        	        var $shadowNodes = $(this.shadowRoot).children();
-                	                $shadowNodes.on('click', 'a', function(ev) {
-						console.log('clicked on shadow');
-						ev.preventDefault();
-						if ($('body > a#navigate-helper').length == 0)
-	        	                                $('body').append($('<a></a>').attr('id', 'navigate-helper'));
+						var $shadowNodes = $(this.shadowRoot).children();
+						if (0) $shadowNodes.on('click', 'a', function(ev) {
+							ev.preventDefault();
+							if ($('body > a#navigate-helper').length == 0)
+								$('body').append($('<a></a>').attr('id', 'navigate-helper'));
 
-						var $a = $(ev.currentTarget);
-						var $bodyClone = $a.clone(false);
-						$bodyClone.css({
-							position: 'absolute',
-							zIndex: -50,
-							visibility: 'hidden'
-						});
+							var $a = $(ev.currentTarget);
+							var $bodyClone = $a.clone(true);
+							$bodyClone.css({
+								position: 'absolute',
+								zIndex: -50,
+								visibility: 'hidden'
+							});
 
-						$('body').append($bodyClone);
-						setTimeout(function() {
-							$bodyClone.detach();
-						}, 1000);
-						$bodyClone.click();
-						ev.stopPropagation();
-						return false;
-	                                });
+							$('body').append($bodyClone);
+							setTimeout(function() {
+								$bodyClone.detach();
+							}, 1000);
+							$bodyClone.click();
+							ev.stopPropagation();
+							return false;
+	                    });
 
 					var self = this;
 					var adjustTable = function() {

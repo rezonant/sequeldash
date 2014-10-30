@@ -11,7 +11,7 @@
 			<template id="repeater" repeat="{{data.tables as table}}">
 				<data-item>
 					<data-field name="name">
-						<a href="{{basePath}}/dbs/{{data.name}}/tables/{{table.name}}">{{table.name}}</a>
+						<a href="#/dbs/{{data.name}}/tables/{{table.name}}">{{table.name}}</a>
 					</data-field>
 					<data-field name="rows">
 						{{table.rows}}
