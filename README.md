@@ -18,6 +18,7 @@ For now, only MySQL is supported, but the tool is being built to support multipl
 
 Installation Prerequisites
 ===================
+
 In order to properly run a copy of sequeldash you will need to have the following server-side software installed:
 
   * Apache
@@ -28,6 +29,7 @@ In order to properly run a copy of sequeldash you will need to have the followin
 
 Build Prerequisites
 ==========
+
   * NPM
   * Bower (installed using NPM)
   * Grunt (installed using NPM)
@@ -45,18 +47,19 @@ Preparation (First build)
 ========
 
 The quick way, for UNIX users:
-   $ ./prepare.sh
+
+    $ ./prepare.sh
 
 The long way, for everyone else:
 
-   $ php composer.phar install
-   $ npm install
-   $ bower install
+    C:/> php composer.phar install
+    C:/> npm install
+    C:/> bower install
 
 Building
 ========
 
-   $ grunt
+    $ grunt
 
 > Note: You may have to rerun the Preparation step if you are pulling changes which add dependencies
 
