@@ -22,7 +22,37 @@ function sequeldashInit() {
 	// Initialize Angular
 	angular.module('sequeldash', []);
 	angular.bootstrap(document, ['sequeldash']);
+	
+	var scrollbarWidth = -1;
+	
+	function getScrollbarWidth() {
+		if (scrollbarWidth >= 0)
+			return scrollbarWidth;
+		
+		var outer = document.createElement("div");
+		outer.style.visibility = "hidden";
+		outer.style.width = "100px";
+		outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
 
+		document.body.appendChild(outer);
+
+		var widthNoScroll = outer.offsetWidth;
+		// force scrollbars
+		outer.style.overflow = "scroll";
+
+		// add innerdiv
+		var inner = document.createElement("div");
+		inner.style.width = "100%";
+		outer.appendChild(inner);        
+
+		var widthWithScroll = inner.offsetWidth;
+
+		// remove divs
+		outer.parentNode.removeChild(outer);
+
+		return scrollbarWidth = (widthNoScroll - widthWithScroll);
+	}
+	
 	function updateHeroHeader(firstPage)
 	{
 
@@ -77,10 +107,20 @@ function sequeldashInit() {
 		}
 	}
 
+	setTimeout(function() {
+		var width = getScrollbarWidth();
+		$('core-scroll-header-panel::shadow #headerContainer').css('margin-right', width+'px');
+		$('.top-bar').css('margin-right', width+'px');
+	}, 100);
+
 	updateHeroHeader(true);
 
 	var $coreScrollHeaderPanel = $( 'core-scroll-header-panel' );
 	$coreScrollHeaderPanel.shadow('#headerContainer').on( 'wheel', function (e) {
+		if ($(e.target).closest('.hero-cards').length > 0) {
+			return;
+		}
+		
 		var $mainContainer = $coreScrollHeaderPanel.shadow('#mainContainer');
 		var val = $mainContainer.scrollTop() + e.originalEvent.deltaY;
 		console.log(val + " / " + e.offsetY);
@@ -130,6 +170,11 @@ function sequeldashInit() {
 		var url = $a.attr('href');
 
 		loadPage(url);
+	});
+ 
+	$('body').on('click', '.navigate', function(e) {
+		var href = $(this).attr('data-href');
+		loadPage(href);
 	});
 
 	function applyPage($scope, $model, content)

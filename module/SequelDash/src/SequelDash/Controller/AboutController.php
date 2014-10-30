@@ -1,6 +1,5 @@
 <?php
 /**
- * @copyright Copyright (c) 2014 Sequeldash
  */
 
 namespace SequelDash\Controller;
@@ -9,7 +8,7 @@ use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use SequelDash\Controller;
 
-class IndexController extends Controller
+class AboutController extends Controller
 {
     public function indexAction()
     {

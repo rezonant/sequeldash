@@ -178,7 +178,8 @@ return array(
         'invokables' => array(
             'SequelDash\Controller\Index' => 'SequelDash\Controller\IndexController',
             'SequelDash\Controller\Login' => 'SequelDash\Controller\LoginController',
-            'SequelDash\Controller\Database' => 'SequelDash\Controller\DatabaseController'
+            'SequelDash\Controller\Database' => 'SequelDash\Controller\DatabaseController',
+            'SequelDash\Controller\About' => 'SequelDash\Controller\AboutController'
         ),
     ),
     'view_manager' => array(

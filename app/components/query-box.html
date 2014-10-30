@@ -110,9 +110,11 @@
 							</template>
 						</div>
 					</template>
-                                        <div style="text-align:right;position:relative;top:-40px;height:15px;">
-						<ng-filter name="query.results"></ng-filter>
-					</div>
+					<template if="{{query.results}}">
+						<div style="text-align:right;position:relative;top:-40px;height:15px;">
+							<ng-filter name="query.results"></ng-filter>
+						</div>
+					</template>
 
 					<div style="overflow-x: auto; overflow-y: visible;">
 					<table class="query-results" data-table="{{query.table}}" data-db="{{database}}">
@@ -305,11 +307,19 @@
 					var db = new api.db(self.database);
 					db.query(query)
 					    .then(function(r) {
-						console.log(r);
-						var $scope = $('html').scope();
-						$scope.$apply(function($scope) {
-							$scope.query = r.query;
-						});
+							console.log(r);
+							
+							self.query = r.query;
+							
+							// Share the love with Angular (if we have it!)
+							if ($().scope) {
+								var $scope = $('html').scope();
+								if ($scope) {
+									$scope.$apply(function($scope) {
+										$scope.query = r.query;
+									});
+								}
+							}
 					    });
 				});
 				this.updateButton();

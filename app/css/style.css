@@ -6,6 +6,11 @@ body {
 	box-sizing: border-box;
 }
 
+core-scroll-header-panel /deep/ #headerLayout {
+	position:relative;
+	z-index:10;
+}
+
 .schema-panel {
 	position:relative;
 	padding:1em;
@@ -66,8 +71,14 @@ core-scroll-header-panel::shadow #headerBg {
 }
 
 .card-header h3, .card-header h4 {
-	position:absolute;
-	bottom:1em;
+	overflow:hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	margin:0;
+}
+
+.panel-body {
+	background:white;
 }
 
 /* background for toolbar when it is condensed */
@@ -76,27 +87,19 @@ core-scroll-header-panel::shadow #condensedHeaderBg {
 }
 
 /* background for toolbar when it is condensed */
+/*
 core-scroll-header-panel::shadow #headerContainer {
 	margin-right:15px;
 }
-
-.mobile-breadcrumbs {
-	display:none;
-	text-wrap: none;
-}
+*/
 
 @media (max-width:900px) {
 	/* background for toolbar when it is condensed */
+	/*
 	core-scroll-header-panel::shadow #headerContainer {
 		margin-right:0;
 	}
-
-	.mobile-breadcrumbs {
-		display:block;
-	}	
-	.breadcrumbs {
-		display:none;
-	}
+	*/
 	
 	paper-menu-button paper-item {
 		min-width: 200px; 
@@ -137,20 +140,36 @@ core-toolbar::shadow #middleBar {
 .header-card {
 	position:relative;
 	width:300px;
-	background:white;
+	min-width:360px;
+	height:250px;
 	flex:1;
 	-webkit-flex:1;
 	-ms-flex:1;
 	margin:1em;
 	clear:both;
-	height:250px;
-	color:black;
-	min-width:360px;
+	
+	color:#555;
+	background:white;
 	font-family: 'Roboto';
 	font-weight: 300;
-	color:#555;
 	opacity:0.95;
 	
+}
+
+.hero-cards {
+	font-size:100%;
+	width:100%;
+	flex-wrap: wrap;
+	overflow-y:hidden;
+	position:relative;
+	top:-1em;
+
+	overflow: auto;
+	overflow: -moz-scrollbars-none;
+}
+
+.hero-cards::-webkit-scrollbar { 
+    display: none; 
 }
 
 .header-card .content {
@@ -160,22 +179,47 @@ core-toolbar::shadow #middleBar {
 	left: 0;
 	right: 0;
 	overflow: hidden;
+	padding:0.5em 1em;
 	
-	padding:1em 1.5em;
+}
+html /deep/ paper-item::shadow ::content > a {
+	padding: 11px 16px;
+}
+
+.menu-section {
+	padding:9px 16px;
+	color: #ccc;
+	font-weight: bold;
+}
+.top-bar {
+	position:fixed;
+	top:0;
+	right:0;
+	left:0;
+	z-index:31;
+	background:rgba(0,0,0,0.8);
+	color:white;
+	font-size:125%;
 }
 
 .logo {
 	font-size:42pt;
 	font-weight:300;
 	text-shadow:0px 0px 5px black;
-	margin-top:5px;
+	position:absolute;
+	margin: 0 auto;
+	top:1em;
+	right:0;
+	left:0;
+	text-align:center;
 }
 
 .header-card h3 {
 	font-size:xx-large;
 	text-transform: lowercase;
-	margin:0.5em 0;
+	margin:0.5em 0 0 1em;
 	font-weight: 100;
+	float:right;
 }
 
 .show-when-short {
@@ -241,8 +285,19 @@ table.data td {
 
 .content-container {
 	width: 100%;
-	padding:1em;
+	padding:0 1em 1em 1em;
 	margin: 0 auto;
+	position: relative;
+	top: -4em;
+	z-index: 20;
+}
+
+.card {
+	padding: 0 0.5em 0.5em 0.5em;
+}
+
+.hero + .content-container {
+	top: -10em;
 }
 
 .note {

@@ -62,53 +62,63 @@ echo $this->doctype();
 	<link rel="import" href="<?= $this->basePath() ?>/components/sequeldash.html" />
 </head>
 <body fullbleed layout vertical unresolved>
+	<div class="top-bar" horizontal layout>
+		<div flex class="breadcrumbs">
+			<paper-menu-button icon="arrow-back" halign="left" valign="top">
+				<a ng-repeat="(k, v) in breadcrumbs"
+				   href="{{k}}"><paper-item>{{v}}</paper-button></a>
+			</paper-menu-button>
+		</div>
+
+		<div>
+			<div class="logo">
+			<? if (!isset($model->layout['showLogo']) || $model->layout['showLogo']) { ?>
+				<a href="<?php echo $this->url('home') ?>" style="color:white;">sequeldash</a>
+			<? } ?>
+			</div>
+			<br/>
+			<span class="loading-indicator"
+				  ><img class="logo-loading" src="{{state.basePath}}/img/loading.gif" style="position:relative;top:0.5em;" 
+				  /></span><br/>
+		</div>
+		<div style="text-align:right;">
+			<span ng-show="startup">Loading...</span>
+			<div ng-show="!startup && state.loggedIn" style="display:inline-block;min-width:5em;text-align:right;position:relative;">
+				<span id="condensed-logo" style="">
+					<span class="loading-indicator"><img class="corner-loading" src="{{state.basePath}}/img/loading.gif" /></span>
+					sequeldash | 
+				</span>
+				<span id="username">
+					{{state.username}}
+				</span>
+			</div>
+			<paper-menu-button icon="more-vert" halign="right" valign="top" style="text-align:left;">
+				<div style="min-width:300px;"></div>
+				<div class="menu-section">
+					Recent
+				</div>
+				<paper-item><a href="{{state.basePath}}/users">ns4.users</a></paper-item>
+				<paper-item><a href="{{state.basePath}}/users">ns4.settings</a></paper-item>
+				<hr/>
+				<paper-item><a href="{{state.basePath}}/users">Manage Users</a></paper-item>
+				<paper-item><a href="{{state.basePath}}/service">Service Status</a></paper-item>
+				<paper-item><a href="{{state.basePath}}/about">About / Updates</a></paper-item>
+				<paper-item><a rel="external" href="{{state.basePath}}/logout">Logout</a></paper-item>
+			</paper-menu-button>
+		</div>
+	</div>
 	<core-scroll-header-panel condenses flex keepCondensedHeader="true" headerHeight="1200px" condensedheaderheight="60px">
         <core-toolbar layout vertical class="tall <?= isset($model->layoutHero) && $model->layoutHero ? 'hero' : '' ?>">
 			<div flex layout horizontal class="top" style="width:100%;">
-				<div flex class="mobile-breadcrumbs">
-					<paper-menu-button icon="arrow-back" halign="left" valign="top">
-						<a ng-repeat="(k, v) in breadcrumbs"
-						   href="{{k}}"><paper-item>{{v}}</paper-button></a>
-					</paper-menu-button>
-				</div>
-				<div flex class="breadcrumbs">
-					<a href="{{state.basePath}}/"><core-icon-button icon="home"></core-icon-button></a>
-					<a ng-repeat="(k, v) in breadcrumbs"
-					   href="{{k}}"><paper-button raised>{{v}}</paper-button></a>
-				</div>
-				<div>
-					<span ng-show="startup">Loading...</span>
-					<div ng-show="!startup && state.loggedIn" style="display:inline-block;min-width:5em;text-align:right;position:relative;">
-						<span id="condensed-logo" style="">
-							<span class="loading-indicator"><img class="corner-loading" src="{{state.basePath}}/img/loading.gif" /></span>
-							sequeldash | 
-						</span>
-						<span id="username">
-							{{state.username}}
-						</span>
-					</div>
-					<paper-menu-button icon="more-vert" halign="right" valign="top">
-						<a href="{{state.basePath}}/about"><paper-item>Manage Users</paper-item></a>
-						<a href="{{state.basePath}}/about"><paper-item>About / Updates</paper-item></a>
-						<a href="{{state.basePath}}/logout"><paper-item>Logout</paper-item></a>
-					</paper-menu-button>
-				</div>
 			</div>
 			
 			<!-- // -->
 			
-			<div layout horizontal flex end class="middle" 
-				 style="font-size:100%;width:100%;flex-wrap: wrap;overflow-y:hidden;">
+			<div layout horizontal flex end class="middle hero-cards">
 			</div>
 			<!-- // -->
 			
-			<div style="text-align:center;width:100%;" class="bottom">
-				<span class="loading-indicator"><img class="logo-loading" src="{{state.basePath}}/img/loading.gif" style="position:relative;top:0.5em;" /></span><br/>
-				<div class="logo">
-				<? if (!isset($model->layout['showLogo']) || $model->layout['showLogo']) { ?>
-					<a href="<?php echo $this->url('home') ?>" style="color:white;">sequeldash</a>
-				<? } ?>
-				</div>
+			<div class="bottom">
 			</div>
 			
 		</core-toolbar>
@@ -116,7 +126,7 @@ echo $this->doctype();
             <?php echo $this->content; ?>
 	    <div style="clear:both;"></div>
             <hr>
-            <footer>
+            <footer style="text-align:center;">
                 <p>&copy; 2014 - <?php echo date('Y') ?> the sequeldash project. <?php echo $this->translate('All rights reserved.') ?></p>
             </footer>
         </div> <!-- /container -->

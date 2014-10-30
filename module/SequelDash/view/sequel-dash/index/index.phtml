@@ -3,37 +3,12 @@
 ?>
 <div class="meta template-name" data-value="index"></div>
 <div class="hero-content" style="display:none;">
-	<div class="header-card">
-		<paper-shadow z="1"></paper-shadow>
-		<div class="content">
-			<h3 class="panel-title">Recent</h3>
-			<em>Coming soon</em>
-		</div>
-	</div>
-	<div class="header-card">
-		<paper-shadow z="1"></paper-shadow>
-		<div class="content">
-			<div style="float:right;"><a href="#" class="btn btn-success">Users</a></div>
-			<h3 class="panel-title"><?php echo $this->translate('Service') ?></h3>
-			{{state.service.status}}
-			<br/>
-			<strong>PID: </strong>{{state.service.pid}}<br/>
-			<strong>RAM: </strong>{{state.service.ram}}</span><br/>
-		</div>
-	</div>
-	<div class="header-card">
-		<paper-shadow z="1"></paper-shadow>
-		<div class="content">
-			<h3 class="panel-title">About Sequeldash</h3>
-			<p><em>You are using Sequeldash, a powerful SQL management application.</em></p>
-			<br/>
-			<em>Version 1.0a</em>
-
-			<div style="display:inline-block;" class="alert alert-info"><a href="javascript:;">An update is available!</a></div>
-		</div>
+	<div style="position:relative;top:-5em;font-size: 75%;text-shadow: 0px 0px 10px black;">
+		{{state.service.status}}
+		<br/>
 	</div>
 </div>
-<div class="row" style="padding:1em;">
+<div class="card">
     <div>
 	<paper-shadow z="2"></paper-shadow>
 	<polymer-ui-card id="databases">

@@ -1,14 +1,22 @@
-<?php
-	$db = $this->db;
-	$query = $this->query;
-	$post = $this->request->getPost();
 
-	if (!isset($post->inline))
-		echo '<h1>Query '.$db.'</h1>';
-?>
-<?= $this->partial('sequel-dash/database/query-partial.phtml', array(
-	'inline' => isset($post->inline),
-	'db' => $db,
-	'query' => $query,
-)) ?>
+<div class="row" style="padding:1em;">
+    <div>
+        <paper-shadow z="2"></paper-shadow>
+        <polymer-ui-card id="databases">
+            <div class="card-header">
+                <div style="float:right;">
+					<core-menu-button halign="right" icon="arrow-drop-down-circle">
+						<core-item icon="list" label="Tables"></core-item>
+						<core-item icon="search" label="Search"></core-item>
+						<core-item icon="" label=""></core-item>
+					</core-menu-button>
+                </div>
+				<h4><core-icon-button icon="arrow-back" class="navigate" ></core-icon-button> Query {{database}}</h4>
+            </div>
+			<div class="panel-body">	
+				<query-box database="{{database}}"></query-box>
+			</div>
+		</polymer-ui-card>
+    </div>
+</div>
 

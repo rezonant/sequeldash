@@ -190,6 +190,7 @@ class DatabaseController extends Controller
 
 		'error' => $error,
 		'db' => $db,
+		'database' => $db,
 		'query' => $queryData,
 		'queries' => $allQueries
 	));
