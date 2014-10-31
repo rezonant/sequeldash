@@ -11,15 +11,9 @@ class Controller extends AbstractActionController {
 		$data = (object)$data;
 		$stateProvider = new StateProvider;
 		$data->state = new \stdclass;
-		$stateProvider->prepare($data->state, $this);
-
-		if (isset($_REQUEST['ajax'])) {
-//			header('Content-Type: application/x-json');
-			die(json_encode($data));
-		}
-
-		$data->request = $this->getRequest();
-		return new ViewModel((array)$data);
+		$stateProvider->prepare($data->state, $this->getRequest());
+		
+		die(json_encode($data));
 	}
 
 	function serviceError($message, $additional = array())

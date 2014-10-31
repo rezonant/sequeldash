@@ -19,42 +19,40 @@ class LoginController extends Controller
 {
     public function logoutAction()
     {
-	SessionManager::setLoggedIn(false);
-	$this->redirect('/login');
+		SessionManager::setLoggedIn(false);
+		return $this->model(array(
+			'redirectTo' => '#/login'
+		));
     }
 
     public function indexAction()
     {
-	if (SessionManager::isLoggedIn())
-		$this->redirect('/');
-	$error = '';
+		if (SessionManager::isLoggedIn())
+			$this->redirect('/');
+		$error = '';
 
-	$post = $this->getRequest()->getPost();
-	if ($post->get('username') && $post->get('password')) {
-		$error = 'Unknown error';
-		$username = $post->get('username');
-		$password = $post->get('password');
+		$post = $this->getRequest()->getPost();
+		if ($post->get('username') && $post->get('password')) {
+			$error = 'Unknown error';
+			$username = $post->get('username');
+			$password = $post->get('password');
 
-		$valid = SessionManager::validate($username, $password);
-		if ($valid === true) {
-			SessionManager::setLoggedIn(true, new Credential($username, $password));
-			$url = SessionManager::consumeReturnUrl();
-
-			if ($url)
-				$this->redirect($url);
-			else
-				$this->redirect('/');
-		} else {
-			$error = $valid;
+			$valid = SessionManager::validate($username, $password);
+			if ($valid === true) {
+				SessionManager::setLoggedIn(true, new Credential($username, $password));
+				$url = SessionManager::consumeReturnUrl();
+				$this->redirect('/../app/#'.$url);
+			} else {
+				$error = $valid;
+			}
 		}
-	}
 
-        return $this->model(array(
-		'breadcrumbs' => array(),
-		'layout' => array(
-			'showLogo' => false
-		),
-		'error' => $error
-	));
+		return $this->model(array(
+			'breadcrumbs' => array(),
+			'layout' => array(
+				'showLogo' => false
+			),
+			'error' => $error
+		));
     }
 }

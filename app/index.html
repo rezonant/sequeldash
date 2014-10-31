@@ -1,33 +1,4 @@
-<?php 
-
-$viewmodels = $this->viewModel()->getCurrent()->getChildren();
-$model = $viewmodels[0];
-$request = new stdclass;
-$post = new stdclass;
-
-if ($this->content && $this->content[0] == '{') {
-	$obj = json_decode($this->content);
-	if ($obj) {
-		die($this->content);
-	}
-}
-
-if (isset($model->request)) {
-	$rq = $model->request;
-	$post = $rq->getPost();
-}
-
-if (isset($post->inline)) {
-	echo json_encode(array(
-		'content' => $this->content, 
-		'model' => isset($model) ? 
-			json_encode((array)$model->getVariables()) 
-			: new stdclass
-	));
-	return;
-}
-
-?><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" 
 	ng-init="state.loggedIn=false;startup=true"
 	data-base-path="<?= $this->basePath() ?>"
@@ -35,17 +6,26 @@ if (isset($post->inline)) {
 <head>
 	<meta charset="utf-8">
 	<title>SequelDash</title>
-	<base href="//<?= $_SERVER['HTTP_HOST'] ?><?= $this->basePath() ?>/" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	
-	<link rel="shortcut icon" type="image/vnd.microsoft.icon" href="<?= $this->basePath() ?>/img/favicon.ico" />
-	<link rel="stylesheet" type="text/css" href="<?= $this->basePath() ?>/build/css/platform.css" />
-	<link rel="stylesheet" type="text/css" href="<?= $this->basePath() ?>/build/css/app.css" />
+	<script>
+		//<base href="//<?= $_SERVER['HTTP_HOST'] ?><?= $this->basePath() ?>/" />
+		!function() {
+			var path = (window.location+"").replace(/#.*$/, '').replace(/\/*$/, '');
+			document.documentElement.setAttribute("data-base-path", path);
+			document.write('<base href="'+path+'/" />');
+		}();
+	</script>
+
+
+	<link rel="shortcut icon" type="image/vnd.microsoft.icon" href="img/favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="build/css/platform.css" />
+	<link rel="stylesheet" type="text/css" href="build/css/app.css" />
 	
 	<!-- Scripts -->
-	<script src="<?= $this->basePath() ?>/build/js/platform.min.js"></script>
-	<link rel="import" href="<?= $this->basePath() ?>/components/sequeldash.html" />
+	<script src="build/js/platform.min.js"></script>
+	<link rel="import" href="components/sequeldash.html" />
 	<link href='http://fonts.googleapis.com/css?family=Roboto:300,700,300italic,400italic,100italic,100,400,700italic' 
 		  rel='stylesheet' type='text/css'>
 </head>
@@ -108,15 +88,7 @@ if (isset($post->inline)) {
 		</core-toolbar>
         <div content class="content-container">
 			<ng-view></ng-view>
-			<? if (0) { ?>
-            <?php echo $this->content; ?>
-			<div style="clear:both;"></div>
-            <hr>
-            <footer style="text-align:center;">
-                <p>&copy; 2014 the sequeldash project. All rights reserved.</p>
-            </footer>
-			<? } ?>
-        </div> <!-- /container -->
+        </div> 
 	</core-scroll-header-panel>
 
 	<script>
@@ -147,11 +119,7 @@ if (isset($post->inline)) {
 	</script>
 	  
 	<!-- // -->
-
-	<script type="text/javascript">
-		$state = <?= isset($model) ? json_encode((array)$model->getVariables()) : '{na:1}' ?>;
-	</script>
-	
-	<script type="text/javascript" src="<?= $this->basePath() ?>/build/js/app.js"></script>
+	<script type="text/javascript" src="build/js/app.js"></script>
 </body>
 </html>
+

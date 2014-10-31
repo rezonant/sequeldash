@@ -23,71 +23,75 @@ window.queryGenerator = queryGenerator;
 				'ngRoute'
 			]);
 			
-			// Some controllers (TODO: move out of here)
-			
+			/**
+			 * Called to load the model for a URL during Angular routing
+			 * 
+			 * @param {type} $scope
+			 * @param {type} url
+			 * @returns {Boolean}
+			 */
 			function loadPageEx($scope, url) {
 				$('.loading-indicator').addClass('active');
 				$.post(url, {
-					inline: 1
-				}, function(r) {
-					var $model = JSON.parse(r.model);
-					//var $scope = $('html').scope();
-					if ($scope) {
-						//var $compileState = applyPage($scope, $model, r.content);
-						//$('core-toolbar .middle').html('');
-						//updateHeroHeader();	
-						
-						$scope.$apply(function($scope) { 
-							for (var key in window.$state) 
-								delete $scope[key];
-
-							for (var key in $model) 
-								$scope[key] = $model[key];
-						});
-						
-						window.$state = $model;
-						$('.loading-indicator').removeClass('active');
+					ajax: 1
+				}, function($model) {
+					$('.loading-indicator').removeClass('active');
+					
+					// Redirect if we need to
+					if ($model.redirectTo && window.location.hash != $model.redirectTo) {
+						window.location.hash = $model.redirectTo;
+						return;
 					}
+					if (!$scope)
+						return;
+					
+					$scope.$apply(function($scope) { 
+						for (var key in window.$state) 
+							delete $scope[key];
+
+						for (var key in $model) 
+							$scope[key] = $model[key];
+					});
+
+					window.$state = $model;
 
 				}, 'json').error(function(e) {
-					alert('Error: '+e);
+					console.log('While navigating, received an XHR Error: '+e);
 					console.log(e);
+					if (window.location.hash != '#/error')
+						window.location.hash = '#/error';
 				});
 
 				return false;	
 			}
+		
+			function loadHash($scope)
+			{
+				var basePath = $('html').attr('data-base-path');
+				var apiPath = basePath+'/../api.v1';
+				loadPageEx($scope, apiPath+window.location.hash.substr(1));		
+			}
+	
+			// Some controllers (TODO: move out of here)
 			
 			app.controller('TableDetailsController', ['$scope', '$http', function($scope) {
 				$scope.query = {};
 				$scope.database = '';
 				$scope.table = {name: '', schema: []};
-				window.$haha = $scope;
-				var basePath = $('html').attr('data-base-path');
-				loadPageEx($scope, basePath+window.location.hash.substr(1));
+				loadHash($scope);
 			}]);
 			app.controller('DatabaseDetailsController', ['$scope', '$http', function($scope) {
 				$scope.database = {name: '', tables: []};
-				var basePath = $('html').attr('data-base-path');
-				loadPageEx($scope, basePath+window.location.hash.substr(1));
+				loadHash($scope);
 			}]);
-			app.controller('AboutController', ['$scope', '$http', function($scope) {
-				var basePath = $('html').attr('data-base-path');
-				loadPageEx($scope, basePath+window.location.hash.substr(1));
-			}]);
-			app.controller('LoginController', ['$scope', '$http', function($scope) {
-				var basePath = $('html').attr('data-base-path');
-//				loadPageEx($scope, basePath+'/');
-			}]);
-			app.controller('IndexController', ['$scope', '$http', function($scope) {
-				var basePath = $('html').attr('data-base-path');
-				loadPageEx($scope, basePath+'/');
+			app.controller('StaticController', ['$scope', '$http', function($scope) {
+				loadHash($scope);
 			}]);
 			app.controller('QueryController', ['$scope', '$http', function($scope) {
 				$scope.query = {};
 				$scope.database = '';
 				$scope.table = '';
-				var basePath = $('html').attr('data-base-path');
-				loadPageEx($scope, basePath+window.location.hash.substr(1));
+				loadHash($scope);
 			}]);
 			
 			app.config(['$routeProvider',
@@ -95,11 +99,11 @@ window.queryGenerator = queryGenerator;
 					$routeProvider.
 						when('/login', {
 							templateUrl: 'html/login/index.html',
-							controller: 'LoginController'
+							controller: 'StaticController'
 						}).
 						when('/dbs', {
 							templateUrl: 'html/index/index.html',
-							controller: 'IndexController'
+							controller: 'StaticController'
 						}).
 						when('/dbs/:name', {
 							templateUrl: 'html/database/details.html',
@@ -116,6 +120,14 @@ window.queryGenerator = queryGenerator;
 						when('/about', {
 							templateUrl: 'html/about/index.html',
 							controller: 'AboutController'
+						}).
+						when('/error', {
+							templateUrl: 'html/error/index.html',
+							controller: 'StaticController'
+						}).
+						when('/error/404', {
+							templateUrl: 'html/error/404.html',
+							controller: 'StaticController'	
 						}).
 						otherwise({
 							redirectTo: '/dbs'
@@ -211,116 +223,10 @@ window.queryGenerator = queryGenerator;
 
 			// Install custom behaviors
 
-			var $templateCache = {};
-			var $urlToTemplate = {};
-
-			if (0) {
-				$(window).on('hashchange', function() {
-					var basePath = $('html').data('base-path');
-					var hash = "/";
-
-					if (window.location.hash)
-						hash = (window.location.hash + "").substr(1);
-
-					var path = basePath+hash;
-
-					loadPage(path, false);
-				});
-				if (window.location.hash) {
-					$(window).trigger('hashchange');
-				}
-			}
-
 			$('body').on('click', '.navigate', function(e) {
 				var href = $(this).attr('data-href');
 				window.location.hash = "#"+href;
 			});
-
-			function applyPage($scope, $model, content)
-			{
-				$scope.$apply(function($scope) { 
-					for (var key in window.$state) 
-						delete $scope[key];
-
-					for (var key in $model) 
-						$scope[key] = $model[key];
-				});
-
-				var $injector = angular.injector(['ng']);
-				var $compileState = null;
-				$injector.invoke(function($compile) {
-
-					var $dom = $('<template>'+content+'</template>');
-					var templateName = $dom.get(0).content.querySelector("div.meta.template-name");
-					if (templateName)
-						templateName = templateName.getAttribute('data-value');
-					else
-						templateName = null;
-
-					var $template = null;
-					var cached = null;
-
-					if (templateName)
-						cached = $templateCache[templateName];
-
-					// It appears that there's no fucking way to make this template caching
-					// work correctly, because the second page load of a template (ie 
-					// when the template is already cached), the result will have the OLD
-					// template data and there is no way to change this ever again.
-
-					$dom.remove();
-
-					if (false && cached) {
-						$template = cached;	
-					} else {
-						$template = $compile(content);
-						$templateCache[templateName] = $template;				
-					}
-
-					$('.content-container').html('<div></div>');
-					$('.content-container').find('div').html('');
-					$('.content-container').find('div').replaceWith($template($scope));
-					$scope.$apply();
-
-					$compileState = {
-						template: $template, 
-						state: $model
-					};
-					$('.loading-indicator').removeClass('active');
-				});
-
-				return $compileState;
-			}
-
-			var viewStackState = {};
-
-			function loadPage(url, pushState) {
-				if (typeof pushState == 'undefined')
-					pushState = true;
-
-				var self = this;
-				$('.loading-indicator').addClass('active');
-				$.post(url, {
-					inline: 1
-				}, function(r) {
-					var $model = JSON.parse(r.model);
-					var $scope = $('html').scope();
-					if ($scope) {
-						var $compileState = applyPage($scope, $model, r.content);
-						$('core-toolbar .middle').html('');
-						updateHeroHeader();	
-
-						if (pushState)
-							window.history.pushState({}, "Another", url);
-					}
-
-				}, 'json').error(function(e) {
-					alert('Error: '+e);
-					console.log(e);
-				});
-
-				return false;
-			}
 
 			$('input[type=text].filter').each(function() {
 				var $filter = $(this);

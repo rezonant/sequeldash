@@ -13,6 +13,13 @@ class IndexController extends Controller
 {
     public function indexAction()
     {
+		if (!\SequelDash\SessionManager::isLoggedIn()) {
+			return $this->model(array(
+				'error' => 'unauthorized',
+				'redirectTo' => '#/login'
+			));
+		}
+		
 		$connector = \SequelDash\Db\Connector::getConnector();
 		if (!$connector)
 			$this->redirect('errors/connectionFailed');

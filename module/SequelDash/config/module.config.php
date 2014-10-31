@@ -10,24 +10,12 @@
 return array(
     'router' => array(
         'routes' => array(
-            'home' => array(
-                'type' => 'Zend\Mvc\Router\Http\Literal',
-                'options' => array(
-                    'route'    => '/',
-                    'defaults' => array(
-                        '__NAMESPACE__' => 'SequelDash\Controller',
-			'controller'    => 'Index',
-                        'action'        => 'index',
-                    ),
-                ),
-            ),
-
             // The following is a route to simplify getting started creating
             // new controllers and actions without needing to create a new
             // module. Simply drop new controllers in, and you can access them
             // using the path /application/:controller/:action
             'application' => array(
-                'type'    => 'Segment',
+                'type'    => 'Zend\Mvc\Router\Http\Segment',
                 'options' => array(
                     'route'    => '/:controller[/:action]',
                     'constraints' => array(
@@ -42,59 +30,44 @@ return array(
                 ),
             ),
 
+            'home' => array(
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => array(
+                    'route'    => '/',
+                    'defaults' => array(
+                        '__NAMESPACE__' => 'SequelDash\Controller',
+						'controller'    => 'Index',
+                        'action'        => 'index',
+                    ),
+                ),
+            ),
+
             'logout' => array(
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => array(
                     'route'    => '/logout',
                     'defaults' => array(
                         '__NAMESPACE__' => 'SequelDash\Controller',
-			'controller'    => 'Login',
+						'controller'    => 'Login',
                         'action'        => 'logout',
                     ),
                 ),
             ),
 
-	    'database_list' => array(
-                'type' => 'Zend\Mvc\Router\Http\Literal',
-                'options' => array(
-                    'route'    => '/dbs[/]',
-                    'defaults' => array(
-                        '__NAMESPACE__' => 'SequelDash\Controller',
-			'controller'    => 'Database',
-                        'action'        => 'list',
-			'db'		=> 'foo'
-                    ),
-                ),
- 
-	    ),
+			'databases' => array(
+					'type' => 'Zend\Mvc\Router\Http\Segment',
+					'options' => array(
+						'route'    => '/dbs[/]',
+						'defaults' => array(
+							'__NAMESPACE__' => 'SequelDash\Controller',
+							'controller'    => 'Database',
+							'action'        => 'index',
+							'db'		=> 'foo'
+						),
+					),
 
-            'service_db_query' => array(
-                'type' => 'Zend\Mvc\Router\Http\Segment',
-                'options' => array(
-                    'route'    => '/dbs/:db/query',
-                    'defaults' => array(
-                        '__NAMESPACE__' => 'SequelDash\Controller',
-			'controller'    => 'Database',
-                        'action'        => 'query',
-			'db'		=> 'foo'
-                    ),
-                ),
-            ),
-
-
-	    'table_search' => array(
-		'type' => 'Zend\Mvc\Router\Http\Segment',
-		'options' => array(
-			'route' => '/dbs/:db/tables/:table/search',
-			'defaults' => array(
-				'__NAMESPACE__' => 'SequelDash\Controller',
-				'controller' => 'Database',
-				'action' => 'tableSearch',
-				'db' => 'foo',
-				'table' => 'foo'
 			),
-		),
-	    ),
+
 
             'database_details' => array(
                 'type' => 'Zend\Mvc\Router\Http\Segment',
@@ -102,55 +75,38 @@ return array(
                     'route'    => '/dbs/:db',
                     'defaults' => array(
                         '__NAMESPACE__' => 'SequelDash\Controller',
-			'controller'    => 'Database',
+						'controller'    => 'Database',
                         'action'        => 'details',
-			'db'		=> 'foo'
+						'db'			=> 'foo'
                     ),
                 ),
             ),
-
-
-            'database_tables' => array(
-                'type' => 'Zend\Mvc\Router\Http\Segment',
-                'options' => array(
-                    'route'    => '/dbs/:db/tables',
-                    'defaults' => array(
-                        '__NAMESPACE__' => 'SequelDash\Controller',
-			'controller'    => 'Database',
-                        'action'        => 'tables',
-			'db'		=> 'foo'
-                    ),
-                ),
-            ),
-
-
-            'table_schema' => array(
-                'type' => 'Zend\Mvc\Router\Http\Segment',
-                'options' => array(
-                    'route'    => '/dbs/:db/tables/:table/schema',
-                    'defaults' => array(
-                        '__NAMESPACE__' => 'SequelDash\Controller',
-			'controller'    => 'Database',
-                        'action'        => 'tableSchema',
-			'db'		=> 'foo'
-                    ),
-                ),
-            ),
-
-
+			
             'table_details' => array(
                 'type' => 'Zend\Mvc\Router\Http\Segment',
                 'options' => array(
                     'route'    => '/dbs/:db/tables/:table',
                     'defaults' => array(
                         '__NAMESPACE__' => 'SequelDash\Controller',
-			'controller'    => 'Database',
+						'controller'    => 'Database',
                         'action'        => 'tableDetails',
-			'db'		=> 'foo'
+						'db'		=> 'foo'
                     ),
                 ),
             ),
 
+            'query' => array(
+                'type' => 'Zend\Mvc\Router\Http\Segment',
+                'options' => array(
+                    'route'    => '/dbs/:db/query',
+                    'defaults' => array(
+                        '__NAMESPACE__' => 'SequelDash\Controller',
+						'controller'    => 'Database',
+                        'action'        => 'query',
+						'db'		=> 'foo'
+                    ),
+                ),
+            ),
 
 
         ),
