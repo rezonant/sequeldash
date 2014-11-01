@@ -9,10 +9,11 @@
 	<script>
 		!function() {
 			var path = (window.location+"");
-			path = path.replace(/#.*$/, '').replace(/\/*$/, '');
+			path = path.replace(/#.*$/, '');
 			if (!path.match(/\/$/)) {
 				path = path.replace(/\/[^\/]*$/, '');
 			}
+			path = path.replace(/\/*$/, '');
 			document.documentElement.setAttribute("data-base-path", path);
 			document.write('<base href="'+path+'/" />');
 		}();
