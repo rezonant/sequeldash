@@ -120,55 +120,43 @@
 					<table class="query-results" data-table="{{query.table}}" data-db="{{database}}">
 					<thead>
 						<tr>
-							<template if="{{query.results}}">
-								<th class="selectAll">
-									<paper-checkbox id="selectAll"></paper-checkbox>
-								</th>
-								<template repeat="{{column in query.schema}}">
-									<th
-									  style="display: {{ column != '__id' ? 'table-cell' : 'none' }}"
-									>
-										<template if="{{ column == query.primaryKey }}">
-											<strong>{{column}}</strong>
-										</template>
-										<template if="{{ column != query.primaryKey }}">
-											{{column}}
-										</template>
-									</th>
+							<th class="selectAll">
+								<paper-checkbox id="selectAll"></paper-checkbox>
+							</th>
+							<th
+							  template repeat="{{column in query.schema}}"
+							  style="display: {{ column != '__id' ? 'table-cell' : 'none' }}"
+							>
+								<template if="{{ column == query.primaryKey }}">
+									<strong>{{column}}</strong>
 								</template>
-								<th class="status"></th>
-							</template>
-							<template if="{{!query.results}}">
-								<th>Hah.</th>
-							</template>
+								<template if="{{ column != query.primaryKey }}">
+									{{column}}
+								</template>
+							</th>
 						</tr>
 					</thead>
 					<tbody class="empty">
-						<template repeat="{{row in query.results}}" if="{{query.results}}">
-							<tr data-id="{{row.__id}}" data-pkey="{{row.__id}}">
-								<td class="select">
-									<paper-checkbox class="selected"></paper-checkbox>
-								</td>
-								<template repeat="{{ pair in pairs(row) }}">
-									<td 
-										data-key="{{ pair.key }}" 
-										data-primary="{{ pair.key == query.primaryKey ? 1 : 0 }}" 
-										data-value="{{ pair.value }}"
-										style="display: {{ pair.key != '__id' ? 'table-cell' : 'none' }}"
-									><span class="trailer" 
-										   title="{{ pair.value }}"
-										>{{pair.value}}</span></td>
-								</template>
-								<td class="status"></td>
-							</tr>
-						</template>
-						<template if="{{!query.results}}">
-							<tr>
-								<td colspan="3" style="text-align:center;">
-									<em>No results</em>
-								</td>
-							</tr>
-						</template>
+						<tr data-id="{{row.__id}}" data-pkey="{{row.__id}}"
+							template repeat="{{row in query.results}}" if="{{query.results}}">
+							<td class="select">
+								<paper-checkbox class="selected"></paper-checkbox>
+							</td>
+							<td template repeat="{{ pair in pairs(row) }}"
+								data-key="{{ pair.key }}" 
+								data-primary="{{ pair.key == query.primaryKey ? 1 : 0 }}" 
+								data-value="{{ pair.value }}"
+								style="display: {{ pair.key != '__id' ? 'table-cell' : 'none' }}"
+							><span class="trailer" 
+								   title="{{ pair.value }}"
+								>{{pair.value}}</span></td>
+							<td class="status"></td>
+						</tr>
+						<tr template if="{{!query.results}}">
+							<td colspan="3" style="text-align:center;">
+								<em>No results</em>
+							</td>
+						</tr>
 					</tbody>
 					<tbody class="data">
 

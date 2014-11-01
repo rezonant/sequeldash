@@ -135,9 +135,6 @@
 				this.query = this.generateQuery();
 				$(this).change();
 				$(this).shadow('.query-preview').html(this.generateQuery());
-				$(this).shadow('.query-preview').each(function() {
-					Prism.highlightElement(this);
-				});
 			},
 
 			ready: function () {
