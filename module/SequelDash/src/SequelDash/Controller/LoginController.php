@@ -41,7 +41,8 @@ class LoginController extends Controller
 			if ($valid === true) {
 				SessionManager::setLoggedIn(true, new Credential($username, $password));
 				$url = SessionManager::consumeReturnUrl();
-				$this->redirect('/../app/#'.$url);
+				header('Location: ../app/#'.$url);
+				die();
 			} else {
 				$error = $valid;
 			}

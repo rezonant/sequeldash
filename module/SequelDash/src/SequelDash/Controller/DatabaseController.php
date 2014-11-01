@@ -374,6 +374,7 @@ class DatabaseController extends Controller
 
 		return $this->model(array(
 			'breadcrumbs' => array(
+				'poop' => 'poop',
 				'#/' => \SequelDash\Db\Connector::getActiveHostname(),
 				'#/dbs/'.$db => $db,
 				'#/dbs/'.$db.'/tables/'.$table => $table

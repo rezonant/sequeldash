@@ -44,7 +44,16 @@ window.queryGenerator = queryGenerator;
 					}
 					if (!$scope)
 						return;
-					
+				
+					var $root = $scope.$parent;
+					debugger;
+					if ($root) {
+						$root.$apply(function($root) {
+							$root.breadcrumbs = $model.breadcrumbs;
+							$root.state = $model.state;
+						});
+					}
+
 					$scope.$apply(function($scope) { 
 						for (var key in window.$state) 
 							delete $scope[key];
@@ -119,7 +128,7 @@ window.queryGenerator = queryGenerator;
 						}).
 						when('/about', {
 							templateUrl: 'html/about/index.html',
-							controller: 'AboutController'
+							controller: 'StaticController'
 						}).
 						when('/error', {
 							templateUrl: 'html/error/index.html',
