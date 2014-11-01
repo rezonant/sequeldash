@@ -28,7 +28,7 @@ Build Prerequisites
   * Grunt (installed using NPM)
   * PHP
 
-In order to build sequeldash, you must first install nodejs, npm, bower and grunt
+In order to build sequeldash, you must first install nodejs, npm, bower and grunt.
 NodeJS and npm installation instructions are outside the scope of this README. For instructions specific to your platform, see http://npmjs.org/.
 
 Once node and npm are installed, you can install Bower and Grunt by running:
