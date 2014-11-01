@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<polymer-element name="search-query-box" extends="app-element" attributes="database table query preview">
+<polymer-element name="search-query-box" extends="app-element" attributes="database table query">
 	<template>
 		<style>
 			:host {
@@ -24,61 +24,49 @@
                                 <th style="text-align:right; width:2em;">Field</th>
                                 <th style="width:auto;">Value</th>
                                 </tr>
-                        </thead>
-				<template repeat="{{field in table.schema}}">
-                                        <tr>
-                                                <td>
-                                                        &nbsp; <paper-checkbox class="select" name="select[]" value="{{field.name}}" />
-                                                </td>
-                                                <td style="text-align:right;">
-                                                        {{field.name}}
-                                                        <br/><span style="opacity:0.5;">{{field.type}}</span>
-							<template if="{{field.default || field.default == 0}}">
-                                                                <div class="note note-blue">{{field.default}}</div>
-							</template>
-							<template if="{{field.isPrimaryKey}}">
-                                                                <div class="note note-maroon">PKEY</div>
-							</template>
-							<template if="{{!field.isPrimaryKey && field.isUnique}}">
-                                                                <div class="note note-orange">UNIQ</div>
-                                                        </template>
-
-                                                        <br/><br/>
-                                                </td>
-                                                <td class="field" data-name="{{field.name}}">
-                                                        <select class="operator" name="{{field.name}}[operator]">
-                                                                <option>LIKE</option>
-                                                                <option>LIKE %...%</option>
-                                                                <option>=</option>
-                                                                <option>!=</option>
-                                                                <option>&gt;</option>
-                                                                <option>&gt;=</option>
-                                                                <option>&lt;</option>
-                                                                <option>&lt;=</option>
-                                                                <option>BETWEEN</option>
-                                                        </select><br/>
-							<template if="{{field.type == 'text' || field.type == 'longtext'}}">
-                                                                <textarea name="{{field.name}}[value]" style="width:100%;min-height:3em;"></textarea>
-							</template>
-							<template if="{{field.type != 'text' && field.type != 'longtext'}}">
-                                                                <div class="one-value">
-                                                                        <input type="text" name="{{field.name}}[value]" style="width:100%;"  />
-                                                                </div>
-                                                                <div class="and-value" style="display:none;">
-                                                                        <input type="text" name="{{field.name}}[start]" /> AND
-                                                                        <input type="text" name="{{field.name}}[end]" />
-                                                                </div>
-							</template>
-                                                </td>
-                                        </tr>
-				</template>
+						</thead>
+							<tr template repeat="{{field in table.schema}}">
+								<td>
+										&nbsp; <paper-checkbox class="select" name="select[]" value="{{field.name}}" />
+								</td>
+								<td style="text-align:right;">
+										{{field.name}}
+										<br/><span style="opacity:0.5;">{{field.type}}</span>
+										<div template if="{{field.default || field.default == 0}}"
+											class="note note-blue">{{field.default}}</div>
+										<div template if="{{field.isPrimaryKey}}"
+											class="note note-maroon">PKEY</div>
+										<div template if="{{!field.isPrimaryKey && field.isUnique}}"
+											class="note note-orange">UNIQ</div>
+										<br/><br/>
+								</td>
+								<td class="field" data-name="{{field.name}}">
+										<select class="operator" name="{{field.name}}[operator]">
+												<option>LIKE</option>
+												<option>LIKE %...%</option>
+												<option>=</option>
+												<option>!=</option>
+												<option>&gt;</option>
+												<option>&gt;=</option>
+												<option>&lt;</option>
+												<option>&lt;=</option>
+												<option>BETWEEN</option>
+										</select><br/>
+										<template if="{{field.type == 'text' || field.type == 'longtext'}}">
+											<textarea name="{{field.name}}[value]" style="width:100%;min-height:3em;"></textarea>
+										</template>
+										<template if="{{field.type != 'text' && field.type != 'longtext'}}">
+											<div class="one-value">
+													<input type="text" name="{{field.name}}[value]" style="width:100%;"  />
+											</div>
+											<div class="and-value" style="display:none;">
+													<input type="text" name="{{field.name}}[start]" /> AND
+													<input type="text" name="{{field.name}}[end]" />
+											</div>
+										</template>
+								</td>
+							</tr>
                         </table>
-			<template if="{{preview}}">
-	                        <h2>Preview Query</h2>
-        	                <pre><code class="query-preview language-sql"></code></pre>
-                        <div style="text-align:center;font-size:125%;margin-top:1.5em;margin-bottom:0.5em;">
-                        </div>
-			</template>
                 </div>
                 </form>
 	</template>
@@ -134,7 +122,6 @@
 			{
 				this.query = this.generateQuery();
 				$(this).change();
-				$(this).shadow('.query-preview').html(this.generateQuery());
 			},
 
 			ready: function () {
