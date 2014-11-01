@@ -716,6 +716,8 @@ window.queryGenerator = queryGenerator;
  */
 window.addEventListener('polymer-ready', function() {
 	$(document).ready(function() {
+		if ($('html').hasAttr('test'))
+			return;
 		window.sequeldash.init();
 	});
 });

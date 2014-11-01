@@ -1,0 +1,59 @@
+<!doctype html>
+<html test>
+<head>
+	<title>query-box</title>
+	<script src="../../app/build/js/platform.min.js"></script> 
+    <link rel="import" href="../../app/elements/sequeldash.html" />
+	<script src="../../app/build/js/app.js"></script>
+	<link rel="import" href="../../app/build/components/polymer-test-tools/tools.html" />
+	<script src="../../app/build/components/polymer-test-tools/htmltest.js"></script>
+</head>
+<body>
+
+  <data-view>
+	<data-schema>
+		<data-field name="foo" label="Foo"></data-field>
+		<data-field name="bar" label="Bar"></data-field>
+		<data-field name="baz" label="Baz"></data-field>
+	</data-schema>
+	<data-item>
+		<data-field name="foo">1</data-field>
+		<data-field name="bar">2</data-field>
+		<data-field name="baz">3</data-field>
+	</data-item>
+	<data-item>
+		<data-field name="foo">4</data-field>
+		<data-field name="bar">5</data-field>
+		<data-field name="baz">6</data-field>
+	</data-item>
+	<data-item>
+		<data-field name="foo">7</data-field>
+		<data-field name="bar">8</data-field>
+		<data-field name="baz">9</data-field>
+	</data-item>
+  </data-view>
+
+  <script>
+
+	document.addEventListener('polymer-ready', function() {
+		var view = document.querySelector('data-view');
+		var $view = $(view);
+		
+		setTimeout(function() {
+			var $th = $view.shadow('table thead tr th');
+			var $tr = $view.shadow('table tbody tr');
+
+			var numColumns = ($th ? $th.length : -1);
+			var numRows = ($tr ? $tr.length : -1);
+
+			assert.isTrue(numColumns == 5, "Correct number of columns (value: "+numColumns+")");
+			assert.isTrue(numRows    == 3, "Correct number of rows (value: "+numRows+")");
+
+			assert.isTrue($tr.eq(1).find('td[data-name=bar]').text() == '5', "Correct value in bar column (row 2)");
+			done();
+		}, 100);
+	});
+  </script>
+
+</body>
+</html>

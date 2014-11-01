@@ -7,7 +7,7 @@ module.exports = function(grunt) {
 	vulcanize: {
 		default: {
 			options: {
-
+				inline: true
 			},
 
 			files: {

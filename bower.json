@@ -21,7 +21,10 @@
     "platform": "polymer/platform#~0.4.2",
     "polymer-ui-card": "Polymer/polymer-ui-card#~0.3.0",
     "ace-element": "PolymerLabs/ace-element#~0.4.0",
-    "angular-route": "~1.3.0"
+    "angular-route": "~1.3.0",
+    "mocha": "~2.0.1",
+    "chai": "~1.9.2",
+    "polymer-test-tools": "Polymer/polymer-test-tools#~0.4.2"
   },
   "resolutions": {
     "platform": "~0.4.2",

@@ -1,0 +1,52 @@
+<!doctype html>
+<html test>
+<head>
+	<title>query-box</title>
+	<script src="../../app/build/js/platform.min.js"></script> 
+    <link rel="import" href="../../app/elements/sequeldash.html" />
+	<script src="../../app/build/js/app.js"></script>
+	<link rel="import" href="../../app/build/components/polymer-test-tools/tools.html" />
+	<script src="../../app/build/components/polymer-test-tools/htmltest.js"></script>
+</head>
+<body>
+
+  <query-box query="{}"></query-box>
+
+  <script>
+
+	document.addEventListener('polymer-ready', function() {
+		var box = document.querySelector('query-box');
+		var $box = $(box);
+		var $th = $box.shadow('table thead tr th');
+		assert.isTrue($th.length == 1);
+
+		box.query = {
+			string: 'SELECT * FROM `foo`',
+			schema: ["foo", "bar", "baz"],
+			results: [
+				{foo: 1, bar: 2, baz: 3},
+				{foo: 4, bar: 5, baz: 6},
+				{foo: 7, bar: 8, baz: 9}
+			]
+		};
+
+		setTimeout(function() {
+			var $th = $box.shadow('table thead tr th');
+			assert.isTrue($th && $th.length == 4);
+
+			var $tr = $box.shadow('table tbody tr');
+			assert.isTrue($tr && $tr.length == 3);
+
+			assert.isTrue($tr.eq(1).find('td[data-key=bar]').text() == '5');
+
+			var $ace = $box.shadow('ace-element');
+			assert.equal(
+				$ace.get(0).editor.getValue(),
+				box.query.string);
+			done();
+		}, 100);
+	});
+  </script>
+
+</body>
+</html>
