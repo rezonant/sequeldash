@@ -7,9 +7,6 @@ Sequeldash is a modern, thoughtfully-designed SQL administration tool written in
 
 For instance, inline editing can be dangerous in PMA. Sequeldash **stages** inline edits, so you can commit one or all rows simultaneously.
 
-For example, SequelDash has inline editing, but changes made inline are never immediately saved to the database. Instead 
-changes are "staged", allowing the user to save changes when they are ready-- and not a moment sooner.
-
 For now, only MySQL is supported, but the tool is being built to support multiple DBMSes eventually.
 
 Installation Prerequisites
