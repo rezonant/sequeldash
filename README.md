@@ -7,9 +7,6 @@ Sequeldash is a modern, thoughtfully-designed SQL administration tool written in
 
 For instance, inline editing can be dangerous in PMA. Sequeldash **stages** inline edits, so you can commit one or all rows simultaneously.
 
-For example, SequelDash has inline editing, but changes made inline are never immediately saved to the database. Instead 
-changes are "staged", allowing the user to save changes when they are ready-- and not a moment sooner.
-
 For now, only MySQL is supported, but the tool is being built to support multiple DBMSes eventually.
 
 Installation Prerequisites
@@ -31,7 +28,7 @@ Build Prerequisites
   * Grunt (installed using NPM)
   * PHP
 
-In order to build sequeldash, you must first install nodejs, npm, bower and grunt
+In order to build sequeldash, you must first install nodejs, npm, bower and grunt.
 NodeJS and npm installation instructions are outside the scope of this README. For instructions specific to your platform, see http://npmjs.org/.
 
 Once node and npm are installed, you can install Bower and Grunt by running:
@@ -48,9 +45,10 @@ The quick way, for UNIX users:
 
 The long way, for everyone else:
 
-    C:/> php composer.phar install
     C:/> npm install
     C:/> bower install
+    C:/> cd api.v1
+    C:/> php composer.phar install
 
 Building
 ========
