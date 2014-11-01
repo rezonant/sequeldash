@@ -4,42 +4,54 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
-    chmod: {
-	options: {
+	vulcanize: {
+		default: {
+			options: {
 
+			},
+
+			files: {
+				'app/index.html': 'app/app.html'
+			}
+		}
 	},
 
-	readable: {
-		src: [
-			'app/js/*.js', 
-			'app/js/ace/*.js',
-			'app/css/*.css',
-		],
+    chmod: {
 		options: {
-			mode: '644'
+
+		},
+
+		readable: {
+			src: [
+				'app/js/*.js', 
+				'app/js/ace/*.js',
+				'app/css/*.css',
+			],
+			options: {
+				mode: '644'
+			}
 		}
-	}
     },
 
     concat: {
-	platformCss: {
-		src: [
-			'app/build/components/prism/themes/prism.css',
-			'app/build/components/bootstrap/dist/css/bootstrap.css',
-			'app/build/components/bootstrap/dist/css/bootstrap-theme.css',
-			'app/build/components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css',
-		],
+		platformCss: {
+			src: [
+				'app/build/components/prism/themes/prism.css',
+				'app/build/components/bootstrap/dist/css/bootstrap.css',
+				'app/build/components/bootstrap/dist/css/bootstrap-theme.css',
+				'app/build/components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css',
+			],
 
-		dest: 'app/build/css/platform.css'
-	},
+			dest: 'app/build/css/platform.css'
+		},
 
-	appCss: {
-		src: [
-			'app/css/style.css'
-		],
+		appCss: {
+			src: [
+				'app/css/style.css'
+			],
 
-		dest: 'app/build/css/app.css'
-	}
+			dest: 'app/build/css/app.css'
+		}
     },
 
     browserify: {
@@ -120,6 +132,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-chmod');
   grunt.loadNpmTasks('grunt-shell');
+  grunt.loadNpmTasks('grunt-vulcanize');
 
   // Default task(s).
   grunt.registerTask('default', ['browserify', 'uglify', 'concat', 'shell']);

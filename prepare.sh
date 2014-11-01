@@ -30,7 +30,9 @@ echo
 echo "Installing server-side packages (composer)..."
 echo
 
+cd api.v1
 php composer.phar install
+cd ..
 
 echo
 echo "Installing local dependencies (tools)..."
