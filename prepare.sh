@@ -1,4 +1,6 @@
 #!/bin/bash
+#
+# This will prepare and build SequelDash
 
 app_name="SequelDash"
 if ! which npm &>/dev/null; then
