@@ -1,4 +1,4 @@
 {
 	"analytics": false,
-	"directory": "components"
+	"directory": "app/build/components"
 }

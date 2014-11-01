@@ -4,8 +4,7 @@ var api = {
 		this.query = function(sql, params)
 		{
 			return new Promise(function(resolve, reject) {
-				// FIXME pathing (put a fucken <base> on thar)
-				$.post('/sequeldash/app/dbs/'+name+'/query', {
+				$.post('../api.v1/dbs/'+name+'/query', {
 					query: sql,
 					ajax: 1
 				}, function(r) {

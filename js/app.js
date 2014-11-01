@@ -46,7 +46,6 @@ window.queryGenerator = queryGenerator;
 						return;
 				
 					var $root = $scope.$parent;
-					debugger;
 					if ($root) {
 						$root.$apply(function($root) {
 							$root.breadcrumbs = $model.breadcrumbs;

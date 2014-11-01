@@ -24,10 +24,10 @@ module.exports = function(grunt) {
     concat: {
 	platformCss: {
 		src: [
-			'components/prism/themes/prism.css',
-			'components/bootstrap/dist/css/bootstrap.css',
-			'components/bootstrap/dist/css/bootstrap-theme.css',
-			'components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css',
+			'app/build/components/prism/themes/prism.css',
+			'app/build/components/bootstrap/dist/css/bootstrap.css',
+			'app/build/components/bootstrap/dist/css/bootstrap-theme.css',
+			'app/build/components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css',
 		],
 
 		dest: 'app/build/css/platform.css'
@@ -60,7 +60,7 @@ module.exports = function(grunt) {
 
     shell: {
         perms: {
-		command: 'chmod go-w,a+rX app components -Rf'
+		command: 'chmod go-w,a+rX app -Rf'
 	}
     },
  
@@ -90,17 +90,17 @@ module.exports = function(grunt) {
 		'js/html5shiv.js',
 		'js/promise-1.0.0.min.js',
 		'js/respond.min.js',
-		'components/platform/platform.js',
-		'components/jquery/dist/jquery.js',
+		'app/build/components/platform/platform.js',
+		'app/build/components/jquery/dist/jquery.js',
 		'js/jquery.animate-colors.min.js',
 		'js/jquery.rezonant.js',
-		'components/angular/angular.js',
-		'components/angular-route/angular-route.js',
-		'components/moment/moment.js',
-		'components/bootstrap/dist/js/bootstrap.js',
-		'components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js',
-		'components/prism/prism.js',
-		'components/prism/components/prism-sql.js',
+		'app/build/components/angular/angular.js',
+		'app/build/components/angular-route/angular-route.js',
+		'app/build/components/moment/moment.js',
+		'app/build/components/bootstrap/dist/js/bootstrap.js',
+		'app/build/components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js',
+		'app/build/components/prism/prism.js',
+		'app/build/components/prism/components/prism-sql.js',
 	],
         dest: 'app/build/js/platform.min.js'
       },
