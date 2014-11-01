@@ -45,9 +45,10 @@ The quick way, for UNIX users:
 
 The long way, for everyone else:
 
-    C:/> php composer.phar install
     C:/> npm install
     C:/> bower install
+    C:/> cd api.v1
+    C:/> php composer.phar install
 
 Building
 ========
