@@ -1,4 +1,7 @@
 
+/**
+ * Defines the SequelDash Javascript backend access API
+ */
 var api = {
 	db: function(name) {
 		this.query = function(sql, params)
