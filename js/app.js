@@ -15,8 +15,33 @@ window.queryGenerator = queryGenerator;
  * Core
  */
 !function() {
+	function requestFullscreen(elem) {
+		if (elem.length)
+			elem = elem[0];
+		
+		if (elem.requestFullscreen) {
+		  elem.requestFullscreen();
+		} else if (elem.msRequestFullscreen) {
+		  elem.msRequestFullscreen();
+		} else if (elem.mozRequestFullScreen) {
+		  elem.mozRequestFullScreen();
+		} else if (elem.webkitRequestFullscreen) {
+		  elem.webkitRequestFullscreen();
+		}
+	}
+	
+	function hasFullscreen() {
+		var elem = document.body;
+		
+		if (elem.requestFullscreen || elem.msRequestFullscreen || elem.mozRequestFullScreen || elem.webkitRequestFullscreen) {
+		  return true;
+		}
+		
+		return false;
+	}
+	
 	var scrollbarWidth = -1;
-	getScrollbarWidth = function() {
+	function getScrollbarWidth() {
 		if (scrollbarWidth >= 0)
 			return scrollbarWidth;
 
@@ -338,18 +363,18 @@ window.queryGenerator = queryGenerator;
 				window.location.hash = "#"+href;
 			}); 
 
-			if (!$('body').get(0).requestFullscreen) {
+			if (!hasFullscreen()) {
 				$('html').addClass('no-fullscreen');
 			}
 
-			$('body').on('click', 'a.go-fullscreen', function(e) {
+			$('body').on('click', '.go-fullscreen', function(e) {
 				var container = $('core-scroll-header-panel').get(0);
-				if (container.requestFullscreen) {
-					container.requestFullscreen();
-				} else {
+				if (!hasFullscreen()) {
 					alert('No fullscreen mode available');
+					return false;
 				}
 				
+				requestFullscreen(document.body);
 				return false;
 			});
 			

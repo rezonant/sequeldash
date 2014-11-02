@@ -53,17 +53,18 @@
 		</div>
 
 		<div>
-			<div class="logo">sequeldash</div>
-			<br/>
-			<span class="loading-indicator"
-				  ><img class="logo-loading" src="{{state.basePath}}/img/loading.gif" style="position:relative;top:0.5em;" 
-				  /></span><br/>
+			<div class="logo">
+				sequeldash<br/>
+				<span class="loading-indicator"
+				  ><img class="logo-loading" src="img/loading.gif" 
+				  /></span>
+			</div>
 		</div>
 		<div style="text-align:right;">
 			<span ng-show="startup">Loading...</span>
 			<div ng-show="!startup && state.loggedIn" style="display:inline-block;min-width:5em;text-align:right;position:relative;">
 				<span id="condensed-logo" style="">
-					<span class="loading-indicator"><img class="corner-loading" src="{{state.basePath}}/img/loading.gif" /></span>
+					<span class="loading-indicator"><img class="corner-loading" src="img/loading.gif" /></span>
 					sequeldash | 
 				</span>
 				<span id="username">
@@ -72,7 +73,7 @@
 			</div>
 			<paper-menu-button icon="more-vert" halign="right" valign="top" style="text-align:left;">
 				<paper-item icon="fullscreen" class="go-fullscreen">Fullscreen</paper-item>
-				<paper-item icon="account-child" ><a href="#/users">Manage Users</a></paper-item>
+				<paper-item><a href="#/users"><core-icon icon="account-child"></core-icon> Manage Users</a></paper-item>
 				<paper-item><a href="#/service">Service Status</a></paper-item>
 				<paper-item><a href="#/about">About / Updates</a></paper-item>
 				<paper-item><a rel="external" href="#/logout">Logout</a></paper-item>

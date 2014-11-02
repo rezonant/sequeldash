@@ -101,10 +101,10 @@ module.exports = function(grunt) {
       },
       platform: {
         src: [
+		'app/build/components/platform/platform.js',
 		'js/html5shiv.js',
 		'js/promise-1.0.0.min.js',
 		'js/respond.min.js',
-		'app/build/components/platform/platform.js',
 		'app/build/components/jquery/dist/jquery.js',
 		'js/jquery.animate-colors.min.js',
 		'js/jquery.rezonant.js',
