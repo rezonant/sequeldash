@@ -4,7 +4,7 @@ var api = {
 		this.query = function(sql, params)
 		{
 			return new Promise(function(resolve, reject) {
-				$.post('../api.v1/dbs/'+name+'/query', {
+				$.post(sequeldash.apiEndpoint+'/dbs/'+name+'/query', {
 					query: sql,
 					ajax: 1
 				}, function(r) {

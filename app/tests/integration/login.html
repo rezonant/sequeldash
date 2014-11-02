@@ -1,0 +1,97 @@
+<!doctype html>
+<html test>
+<head>
+	<title>query-box</title>
+	<script src="../../build/js/platform.min.js"></script> 
+    <link rel="import" href="../../elements/sequeldash.html" />
+	<script src="../../build/js/app.js"></script>
+	<link rel="import" href="../../build/components/polymer-test-tools/tools.html" />
+	<script src="../../build/components/polymer-test-tools/htmltest.js"></script>
+    <script>
+        !function() {
+            var path = (window.location+"");
+            path = path.replace(/#.*$/, '');
+            if (!path.match(/\/$/)) {
+                path = path.replace(/\/[^\/]*$/, '');
+            }
+            path = path.replace(/\/*$/, '');
+            document.documentElement.setAttribute("data-base-path", path);
+            //document.write('<base href="'+path+'/" />');
+        }();
+    </script>
+    <link rel="stylesheet" type="text/css" href="../../build/css/platform.css" />
+    <link rel="stylesheet" type="text/css" href="../../build/css/app.css" />
+    <link href='http://fonts.googleapis.com/css?family=Roboto:300,700,300italic,400italic,100italic,100,400,700italic' 
+          rel='stylesheet' type='text/css' />
+</head>
+<body fullbleed layout vertical unresolved>
+    <div class="top-bar" horizontal layout>
+        <div flex class="breadcrumbs">
+            <paper-menu-button icon="arrow-back" halign="left" valign="top">
+                <a ng-repeat="(k, v) in breadcrumbs"
+                   href="{{k}}"><paper-item>{{v}}</paper-button></a>
+            </paper-menu-button>
+        </div>
+
+        <div>
+            <div class="logo">sequeldash</div>
+            <br/>
+            <span class="loading-indicator"
+                  ><img class="logo-loading" src="{{state.basePath}}/img/loading.gif" style="position:relative;top:0.5em;" 
+                  /></span><br/>
+        </div>
+        <div style="text-align:right;">
+            <span ng-show="startup">Loading...</span>
+            <div ng-show="!startup && state.loggedIn" style="display:inline-block;min-width:5em;text-align:right;position:relative;">
+                <span id="condensed-logo" style="">
+                    <span class="loading-indicator"><img class="corner-loading" src="{{state.basePath}}/img/loading.gif" /></span>
+                    sequeldash |
+                </span>
+                <span id="username">
+                    {{state.username}}
+                </span>
+            </div>
+            <paper-menu-button icon="more-vert" halign="right" valign="top" style="text-align:left;">
+                <div style="min-width:300px;"></div>
+                <div class="menu-section">
+                    Recent
+                </div>
+                <paper-item><a href="#/dbs/ns4/tables/users">ns4.users</a></paper-item>
+                <paper-item><a href="#/dbs/ns4/tables/settings">ns4.settings</a></paper-item>
+                <hr/>
+                <paper-item><a href="#/users">Manage Users</a></paper-item>
+                <paper-item><a href="#/service">Service Status</a></paper-item>
+                <paper-item><a href="#/about">About / Updates</a></paper-item>
+                <paper-item><a rel="external" href="#/logout">Logout</a></paper-item>
+            </paper-menu-button>
+        </div>
+    </div>
+    <core-scroll-header-panel condenses flex keepCondensedHeader="true" headerHeight="1200px" condensedheaderheight="60px">
+        <core-toolbar layout vertical class="tall">
+            <div flex layout horizontal class="top" style="width:100%;">
+            </div>
+
+            <!-- // -->
+
+            <div layout horizontal flex end class="middle hero-cards">
+            </div>
+            <!-- // -->
+
+            <div class="bottom">
+            </div>
+
+        </core-toolbar>
+        <div content class="content-container">
+            <ng-view></ng-view>
+        </div>
+    </core-scroll-header-panel>
+
+	<script src="login.js"></script>
+	<script>
+		document.addEventListener('polymer-ready', function() {
+			window.location.hash = '#/login';
+		});
+	</script>
+
+</body>
+</html>

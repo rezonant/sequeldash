@@ -6,8 +6,19 @@ var queryGenerator = require('./queryGenerator.js');
 window.queryGenerator = queryGenerator;
 
 !function() {
+
+	/* Functions */
+
+	function basePath() {
+		var basePath = $('html').attr('data-base-path');
+		return basePath;
+	}
+
+	/* ////////////////// */
+
 	var sequeldash = {
-		version: '1.0'
+		version: '1.0',
+		apiEndpoint: basePath()+'/../api.v1'
 	};
 
 	window.sequeldash = sequeldash;
@@ -75,9 +86,8 @@ window.queryGenerator = queryGenerator;
 		
 			function loadHash($scope)
 			{
-				var basePath = $('html').attr('data-base-path');
-				var apiPath = basePath+'/../api.v1';
-				loadPageEx($scope, apiPath+window.location.hash.substr(1));		
+				var apiPath = sequeldash.apiEndpoint;
+				loadPageEx($scope, sequeldash.apiEndpoint+window.location.hash.substr(1));		
 			}
 	
 			// Some controllers (TODO: move out of here)
