@@ -82,7 +82,8 @@ module.exports = function(grunt) {
 			'Gruntfile.js',
 			'js/**/*.js',
 			'app/elements/*.html',
-			'app/css/**/*.css'
+			'app/css/**/*.css',
+			'app/app.html'
 		],
 		tasks: ['browserify', 'uglify', 'concat', 'shell', 'vulcanize'],
 		options: {
