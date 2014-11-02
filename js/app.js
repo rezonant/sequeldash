@@ -338,6 +338,21 @@ window.queryGenerator = queryGenerator;
 				window.location.hash = "#"+href;
 			}); 
 
+			if (!$('body').get(0).requestFullscreen) {
+				$('html').addClass('no-fullscreen');
+			}
+
+			$('body').on('click', 'a.go-fullscreen', function(e) {
+				var container = $('core-scroll-header-panel').get(0);
+				if (container.requestFullscreen) {
+					container.requestFullscreen();
+				} else {
+					alert('No fullscreen mode available');
+				}
+				
+				return false;
+			});
+			
 			$('.loading-indicator').removeClass('active');
 			
 			$('.breadcrumbs paper-menu-button').click(function() {

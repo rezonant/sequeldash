@@ -210,6 +210,10 @@ html /deep/ paper-item::shadow ::content > a {
 	font-size:125%;
 }
 
+.no-fullscreen .go-fullscreen {
+	display:none;
+}
+
 .logo {
 	pointer-events: none;
 	font-size:42pt;

@@ -80,12 +80,13 @@ module.exports = function(grunt) {
     	browserify: {
 		files: [
 			'Gruntfile.js',
-			'js/**/*.js'
+			'js/**/*.js',
+			'app/elements/*.html',
+			'app/css/**/*.css'
 		],
-		tasks: ['browserify', 'uglify'],
+		tasks: ['browserify', 'uglify', 'concat', 'shell', 'vulcanize'],
 		options: {
-			reload: true,
-			
+			reload: true
 		}
 	}
     },
@@ -135,6 +136,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-vulcanize');
 
   // Default task(s).
-  grunt.registerTask('default', ['browserify', 'uglify', 'concat', 'shell']);
+  grunt.registerTask('default', ['browserify', 'uglify', 'concat', 'shell', 'vulcanize']);
 
 };
