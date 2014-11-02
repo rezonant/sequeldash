@@ -3,6 +3,39 @@
  * Defines the SequelDash Javascript backend access API
  */
 var api = {
+	login: function(username, password) {
+		return new Promise(function(resolve, reject) {
+			$.post(sequeldash.apiEndpoint+'/login', {
+				username: username,
+				password: password
+			}, function(r) {
+				if (r.error) {
+					reject(r);
+					return;
+				}
+				
+				resolve(r);
+				
+			}, 'json');
+		});
+	},
+	
+	logout: function() {
+		return new Promise(function(resolve, reject) {
+			$.post(sequeldash.apiEndpoint+'/logout', {
+				// Nothing to send
+			}, function(r) {
+				if (r.error) {
+					reject(r);
+					return;
+				}
+				
+				resolve(r);
+				
+			}, 'json');
+		});
+	},
+	
 	db: function(name) {
 		this.query = function(sql, params)
 		{

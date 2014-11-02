@@ -15,7 +15,34 @@ window.queryGenerator = queryGenerator;
  * Core
  */
 !function() {
+	var scrollbarWidth = -1;
+	getScrollbarWidth = function() {
+		if (scrollbarWidth >= 0)
+			return scrollbarWidth;
 
+		var outer = document.createElement("div");
+		outer.style.visibility = "hidden";
+		outer.style.width = "100px";
+		outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
+
+		document.body.appendChild(outer);
+
+		var widthNoScroll = outer.offsetWidth;
+		// force scrollbars
+		outer.style.overflow = "scroll";
+
+		// add innerdiv
+		var inner = document.createElement("div");
+		inner.style.width = "100%";
+		outer.appendChild(inner);        
+
+		var widthWithScroll = inner.offsetWidth;
+
+		// remove divs
+		outer.parentNode.removeChild(outer);
+
+		return scrollbarWidth = (widthNoScroll - widthWithScroll);
+	}
 	/**
 	 * Retrieve the base path for the application
 	 * @returns string
@@ -48,6 +75,148 @@ window.queryGenerator = queryGenerator;
 			this.initBehaviors();
 
 			$(document).trigger('app-ready');
+		},
+
+		/**
+		 * Called to load the model for a URL during Angular routing
+		 * 
+		 * @param scope $scope
+		 * @param string url
+		 */
+		loadPage: function($scope, url) {
+			var self = this;
+			
+			$('.loading-indicator').addClass('active');
+			$.post(url, {
+				ajax: 1
+			}, function($model) {
+				$('.loading-indicator').removeClass('active');
+
+				// Redirect if we need to
+				if ($model.redirectTo && window.location.hash != $model.redirectTo) {
+					window.location.hash = $model.redirectTo;
+					return;
+				}
+				if (!$scope)
+					return;
+
+				var $root = $scope.$parent;
+				if ($root) {
+					$root.$apply(function($root) {
+						$root.breadcrumbs = $model.breadcrumbs;
+						$root.state = $model.state;
+					});
+				}
+
+				$scope.$apply(function($scope) { 
+					for (var key in window.$state) 
+						delete $scope[key];
+
+					for (var key in $model) 
+						$scope[key] = $model[key];
+				});
+
+				this.updateHeroHeader();
+				this.updateBreadcrumbs();
+				
+				window.$state = $model;
+
+				$(document).trigger('page-ready');
+
+			}, 'json').error(function(e) {
+				console.log('While navigating, received an XHR Error: '+e);
+				console.log(e);
+				if (window.location.hash != '#/error')
+					window.location.hash = '#/error';
+			});
+
+			return false;	
+		},
+		
+		updateBreadcrumbs: function()
+		{
+			if ($('.content-container #breadcrumbs').length > 0) {
+				$('.breadcrumbs paper-menu-button').html($('.content-container #breadcrumbs').children());
+			} else {
+				$('.breadcrumbs paper-menu-button').html('');
+			}
+		},
+		
+		updateHeroHeader: function(firstPage)
+		{
+			if ($('.content-container #hero-content').length > 0) {
+				$('core-toolbar .middle').html($('.content-container #hero-content').children());
+				$('core-toolbar').addClass('hero');
+			} else {
+				$('core-toolbar').removeClass('hero');
+			}
+
+			$('core-toolbar .middle').hide();
+			$('.content-container .hero-content').remove();
+
+			var size = 131;
+			var duration = 1000;
+			var hideBar = true;
+			var container = $('core-scroll-header-panel::shadow #mainContainer').get(0);
+
+			if ($('core-toolbar').hasClass('hero')) {
+				size = 341;
+				hideBar = false;
+				duration = 3000;
+			}
+
+
+			if (container) {
+				$(container).css('padding-top', $('core-toolbar').height());
+
+				setTimeout(function() {
+
+					$('core-scroll-header-panel').get(0).async('measureHeaderHeight');
+
+					if (!hideBar || !firstPage) {
+						$(container).scrollTop(size);
+					}
+
+					$('core-toolbar .middle').show();
+					// Make the header pretty
+					if (!hideBar) {
+						setTimeout(function() {
+							$(container).animate({scrollTop: 0}, {duration:duration});
+						}, 500);
+
+					} else if (firstPage) {
+						setTimeout(function() {
+							$(container).animate({scrollTop: size}, {duration:duration});
+						}, 250);
+					}
+				}, 500);
+			}
+		},
+
+		/**
+		 * Initialize the hero header panel behaviors
+		 */
+		initHeroHeader: function()
+		{
+			setTimeout(function() {
+				var width = getScrollbarWidth();
+				$('core-scroll-header-panel::shadow #headerContainer').css('margin-right', width+'px');
+				$('.top-bar').css('margin-right', width+'px');
+			}, 100);
+
+			this.updateHeroHeader(true);
+		},
+		
+		/**
+		 * Initialize Angular
+		 */
+		initAngular: function() {
+			var self = this;
+			
+			// Initialize Angular
+			var app = angular.module('sequeldash', [
+				'ngRoute'
+			]);
 
 			/**
 			 * Load the page for the current hash
@@ -58,136 +227,9 @@ window.queryGenerator = queryGenerator;
 			function loadHash($scope)
 			{
 				var apiPath = sequeldash.apiEndpoint;
-				loadPageEx($scope, sequeldash.apiEndpoint+window.location.hash.substr(1));
+				self.loadPage($scope, sequeldash.apiEndpoint+window.location.hash.substr(1));
 			}
-
-			/**
-			 * Called to load the model for a URL during Angular routing
-			 * 
-			 * @param scope $scope
-			 * @param string url
-			 */
-			function loadPageEx($scope, url) {
-				$('.loading-indicator').addClass('active');
-				$.post(url, {
-					ajax: 1
-				}, function($model) {
-					$('.loading-indicator').removeClass('active');
-
-					// Redirect if we need to
-					if ($model.redirectTo && window.location.hash != $model.redirectTo) {
-						window.location.hash = $model.redirectTo;
-						return;
-					}
-					if (!$scope)
-						return;
-
-					var $root = $scope.$parent;
-					if ($root) {
-						$root.$apply(function($root) {
-							$root.breadcrumbs = $model.breadcrumbs;
-							$root.state = $model.state;
-						});
-					}
-
-					$scope.$apply(function($scope) { 
-						for (var key in window.$state) 
-							delete $scope[key];
-
-						for (var key in $model) 
-							$scope[key] = $model[key];
-					});
-
-					window.$state = $model;
-
-					$(document).trigger('page-ready');
-
-				}, 'json').error(function(e) {
-					console.log('While navigating, received an XHR Error: '+e);
-					console.log(e);
-					if (window.location.hash != '#/error')
-						window.location.hash = '#/error';
-				});
-
-				return false;	
-			}
-		},
-		
-		/**
-		 * Initialize the hero header panel behaviors
-		 */
-		initHeroHeader: function()
-		{
-			function updateHeroHeader(firstPage)
-			{
-
-				if ($('.content-container .hero-content').length > 0) {
-					$('core-toolbar .middle').html($('.content-container .hero-content').children());
-					$('core-toolbar').addClass('hero');
-				} else {
-					$('core-toolbar').removeClass('hero');
-				}
-
-				$('core-toolbar .middle').hide();
-				$('.content-container .hero-content').remove();
-
-				var size = 131;
-				var duration = 1000;
-				var hideBar = true;
-				var container = $('core-scroll-header-panel::shadow #mainContainer').get(0);
-
-				if ($('core-toolbar').hasClass('hero')) {
-					size = 341;
-					hideBar = false;
-					duration = 3000;
-				}
-
-
-				if (container) {
-					$(container).css('padding-top', $('core-toolbar').height());
-
-					setTimeout(function() {
-
-						$('core-scroll-header-panel').get(0).async('measureHeaderHeight');
-
-						if (!hideBar || !firstPage) {
-							$(container).scrollTop(size);
-						}
-
-						$('core-toolbar .middle').show();
-						// Make the header pretty
-						if (!hideBar) {
-							setTimeout(function() {
-								$(container).animate({scrollTop: 0}, {duration:duration});
-							}, 500);
-
-						} else if (firstPage) {
-							setTimeout(function() {
-								$(container).animate({scrollTop: size}, {duration:duration});
-							}, 250);
-						}
-					}, 500);
-				}
-			}
-
-			setTimeout(function() {
-				var width = sequeldash.getScrollbarWidth();
-				$('core-scroll-header-panel::shadow #headerContainer').css('margin-right', width+'px');
-				$('.top-bar').css('margin-right', width+'px');
-			}, 100);
-
-			updateHeroHeader(true);
-		},
-		
-		/**
-		 * Initialize Angular
-		 */
-		initAngular: function() {
-			// Initialize Angular
-			var app = angular.module('sequeldash', [
-				'ngRoute'
-			]);
-
+			
 			// Some controllers (TODO: move out of here)
 
 			app.controller('TableDetailsController', ['$scope', '$http', function($scope) {
@@ -285,40 +327,8 @@ window.queryGenerator = queryGenerator;
 		}
 	};
 	
-	/**
-	 * Get browser's scrollbar width
-	 * @returns int
-	 */
-	!function() {
-		var scrollbarWidth = -1;
-		sequeldash.getScrollbarWidth = function() {
-			if (scrollbarWidth >= 0)
-				return scrollbarWidth;
-
-			var outer = document.createElement("div");
-			outer.style.visibility = "hidden";
-			outer.style.width = "100px";
-			outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
-
-			document.body.appendChild(outer);
-
-			var widthNoScroll = outer.offsetWidth;
-			// force scrollbars
-			outer.style.overflow = "scroll";
-
-			// add innerdiv
-			var inner = document.createElement("div");
-			inner.style.width = "100%";
-			outer.appendChild(inner);        
-
-			var widthWithScroll = inner.offsetWidth;
-
-			// remove divs
-			outer.parentNode.removeChild(outer);
-
-			return scrollbarWidth = (widthNoScroll - widthWithScroll);
-		}	
-	}();
+	window.sequeldash = sequeldash;
+	
 }();
 
 /**
