@@ -60,7 +60,7 @@
 			<thead>
 				<tr>
 					<th class="selectAll insertAfter">
-						<sqldash-checkbox class="selectAll"></sqldash-checkbox>
+						<paper-checkbox class="selectAll"></paper-checkbox>
 					</th>
 					<th class="actions">
 					
@@ -68,7 +68,6 @@
 				</tr>
 			</thead>
 			<tbody>
-				<content select="data-item::shadow tr.candidate"></content>	
 			</tbody>
 			</table>
 		</div>
@@ -177,7 +176,7 @@
 
 				constructRowForSchema: function(schema) {
 					var $tr = $('<tr></tr>');
-					$tr.append('<td><sqldash-checkbox class="select"></sqldash-checkbox></td>');
+					$tr.append('<td><paper-checkbox class="select"></paper-checkbox></td>');
 
 					for (var i = 0, max = schema.length; i < max; ++i) {
 						var name = schema[i];

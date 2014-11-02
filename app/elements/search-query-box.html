@@ -25,7 +25,7 @@
                                 <th style="width:auto;">Value</th>
                                 </tr>
 						</thead>
-							<tr template repeat="{{field in table.schema}}">
+							<tr template repeat="{{field in table.schema}}" data-field-name="{{field.name}}">
 								<td>
 										&nbsp; <paper-checkbox class="select" name="select[]" value="{{field.name}}" />
 								</td>
