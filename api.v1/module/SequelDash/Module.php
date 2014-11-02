@@ -30,8 +30,8 @@ class Module
     }
 
     /**
-    * Authenticate user or redirect to log in
-    */
+     * Authenticate user or redirect to log in
+     */
     public function authPreDispatch($event) {
     	if (!SessionManager::isLoggedIn()) {
 			if ($event->getRouteMatch()) {

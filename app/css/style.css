@@ -93,6 +93,14 @@ core-scroll-header-panel::shadow #headerContainer {
 }
 */
 
+paper-menu-button paper-item { 
+	min-width:10em;
+}
+
+html /deep/ .paper-menu-button-menu-container {
+	overflow: visible !important;
+}
+
 @media (max-width:900px) {
 	/* background for toolbar when it is condensed */
 	/*
@@ -203,6 +211,7 @@ html /deep/ paper-item::shadow ::content > a {
 }
 
 .logo {
+	pointer-events: none;
 	font-size:42pt;
 	font-weight:300;
 	text-shadow:0px 0px 5px black;

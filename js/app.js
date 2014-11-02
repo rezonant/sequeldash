@@ -115,9 +115,9 @@ window.queryGenerator = queryGenerator;
 					for (var key in $model) 
 						$scope[key] = $model[key];
 				});
-
-				this.updateHeroHeader();
-				this.updateBreadcrumbs();
+				
+				self.updateHeroHeader();
+				self.updateBreadcrumbs(); 
 				
 				window.$state = $model;
 
@@ -135,10 +135,20 @@ window.queryGenerator = queryGenerator;
 		
 		updateBreadcrumbs: function()
 		{
+			//return false;
 			if ($('.content-container #breadcrumbs').length > 0) {
-				$('.breadcrumbs paper-menu-button').html($('.content-container #breadcrumbs').children());
+				var $nodes = $('.content-container #breadcrumbs')
+					.children();
+				
+				$('.breadcrumbs paper-menu-button')
+					.html($nodes)
+					.children()
+					.wrap('<paper-item></paper-item>')
+					.change();
+			
 			} else {
-				$('.breadcrumbs paper-menu-button').html('');
+				$('.breadcrumbs paper-menu-button').html('None');
+				$('.breadcrumbs paper-menu-button').change();
 			}
 		},
 		
@@ -218,6 +228,15 @@ window.queryGenerator = queryGenerator;
 				'ngRoute'
 			]);
 
+			$(document).on('app-ready', function() {
+				var $scope = $('html').scope();
+				if ($scope) {
+					$scope.$apply(function($scope) {
+						$scope.startup = false;
+					});
+				}
+			});
+			
 			/**
 			 * Load the page for the current hash
 			 * 
@@ -302,10 +321,6 @@ window.queryGenerator = queryGenerator;
 		initHeaderPanel: function() {
 			var $coreScrollHeaderPanel = $( 'core-scroll-header-panel' );
 			$coreScrollHeaderPanel.shadow('#headerContainer').on( 'wheel', function (e) {
-				if ($(e.target).closest('.hero-cards').length > 0) {
-					return;
-				}
-
 				var $mainContainer = $coreScrollHeaderPanel.shadow('#mainContainer');
 				var val = $mainContainer.scrollTop() + e.originalEvent.deltaY;
 				$mainContainer.scrollTop(val);
@@ -321,9 +336,16 @@ window.queryGenerator = queryGenerator;
 			$('body').on('click', '.navigate', function(e) {
 				var href = $(this).attr('data-href');
 				window.location.hash = "#"+href;
-			});
+			}); 
 
 			$('.loading-indicator').removeClass('active');
+			
+			$('.breadcrumbs paper-menu-button').click(function() {
+				if ($(this).children().length == 0) {
+					window.history.back();
+				}
+			});
+			
 		}
 	};
 	

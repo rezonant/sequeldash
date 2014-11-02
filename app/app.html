@@ -15,7 +15,7 @@
 			}
 			path = path.replace(/\/*$/, '');
 			document.documentElement.setAttribute("data-base-path", path);
-			document.write('<base href="'+path+'/" />');
+			//document.write('<base href="'+path+'/" />');
 		}();
 	</script>
 
@@ -31,10 +31,24 @@
 </head>
 <body fullbleed layout vertical unresolved>
 	<div class="top-bar" horizontal layout>
-		<div flex class="breadcrumbs">
-			<paper-menu-button icon="arrow-back" halign="left" valign="top">
-				<!-- <a ng-repeat="(k, v) in breadcrumbs"
-				   href="{{k}}"><paper-item>{{v}}</paper-button></a> -->
+		<div flex>
+			<span class="breadcrumbs" style="display:inline-block;">
+				<paper-menu-button icon="arrow-back" halign="left" valign="top">
+				</paper-menu-button>
+			</span>
+			<paper-menu-button icon="star-outline" halign="left" valign="top">
+				
+				<div class="menu-section">
+					<core-icon icon="star-outline"></core-icon> Favorites
+				</div>
+				<paper-item><a href="#/dbs/ns4/tables/users">ns4.users</a></paper-item>
+				<paper-item><a href="#/dbs/ns4/tables/settings">ns4.users</a></paper-item>
+				
+				<div class="menu-section">
+					<core-icon icon="trending-up"></core-icon> Recent
+				</div>
+				<paper-item><a href="#/dbs/ns4/tables/users">ns4.users</a></paper-item>
+				<paper-item><a href="#/dbs/ns4/tables/settings">ns4.users</a></paper-item>
 			</paper-menu-button>
 		</div>
 
@@ -57,13 +71,6 @@
 				</span>
 			</div>
 			<paper-menu-button icon="more-vert" halign="right" valign="top" style="text-align:left;">
-				<div style="min-width:300px;"></div>
-				<div class="menu-section">
-					Recent
-				</div>
-				<paper-item><a href="#/dbs/ns4/tables/users">ns4.users</a></paper-item>
-				<paper-item><a href="#/dbs/ns4/tables/settings">ns4.settings</a></paper-item>
-				<hr/>
 				<paper-item><a href="#/users">Manage Users</a></paper-item>
 				<paper-item><a href="#/service">Service Status</a></paper-item>
 				<paper-item><a href="#/about">About / Updates</a></paper-item>
