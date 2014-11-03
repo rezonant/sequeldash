@@ -1,0 +1,18 @@
+$ npm install -g bower
+$ npm install -g grunt-cli
+
+$ ./prepare.sh
+ -- or --
+C:/> npm install
+C:/> bower install
+C:/> cd api.v1
+C:/> php composer.phar install
+
+$ grunt
+
+ -----------
+
+If all you want to do is connect to localhost, you are done.
+Visit this folder in a web server.
+For additional information including other configurations, see README.md
+

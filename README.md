@@ -60,11 +60,13 @@ Building
 Configuring
 ===========
 
-In order to run, Sequeldash only needs to know what DBMS connector must be used and which database server
+If all you wish to do is connect to a MySQL server running on localhost, then you are done.
+
+Otherwise, Sequeldash needs to know what DBMS connector must be used and which database server
 you'd like this instance to connect to. You can do that by creating the file config/database.config.php and
 filling in the required details. A sample database.config.php is provided along with the codebase as config/database.config.php.dist.
 
 Running
 =======
 
-You will then need to log in with valid MySQL server credentials.
+You will then need to log in with valid SQL server credentials
