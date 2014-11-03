@@ -101,7 +101,7 @@ core-scroll-header-panel::shadow #headerContainer {
 */
 
 paper-menu-button paper-item { 
-	min-width:10em;
+	min-width:12em;
 }
 
 html /deep/ .paper-menu-button-menu-container {

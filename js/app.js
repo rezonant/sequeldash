@@ -108,9 +108,17 @@ window.queryGenerator = queryGenerator;
 		 * @param scope $scope
 		 * @param string url
 		 */
-		loadPage: function($scope, url) {
+		loadPage: function($scope, url, disableData) {
 			var self = this;
 			
+			if (disableData) {
+				self.updateHeroHeader();
+				self.updateBreadcrumbs(); 
+				$(document).trigger('page-ready');
+				
+				return;
+				
+			}
 			$('.loading-indicator').addClass('active');
 			$.post(url, {
 				ajax: 1
@@ -268,10 +276,10 @@ window.queryGenerator = queryGenerator;
 			 * @param {type} $scope
 			 * @returns {undefined}
 			 */
-			function loadHash($scope)
+			function loadHash($scope, disableData)
 			{
 				var apiPath = sequeldash.apiEndpoint;
-				self.loadPage($scope, sequeldash.apiEndpoint+window.location.hash.substr(1));
+				self.loadPage($scope, sequeldash.apiEndpoint+window.location.hash.substr(1), disableData);
 			}
 			
 			// Some controllers (TODO: move out of here)
@@ -287,6 +295,9 @@ window.queryGenerator = queryGenerator;
 				loadHash($scope);
 			}]);
 			app.controller('StaticController', ['$scope', '$http', function($scope) {
+				loadHash($scope, true);
+			}]);
+			app.controller('DynamicController', ['$scope', '$http', function($scope) {
 				loadHash($scope);
 			}]);
 			app.controller('QueryController', ['$scope', '$http', function($scope) {
@@ -303,9 +314,13 @@ window.queryGenerator = queryGenerator;
 							templateUrl: 'html/login/index.html',
 							controller: 'StaticController'
 						}).
+						when('/prefs', {
+							templateUrl: 'html/prefs/index.html',
+							controller: 'StaticController'
+						}).
 						when('/dbs', {
 							templateUrl: 'html/index/index.html',
-							controller: 'StaticController'
+							controller: 'DynamicController'
 						}).
 						when('/dbs/:name', {
 							templateUrl: 'html/database/details.html',
@@ -375,6 +390,13 @@ window.queryGenerator = queryGenerator;
 				}
 				
 				requestFullscreen(document.body);
+				return false;
+			});
+			
+			$('body').on('click', '.go-preferences', function(e) {
+				var prefs = $('#preferences').get(0);
+				
+				prefs.show();
 				return false;
 			});
 			

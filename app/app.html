@@ -73,10 +73,19 @@
 			</div>
 			<paper-menu-button icon="more-vert" halign="right" valign="top" style="text-align:left;">
 				<paper-item icon="fullscreen" class="go-fullscreen">Fullscreen</paper-item>
-				<paper-item><a href="#/users"><core-icon icon="account-child"></core-icon> Manage Users</a></paper-item>
-				<paper-item><a href="#/service">Service Status</a></paper-item>
-				<paper-item><a href="#/about">About / Updates</a></paper-item>
-				<paper-item><a rel="external" href="#/logout">Logout</a></paper-item>
+				<paper-item icon="fullscreen" class="go-preferences">Preferences</paper-item>
+				<paper-item class="navigate" data-href="/users" icon="account-child">
+					Manage Users
+				</paper-item>
+				<paper-item class="navigate" data-href="/service" icon="report">
+					Service Status
+				</paper-item>
+				<paper-item class="navigate" data-href="/about" icon="info">
+					About / Updates
+				</paper-item>
+				<paper-item class="navigate" data-href="/logout" icon="remove-circle-outline">
+					Logout
+				</paper-item>
 			</paper-menu-button>
 		</div>
 	</div>
@@ -100,6 +109,10 @@
         </div> 
 	</core-scroll-header-panel>
 
+	<paper-dialog id="preferences">
+		Testing prefs
+	</paper-dialog>
+	
 	<script>
 	  // custom transformation: scale header's title
 	  var titleStyle = document.querySelector('.logo').style;
@@ -126,7 +139,7 @@
 	  });
 
 	</script>
-	  
+	
 	<!-- // -->
 	<script type="text/javascript" src="build/js/app.js"></script>
 </body>
