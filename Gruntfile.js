@@ -63,7 +63,7 @@ module.exports = function(grunt) {
 
 	app: {
 		src: [
-			'js/entry.js'
+			'app/js/entry.js'
 		],
 
 		dest: 'app/build/js/app.js'
@@ -80,7 +80,7 @@ module.exports = function(grunt) {
     	browserify: {
 		files: [
 			'Gruntfile.js',
-			'js/**/*.js',
+			'app/js/**/*.js',
 			'app/elements/*.html',
 			'app/css/**/*.css',
 			'app/app.html'
@@ -101,13 +101,13 @@ module.exports = function(grunt) {
       },
       platform: {
         src: [
-		'js/html5shiv.js',
-		'js/promise-1.0.0.min.js',
-		'js/respond.min.js', 
+		'app/js/html5shiv.js',
+		'app/js/promise-1.0.0.min.js',
+		'app/js/respond.min.js', 
 		'app/build/components/platform/platform.js',
 		'app/build/components/jquery/dist/jquery.js',
-		'js/jquery.animate-colors.min.js',
-		'js/jquery.rezonant.js',
+		'app/js/jquery.animate-colors.min.js',
+		'app/js/jquery.rezonant.js',
 		'app/build/components/angular/angular.js',
 		'app/build/components/angular-route/angular-route.js',
 		'app/build/components/moment/moment.js',

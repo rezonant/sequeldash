@@ -21,6 +21,8 @@ class LoginController extends Controller
     {
 		SessionManager::setLoggedIn(false);
 		return $this->model(array(
+			'error' => false,
+			'message' => 'Success',
 			'redirectTo' => '#/login'
 		));
     }
@@ -29,31 +31,32 @@ class LoginController extends Controller
     {
 		if (SessionManager::isLoggedIn())
 			$this->redirect('/');
-		$error = '';
-
+		
+		$message = 'Invalid request';
+		$error = true;
+		$url = '/';
+		
 		$post = $this->getRequest()->getPost();
 		if ($post->get('username') && $post->get('password')) {
-			$error = 'Unknown error';
 			$username = $post->get('username');
 			$password = $post->get('password');
 
 			$valid = SessionManager::validate($username, $password);
 			if ($valid === true) {
 				SessionManager::setLoggedIn(true, new Credential($username, $password));
+				$message = 'Success';
+				$error = false;
 				$url = SessionManager::consumeReturnUrl();
-				header('Location: ../app/#'.$url);
-				die();
 			} else {
 				$error = $valid;
+				$message = 'Invalid or incorrect credentials';
 			}
 		}
-
+		
 		return $this->model(array(
-			'breadcrumbs' => array(),
-			'layout' => array(
-				'showLogo' => false
-			),
-			'error' => $error
+			'error' => $error,
+			'message' => $message,
+			'url' => $url
 		));
     }
 }
