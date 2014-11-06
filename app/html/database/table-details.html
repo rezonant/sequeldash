@@ -144,7 +144,8 @@
 			var $scope = $('html').scope();
 			if ($scope) {
 				$scope.$apply(function($scope) {
-					$scope.query.string = query;
+					if ($scope.query)
+						$scope.query.string = query;
 				});
 			}
 		});

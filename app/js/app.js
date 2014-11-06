@@ -15,6 +15,20 @@ window.queryGenerator = queryGenerator;
  * Core
  */
 !function() {
+	function exitFullscreen() {
+		if (document.exitFullscreen) {
+			document.exitFullscreen();
+		} else if (document.webkitExitFullscreen) {
+			document.webkitExitFullscreen();
+		} else if (document.mozCancelFullScreen) {
+			document.mozCancelFullScreen();
+		} else if (document.msExitFullscreen) {
+			document.msExitFullscreen();
+		}
+		
+		console.log('No exitFullscreen available');
+	}
+	
 	function requestFullscreen(elem) {
 		if (elem.length)
 			elem = elem[0];
@@ -33,11 +47,40 @@ window.queryGenerator = queryGenerator;
 	function hasFullscreen() {
 		var elem = document.body;
 		
-		if (elem.requestFullscreen || elem.msRequestFullscreen || elem.mozRequestFullScreen || elem.webkitRequestFullscreen) {
-		  return true;
+		if (elem.requestFullscreen || 
+			elem.msRequestFullscreen || 
+			elem.mozRequestFullScreen || 
+			elem.webkitRequestFullscreen) {
+		
+			return true;
 		}
 		
 		return false;
+	}
+	
+	function isFullscreen() {
+		
+		if (document.fullscreenElement || 
+			document.mozFullScreenElement ||
+			document.webkitFullscreenElement ||
+			document.msFullscreenElement) {
+		
+			return true;
+		}
+		
+		return false;
+	}
+
+	function updateFullscreen(value) {
+		if (typeof value == 'undefined') {
+			value = isFullscreen();
+		}
+		
+		if (value) {
+			$('html').addClass('fullscreen');
+		} else {
+			$('html').removeClass('fullscreen');
+		}
 	}
 	
 	var scrollbarWidth = -1;
@@ -112,24 +155,42 @@ window.queryGenerator = queryGenerator;
 			var self = this;
 			
 			if (disableData) {
-				self.updateHeroHeader();
-				self.updateBreadcrumbs(); 
 				$(document).trigger('page-ready');
 				
 				return;
 				
 			}
 			$('.loading-indicator').addClass('active');
-			$.post(url, {
+			$.get(url, {
 				ajax: 1
 			}, function($model) {
 				$('.loading-indicator').removeClass('active');
 
-				// Redirect if we need to
+				// Show the error condition, if we have one
+				
+				if ($model.error) {
+					alert($model.message);
+					
+					if ($model.exceptionRendered) {
+						var errorDialog = $('#dialog-error').get(0);
+						errorDialog.opened = true;
+						$(errorDialog).find('.details').html($model.exceptionRendered);
+					}
+					
+				}
+
+				// Redirect if we need to, even with errors
+				
 				if ($model.redirectTo && window.location.hash != $model.redirectTo) {
 					window.location.hash = $model.redirectTo;
 					return;
 				}
+				
+				// Terminate this response if an error occurred.
+				
+				if ($model.error)
+					return;
+				
 				if (!$scope)
 					return;
 
@@ -148,9 +209,6 @@ window.queryGenerator = queryGenerator;
 					for (var key in $model) 
 						$scope[key] = $model[key];
 				});
-				
-				self.updateHeroHeader();
-				self.updateBreadcrumbs(); 
 				
 				window.$state = $model;
 
@@ -187,6 +245,12 @@ window.queryGenerator = queryGenerator;
 		
 		updateHeroHeader: function(firstPage)
 		{
+			if ($('.content-container #no-logo').length > 0) {
+				$('.top-bar .logo').hide();
+			} else {
+				$('.top-bar .logo').show();
+			}
+			
 			if ($('.content-container #hero-content').length > 0) {
 				$('core-toolbar .middle').html($('.content-container #hero-content').children());
 				$('core-toolbar').addClass('hero');
@@ -261,13 +325,21 @@ window.queryGenerator = queryGenerator;
 				'ngRoute'
 			]);
 
+
 			$(document).on('app-ready', function() {
 				var $scope = $('html').scope();
+				
 				if ($scope) {
 					$scope.$apply(function($scope) {
 						$scope.startup = false;
 					});
 				}
+				
+				$scope.$on('$viewContentLoaded', function() {
+					self.updateBreadcrumbs();
+					self.updateHeroHeader();
+				});
+
 			});
 			
 			/**
@@ -284,6 +356,8 @@ window.queryGenerator = queryGenerator;
 			
 			// Some controllers (TODO: move out of here)
 
+			require('./controllers/LoginController.js');
+			
 			app.controller('TableDetailsController', ['$scope', '$http', function($scope) {
 				$scope.query = {};
 				$scope.database = '';
@@ -312,7 +386,7 @@ window.queryGenerator = queryGenerator;
 					$routeProvider.
 						when('/login', {
 							templateUrl: 'html/login/index.html',
-							controller: 'StaticController'
+							controller: 'LoginController'
 						}).
 						when('/prefs', {
 							templateUrl: 'html/prefs/index.html',
@@ -365,6 +439,63 @@ window.queryGenerator = queryGenerator;
 				var val = $mainContainer.scrollTop() + e.originalEvent.deltaY;
 				$mainContainer.scrollTop(val);
 			});
+			
+			var touchY = null;
+			
+			$coreScrollHeaderPanel.shadow('#headerContainer').on('touchstart', function(e) {
+				console.log('touchstart');
+				touchY = null;
+			});
+			
+			$coreScrollHeaderPanel.shadow('#headerContainer').on('touchmove', function(e) {
+				var touches = e.changedTouches;
+				var touch = touches[0];
+				
+				if (touchY === null) {
+					touchY = touch.screenY;
+					return;
+				} 
+				
+				var $mainContainer = $coreScrollHeaderPanel.shadow('#mainContainer');
+				var delta = touchY - touch.screenY;
+				var val = $mainContainer.scrollTop() + delta;
+				
+				touchY = touch.screenY;
+				$mainContainer.scrollTop(val);
+				
+			});
+			
+			$coreScrollHeaderPanel.shadow('#headerContainer').on('touchend', function(e) {
+				var touches = e.changedTouches;
+				var touch = touches[0];
+				
+				var $mainContainer = $coreScrollHeaderPanel.shadow('#mainContainer');
+				var val = $mainContainer.scrollTop() + e.originalEvent.deltaY;
+				$mainContainer.scrollTop(val);
+			});
+			
+		},
+		
+		initFullscreen: function() {
+			updateFullscreen();
+				
+			$(document).on('mozfullscreenchange', function() {
+				updateFullscreen();
+			});
+			
+			$(document).on('webkitfullscreenchange', function() {
+				console.log('webkit fullscreen change');
+				updateFullscreen();
+			});
+			
+			$(document).on('msfullscreenchange', function() {
+				updateFullscreen();
+			});
+			
+			$(document).on('fullscreenchange', function() {
+				console.log('standard fullscreen change');
+				updateFullscreen();
+			});
 		},
 		
 		/**
@@ -373,6 +504,8 @@ window.queryGenerator = queryGenerator;
 		initBehaviors: function() {
 			// Install custom behaviors
 
+			this.initFullscreen();
+			
 			$('body').on('click', '.navigate', function(e) {
 				var href = $(this).attr('data-href');
 				window.location.hash = "#"+href;
@@ -383,20 +516,24 @@ window.queryGenerator = queryGenerator;
 			}
 
 			$('body').on('click', '.go-fullscreen', function(e) {
-				var container = $('core-scroll-header-panel').get(0);
-				if (!hasFullscreen()) {
-					alert('No fullscreen mode available');
-					return false;
-				}
 				
-				requestFullscreen(document.body);
+				if (isFullscreen()) {
+					exitFullscreen();
+				} else {
+					var container = $('core-scroll-header-panel').get(0);
+					if (!hasFullscreen()) {
+						alert('No fullscreen mode available');
+						return false;
+					}
+
+					requestFullscreen(document.body);
+				}
 				return false;
 			});
 			
 			$('body').on('click', '.go-preferences', function(e) {
-				var prefs = $('#preferences').get(0);
-				
-				prefs.show();
+				var prefs = $('#dialog-prefs').get(0);
+				prefs.opened = true;
 				return false;
 			});
 			

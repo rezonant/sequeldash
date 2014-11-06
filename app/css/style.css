@@ -152,6 +152,28 @@ core-toolbar::shadow #middleBar {
 	align-items: flex-start;
 }
 
+paper-dialog {
+	z-index:50;
+}
+
+.dialog-card.header-card {
+	display:inline-block;
+	margin:1em auto;
+	width:50em;
+	max-width:100%;
+	height:auto;
+	overflow:visible;
+	padding:1em;
+}
+
+paper-item.go-fullscreen span:before {
+	content: 'Fullscreen'
+}
+
+html.fullscreen paper-item.go-fullscreen span:before {
+	content: 'Exit Fullscreen'
+}
+
 .header-card {
 	position:relative;
 	width:300px;
@@ -201,11 +223,49 @@ html /deep/ paper-item::shadow ::content > a {
 	padding: 11px 16px;
 }
 
+paper-dialog {
+	min-width:600px;
+	max-width:100%;
+}
+
+.flexgrid-medium {
+	flex-wrap: wrap;
+	
+}
+
+.flexgrid-medium > * {
+	min-width:20em;
+}
+
+#dialog-error {
+	max-width: 75%;
+}
+
+#error-dialog pre {
+	overflow-x: auto;
+}
+
+@media (min-width: 1024px) {
+	paper-dialog {
+		min-width:900px;
+	}
+}
+
 .menu-section {
 	padding:9px 16px;
 	color: #ccc;
 	font-weight: bold;
 }
+
+html body paper-dialog h1 {
+	padding:9px 16px;
+	color: #666;
+	font-weight: bold;
+	font-size: 150%;
+	border-bottom:1px solid #ddd;
+	display:block;
+}
+
 .top-bar {
 	position:fixed;
 	top:0;
@@ -453,6 +513,10 @@ div.container a.brand {
 	}
 }
 @media (max-width:1023px) {
+	#dialog-error {
+		max-width: 90%;
+	}
+	
 	.phone-only {
 		display:none;
 	}
@@ -471,6 +535,10 @@ div.container a.brand {
 }
 
 @media (max-width:500px) {
+	#dialog-error {
+		max-width: 99%;
+	}
+	
 	.phone-only {
 		display:block;
 	}

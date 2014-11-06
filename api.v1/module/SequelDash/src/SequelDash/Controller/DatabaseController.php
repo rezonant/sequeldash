@@ -358,20 +358,20 @@ class DatabaseController extends Controller
 		$post = $this->getRequest()->getPost();
 		$db = $route->getParam('db', null);
 		$table = $route->getParam('table', null);
-
-		$connector = \SequelDash\Db\Connector::getConnector();
-		$tableNames = $connector->getTables($db);
 		$tables = array();
-		$adapter = $connector->getAdapter();
+		$queryObject = null;		
+		$query = isset($post->query) ? $post->query 
+				: 'SELECT * FROM `'.$table.'`';
 
-		$schema = $connector->getTableSchema($db, $table);
-
-		$query = 'SELECT * FROM `'.$table.'`';
-
-		if (isset($post->query)) {
-			$query = $post->query;
+		try {
+			$connector = \SequelDash\Db\Connector::getConnector();
+			$schema = $connector->getTableSchema($db, $table);
+			$tables = $connector->getTables($db);
+			$queryObject = $this->executeUserQuery($db, $query);
+		} catch (\Exception $e) {
+			$this->renderException($e);
 		}
-
+		
 		return $this->model(array(
 			'breadcrumbs' => array(
 				'poop' => 'poop',
@@ -382,9 +382,9 @@ class DatabaseController extends Controller
 			'error' => $error,
 			'database' => array(
 				'name' => $db,
-				'tables' => $connector->getTables($db),
+				'tables' => $tables,
 			),
-			'query' => $this->executeUserQuery($db, $query),
+			'query' => $queryObject,
 			'table' => array(
 				'name' => $table,
 				'schema' => $schema
@@ -450,27 +450,29 @@ class DatabaseController extends Controller
 		$tables = array();
 		$adapter = $connector->getAdapter();
 
-		$adapter->getDriver()->getConnection()->getResource()->select_db($db);
+		try {
+			$adapter->getDriver()->getConnection()->getResource()->select_db($db);
+			foreach ($tableNames as $tableName) {
+				$rows = 0;
+				$size = 0;
 
-		foreach ($tableNames as $tableName) {
-			$rows = 0;
-			$size = 0;
+				$result = $adapter->query('SELECT COUNT(*) ct FROM `'.$tableName.'`',
+								\Zend\Db\Adapter\Adapter::QUERY_MODE_EXECUTE);
+				foreach ($result as $row) {
+					$rows = $row['ct'];
+					break;
+				}
 
-			$result = $adapter->query('SELECT COUNT(*) ct FROM `'.$tableName.'`',
-							\Zend\Db\Adapter\Adapter::QUERY_MODE_EXECUTE);
-			foreach ($result as $row) {
-				$rows = $row['ct'];
-				break;
+				$tables[] = (object)array(
+					'name' => $tableName,
+					'rows' => $rows,
+					'size' => $size
+				);
 			}
-
-			$tables[] = (object)array(
-				'name' => $tableName,
-				'rows' => $rows,
-				'size' => $size
-			);
+		} catch (\Exception $e) {
+			$this->renderException($e);
 		}
-
-
+		
 		return $this->model(array(
 			'breadcrumbs' => array(
 				'#/' => \SequelDash\Db\Connector::getActiveHostname(),
@@ -484,6 +486,26 @@ class DatabaseController extends Controller
 		));
     }
 
+	private function renderException($e)
+	{
+		if (preg_match('/^Access denied; /', $e->getMessage())) {
+			die(json_encode(array(
+				'error' => true,
+				'exception' => true,
+				'message' => $e->getMessage(),
+				'redirectTo' => '/'
+			)));
+		}
+		
+		die(json_encode(array(
+			'error' => true,
+			'exception' => true,
+			'message' => $e->getMessage(),
+			'exceptionObject' => $e,
+			'exceptionRendered' => (string)$e
+		)));
+	}
+	
     public function indexAction()
     {
 		if (!SessionManager::isLoggedIn()) {

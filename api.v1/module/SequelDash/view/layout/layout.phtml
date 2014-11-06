@@ -1,9 +1,8 @@
 <?php 
-
 $viewmodels = $this->viewModel()->getCurrent()->getChildren();
 $model = $viewmodels[0];
-$request = new stdclass;
 $post = new stdclass;
+$rq = new stdclass;
 
 if ($this->content && $this->content[0] == '{') {
 	$obj = json_decode($this->content);
@@ -12,12 +11,18 @@ if ($this->content && $this->content[0] == '{') {
 	}
 }
 
-if (isset($model->request)) {
-	$rq = $model->request;
-	$post = $rq->getPost();
+if (!isset($model->request)) {
+	die(json_encode(array(
+		'error' => true,
+		'message' => 'Internal error (No request data at layout)'
+	)));
 }
 
-if (isset($post->inline)) {
+$request = $model->request;
+$post = $request->getPost();
+$rq = $request->getQuery();
+
+if (isset($rq->inline) || isset($post->inline)) {
 	echo json_encode(array(
 		'content' => $this->content, 
 		'model' => isset($model) ? 
@@ -25,6 +30,14 @@ if (isset($post->inline)) {
 			: new stdclass
 	));
 	return;
+}
+
+if (isset($rq->ajax) || isset($post->ajax)) {
+	die(json_encode(array(
+		'error' => true,
+		'message' => 'No content',
+		'redirectTo' => '/error'
+	)));
 }
 
 ?><!DOCTYPE html>

@@ -82,6 +82,7 @@ module.exports = function(grunt) {
 			'Gruntfile.js',
 			'app/js/**/*.js',
 			'app/elements/*.html',
+			'app/html/**/*.html',
 			'app/css/**/*.css',
 			'app/app.html'
 		],

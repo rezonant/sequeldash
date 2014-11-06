@@ -1,10 +1,43 @@
-
-<div class="jumbotron" style="text-align:center;">
-    <h1><img style="max-width:100%;" src="img/sequeldash.png" /></h1>
-    <form action="../api.v1/login" method="post">
-		<input type="text" id="username" name="username" placeholder="username" />
-		<input type="password" id="password" name="password" placeholder="password" />
-		<br/><br/>
-		<button id="login">Login</button>
-    </form>
+<div id="no-logo"></div>
+<div id="page-login">
+	<div style="text-align:center;">
+		<div class="header-card dialog-card" style="text-align:center;">
+			<paper-shadow z="1"></paper-shadow>
+			<h1><img style="max-width:100%;" src="img/sequeldash.png" /></h1>
+			<paper-input type="text" id="username" name="username" label="username"
+						 value="{{username}}"
+						 style="display:inline-block;"></paper-input><br/>
+			<paper-input type="password" id="password" name="password" label="password"
+						 value="{{password}}"
+						 style="display:inline-block;"></paper-input>
+			<br/><br/>
+			<paper-button ng-click="submitForm()">Login</paper-button>
+		</div>
+	</div>
 </div>
+<script>
+	!function() {
+		var $ctx = $('#page-login');
+		
+		// A little glue between Polymer and Angular, for now
+		
+		$ctx.find('#username').change(function() {
+			var $scope = $('#page-login').scope();
+			var value = this.value;
+			if ($scope) {
+				$scope.$apply(function($scope) {
+					$scope.username = value;
+				});
+			}
+		});
+		$ctx.find('#password').change(function() {
+			var $scope = $('#page-login').scope();
+			var value = this.value;
+			if ($scope) {
+				$scope.$apply(function($scope) {
+					$scope.password = value;
+				});
+			}
+		});
+	}();
+</script>

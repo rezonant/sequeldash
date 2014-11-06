@@ -19,7 +19,7 @@ class LoginController extends Controller
 {
     public function logoutAction()
     {
-		SessionManager::setLoggedIn(false);
+		SessionManager::setLoggedIn(false, null);
 		return $this->model(array(
 			'error' => false,
 			'message' => 'Success',

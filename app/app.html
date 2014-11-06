@@ -72,8 +72,8 @@
 				</span>
 			</div>
 			<paper-menu-button icon="more-vert" halign="right" valign="top" style="text-align:left;">
-				<paper-item icon="fullscreen" class="go-fullscreen">Fullscreen</paper-item>
-				<paper-item icon="fullscreen" class="go-preferences">Preferences</paper-item>
+				<paper-item icon="fullscreen" class="go-fullscreen"><span></span></paper-item>
+				<paper-item icon="settings" class="go-preferences">Preferences</paper-item>
 				<paper-item class="navigate" data-href="/users" icon="account-child">
 					Manage Users
 				</paper-item>
@@ -109,8 +109,64 @@
         </div> 
 	</core-scroll-header-panel>
 
-	<paper-dialog id="preferences">
-		Testing prefs
+	<paper-dialog id="dialog-prefs" heading="Preferences" transition="paper-dialog-transition-center">
+		<div layout horizontal class="flexgrid-medium">
+			<div>
+				<h1>Interface</h1>
+				<paper-checkbox label="Hero animations"></paper-checkbox><br/>
+				<paper-checkbox label="Allow inline editing"></paper-checkbox><br/>
+				<paper-checkbox label="Stage inline edits"></paper-checkbox><br/>
+				<br/>
+			</div>
+			<div>
+				<h1>Application</h1>
+
+				<paper-checkbox label="Update automatically"></paper-checkbox><br/>
+				
+				Updates channel:<br/>
+				<paper-radio-group>
+					<paper-radio-button name="updates" value="" label="Stable"></paper-radio-button><br/>
+					<paper-radio-button name="updates" value="" label="Beta"></paper-radio-button><br/>
+					<paper-radio-button name="updates" value="" label="Canary"></paper-radio-button><br/>
+				</paper-radio-group>
+				
+				<br/>
+				Connector: 
+				<paper-dropdown-menu>
+					<paper-item label="MySQL"></paper-item>
+					<paper-item label="PostgreSQL"></paper-item>
+					<paper-item label="Microsoft SQL Server"></paper-item>
+					<paper-item label="Oracle"></paper-item>
+					<paper-item label="SQLite"></paper-item>
+				</paper-dropdown-menu>
+				
+				<paper-input floatingLabel label="Server Address"></paper-input>
+				
+			</div>
+			<div>
+				<h1>Persistence</h1>
+
+				<core-tooltip label="Turns off all features which require persistence on the database server.
+							  Setting persists on the database server.">
+					<paper-checkbox label="Disable all persistent features"></paper-checkbox>
+				</core-tooltip><br/>
+				<paper-checkbox label="Persist recently used tables"></paper-checkbox><br/>
+				<paper-checkbox label="Persist favorites"></paper-checkbox>
+			</div>
+		</div>
+		
+		<br/>
+		
+		
+		<br/>
+		<br/>
+		
+	</paper-dialog>
+	
+	<paper-dialog id="dialog-error" heading="Uh oh" transition="paper-dialog-transition-center">
+		<p>It looks like an error occurred.</p>
+		
+		<pre class="details"></pre>
 	</paper-dialog>
 	
 	<script>
