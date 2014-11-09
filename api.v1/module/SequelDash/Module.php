@@ -21,8 +21,8 @@ class Module
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
 
-		$eventManager->attach(MvcEvent::EVENT_DISPATCH, array($this, 'authPreDispatch'), 1);
-		$eventManager->attach(MvcEvent::EVENT_DISPATCH_ERROR, array($this, 'dispatchError'), 1);
+		$eventManager->attach(MvcEvent::EVENT_DISPATCH, array($this, 'authPreDispatch'), 100);
+		$eventManager->attach(MvcEvent::EVENT_DISPATCH_ERROR, array($this, 'dispatchError'), 100);
     }
 
     public function dispatchError($event) {
