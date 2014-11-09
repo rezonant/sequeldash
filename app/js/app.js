@@ -280,12 +280,15 @@ window.queryGenerator = queryGenerator;
 
 					$('core-scroll-header-panel').get(0).async('measureHeaderHeight');
 
+					/*
 					if (!hideBar || !firstPage) {
 						$(container).scrollTop(size);
 					}
-
+					*/
+				   
 					$('core-toolbar .middle').show();
 					// Make the header pretty
+					/*
 					if (!hideBar) {
 						setTimeout(function() {
 							$(container).animate({scrollTop: 0}, {duration:duration});
@@ -296,6 +299,7 @@ window.queryGenerator = queryGenerator;
 							$(container).animate({scrollTop: size}, {duration:duration});
 						}, 250);
 					}
+					// */
 				}, 500);
 			}
 		},
@@ -322,19 +326,26 @@ window.queryGenerator = queryGenerator;
 			
 			// Initialize Angular
 			var app = angular.module('sequeldash', [
-				'ngRoute'
+				'ngRoute',
+				'ngSanitize'
 			]);
 
 
 			$(document).on('app-ready', function() {
 				var $scope = $('html').scope();
+				var $injector = angular.injector(['sequeldash']);
 				
-				if ($scope) {
-					$scope.$apply(function($scope) {
-						$scope.startup = false;
-					});
-				}
+				$injector.invoke(['$sce', function($sce) {
 				
+					if ($scope) {
+						$scope.$apply(function($scope) {
+							$scope.startup = false;
+							if (window.$brand) {
+								$scope.brand = window.$brand;
+							}
+						});
+					}
+				}]);
 				$scope.$on('$viewContentLoaded', function() {
 					self.updateBreadcrumbs();
 					self.updateHeroHeader();
@@ -434,44 +445,137 @@ window.queryGenerator = queryGenerator;
 		 */
 		initHeaderPanel: function() {
 			var $coreScrollHeaderPanel = $( 'core-scroll-header-panel' );
+			var $mainContainer = $coreScrollHeaderPanel.shadow('#mainContainer');
+			var kineticLoop = null;
+			
+			// Mouse wheel
+			
 			$coreScrollHeaderPanel.shadow('#headerContainer').on( 'wheel', function (e) {
 				var $mainContainer = $coreScrollHeaderPanel.shadow('#mainContainer');
 				var val = $mainContainer.scrollTop() + e.originalEvent.deltaY;
 				$mainContainer.scrollTop(val);
 			});
 			
-			var touchY = null;
+			// Touch events
 			
-			$coreScrollHeaderPanel.shadow('#headerContainer').on('touchstart', function(e) {
-				console.log('touchstart');
-				touchY = null;
+			var touchY = null;
+			var startTouchY = null;
+			var touchTime = null;
+			var accel = 0;
+			var startScrollTop = 0;
+			
+			var $touchableElements = $coreScrollHeaderPanel.shadow('#headerContainer')
+					.add('.top-bar .logo');
+			
+			// Mouse wheel should cancel kinetic touch 
+			// scrolling (devtools, tablet PCs)
+			
+			$('body').on('wheel', function() {	
+				if (kineticLoop) {
+					kineticLoop.cancel();
+					kineticLoop = null;
+				}
 			});
 			
-			$coreScrollHeaderPanel.shadow('#headerContainer').on('touchmove', function(e) {
+			$('body').on('touchstart', function(jqe) {
+				if ($(jqe.target).closest('core-toolbar').length > 0) 
+					return;
+				
+				if (kineticLoop) {
+					kineticLoop.cancel();
+					kineticLoop = null;
+				}
+			});
+			
+			$touchableElements.on('touchstart', function(jqe) {
+				//jqe.stopPropagation();
+				
+				if (kineticLoop) {
+					clearTimeout(kineticLoop.interval);
+					kineticLoop = null;
+				}
+				
+				var coord = $mainContainer.scrollTop();
+				var velocity = 0;
+				var drag = 0.05;
+				var fps = 60;
+				var max = $mainContainer.prop('scrollHeight');
+				var clampDistance = 0.01;
+				
+				startScrollTop = $mainContainer.scrollTop();
+				kineticLoop = {
+					fingersUp: false,
+					started: Date.now(),
+					cancel: function() {
+						clearInterval(this.interval);
+					},
+					
+					interval: setInterval(function() {
+						var self = kineticLoop;
+						
+						if (self.fingersUp) {
+							coord = Math.min(max, coord + velocity);
+							velocity *= (1-drag);
+							// Clamp velocity to zero if needed
+							if (-clampDistance < velocity && velocity < clampDistance)
+								velocity = 0;
+						}
+
+
+						// Set the scroll top
+						$mainContainer.scrollTop(coord);
+
+						// Cancel ourselves if we come to rest.
+
+						if (self.fingersUp && velocity == 0) {
+							clearTimeout(self.interval);
+							kineticLoop = null;
+						}
+						
+						
+						
+					}, 1000/fps),
+					
+					follow: function(newCoord) {
+						velocity = (newCoord - coord)*1.5;
+						coord = newCoord;
+						
+					}
+				};
+				
+				startTouchY = touchY = touchTime = null;
+				accel = 0;
+				
+				//return false;
+			});
+			
+			$touchableElements.on('touchmove', function(jqe) {
+				//jqe.stopPropagation();
+				
+				var e = jqe.originalEvent;
 				var touches = e.changedTouches;
 				var touch = touches[0];
 				
 				if (touchY === null) {
-					touchY = touch.screenY;
-					return;
+					touchY = startTouchY = touch.screenY;
+					touchTime = Date.now();
+					return false;
 				} 
 				
-				var $mainContainer = $coreScrollHeaderPanel.shadow('#mainContainer');
 				var delta = touchY - touch.screenY;
-				var val = $mainContainer.scrollTop() + delta;
+				var val = startScrollTop + delta;
 				
-				touchY = touch.screenY;
-				$mainContainer.scrollTop(val);
+				if (kineticLoop)
+					kineticLoop.follow(val);
 				
+				//return false;
 			});
 			
-			$coreScrollHeaderPanel.shadow('#headerContainer').on('touchend', function(e) {
-				var touches = e.changedTouches;
-				var touch = touches[0];
+			$touchableElements.on('touchend', function(jqe) {
+				if (kineticLoop)
+					kineticLoop.fingersUp = true;
 				
-				var $mainContainer = $coreScrollHeaderPanel.shadow('#mainContainer');
-				var val = $mainContainer.scrollTop() + e.originalEvent.deltaY;
-				$mainContainer.scrollTop(val);
+				//return false;
 			});
 			
 		},

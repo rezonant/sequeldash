@@ -65,9 +65,11 @@ body /deep/ paper-button.success {
 }
 
 /* background for toolbar when it is at its full size */
+/*
 core-scroll-header-panel::shadow #headerBg {
   background-image: url(../../img/bg8.jpg);
 }
+*/
 
 .card-header {
 	background:rgb(192, 192, 192);
@@ -466,10 +468,6 @@ tr.selected {
 	font-size:60%;
 }
 
-.zf-green {
-    color: #68b604;
-}
-
 .btn-success {
   background-color: #57a900;
   background-image: -moz-linear-gradient(top, #70d900, #57a900);
@@ -491,12 +489,6 @@ tr.selected {
 
 .btn-success:active, .btn-success.active {
   background-color: #57a900;
-}
-
-div.container a.brand {
-    background: url("../img/zf2-logo.png") no-repeat scroll 0 10px transparent;
-    margin-left: 0;
-    padding: 8px 20px 12px 40px;
 }
 
 @media (min-width:1024px) {
@@ -534,7 +526,7 @@ div.container a.brand {
 	}
 }
 
-@media (max-width:500px) {
+@media (max-width:600px) {
 	#dialog-error {
 		max-width: 99%;
 	}
@@ -573,6 +565,7 @@ div.container a.brand {
 
 	.content-container {
 		padding:0;		
+		overflow-x: hidden;
 	}
 
 	.details-sidebar {

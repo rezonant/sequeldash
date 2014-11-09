@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" ng-init="state.loggedIn=false;startup=true">
+<html lang="en" ng-init="state.loggedIn = false;
+						 startup = true;
+						 brand.name = 'sequeldash';">
 <head>
 	<meta charset="utf-8">
-	<title>SequelDash</title>
+	<title ng-bind="brand.name"></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-	
 	<script>
 		!function() {
 			var path = (window.location+"");
@@ -19,6 +20,7 @@
 		}();
 	</script>
 
+	<link rel="import" href="brand.html" />
 	<link rel="shortcut icon" type="image/vnd.microsoft.icon" href="img/favicon.ico" />
 	<link rel="stylesheet" type="text/css" href="build/css/platform.css" />
 	<link rel="stylesheet" type="text/css" href="build/css/app.css" />
@@ -54,7 +56,7 @@
 
 		<div>
 			<div class="logo">
-				sequeldash<br/>
+				<div ng-bind-html="brand.logoHTML"></div><br/>
 				<span class="loading-indicator"
 				  ><img class="logo-loading" src="img/loading.gif" 
 				  /></span>
@@ -65,7 +67,7 @@
 			<div ng-show="!startup && state.loggedIn" style="display:inline-block;min-width:5em;text-align:right;position:relative;">
 				<span id="condensed-logo" style="">
 					<span class="loading-indicator"><img class="corner-loading" src="img/loading.gif" /></span>
-					sequeldash | 
+					<span ng-bind="brand.shortName"></span> | 
 				</span>
 				<span id="username">
 					{{state.username}}
