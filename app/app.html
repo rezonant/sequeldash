@@ -51,7 +51,12 @@
 				</div> 
 				
 				<div ng-repeat="item in persisted.favorites track by item.url">
-					<paper-item><a href="{{item.url}}" ng-bind="item.name"></a></paper-item>
+					<paper-item class="closeable">
+						<a href="{{item.url}}" ng-bind="item.name"></a>
+						<core-icon-button class="go-close removeFavorite" 
+									  data-url="{{item.url}}" 
+									  icon="close"></core-icon-button>
+					</paper-item>
 				</div>
 				<div class="menu-nonitem" ng-hide="persisted.favorites.length > 0">
 					No favorites yet!

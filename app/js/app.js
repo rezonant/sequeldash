@@ -191,7 +191,8 @@ api.persistence = persistence;
 					// Show the error condition, if we have one
 
 					if ($model.error) {
-						alert($model.error);
+						if ($model.error.constructor == String) 
+							alert($model.error);
 
 						if ($model.exceptionRendered) {
 							var errorDialog = $('#dialog-error').get(0);
@@ -700,6 +701,10 @@ api.persistence = persistence;
 			// Install custom behaviors
 
 			this.initFullscreen();
+			
+			$('body').on('click', '.removeFavorite', function() {
+				favorites.remove($(this).attr('data-url'));
+			});
 			
 			$('body').on('click', '.addFavorite', function() {
 				var name = $(this).attr('data-name');

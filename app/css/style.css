@@ -8,6 +8,21 @@ body {
 	box-sizing: border-box;
 }
 
+paper-item.closeable {
+	margin-right:32px;
+	position:relative;
+}
+
+paper-item.closeable .go-close {
+	position:absolute;
+	right:-32px;
+	color: #888;
+}
+
+paper-item.closeable .go-close:hover {
+	color: #000;
+}
+
 .small {
 	font-size: 85%;
 }
