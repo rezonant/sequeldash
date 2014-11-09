@@ -705,7 +705,15 @@ api.persistence = persistence;
 				var name = $(this).attr('data-name');
 				var url = $(this).attr('data-url');
 				
-				favorites.add(url, name);
+				var $scope = $(document).scope();
+				
+				if ($scope) {
+					$scope.$apply(function($scope) {
+						if ($scope.favoriteCandidate)
+							$scope.favoriteCandidate.available = false;
+					});
+					favorites.add(url, name);
+				}
 			});
 			
 			$(document).on('hashchange', function() {
