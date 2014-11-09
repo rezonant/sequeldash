@@ -126,7 +126,17 @@ core-scroll-header-panel::shadow #headerContainer {
 */
 
 paper-menu-button paper-item { 
-	min-width:12em;
+	width:20em;
+	max-width:100%;
+	text-overflow: ellipsis;
+	overflow-x:hidden;
+}
+
+paper-menu-button paper-item a { 
+	width:16em;
+	max-width:100%;
+	text-overflow: ellipsis;
+	overflow-x:hidden;
 }
 
 html /deep/ .paper-menu-button-menu-container {
@@ -135,15 +145,17 @@ html /deep/ .paper-menu-button-menu-container {
 
 @media (max-width:900px) {
 	/* background for toolbar when it is condensed */
-	/*
+	/* 
 	core-scroll-header-panel::shadow #headerContainer {
 		margin-right:0;
 	}
 	*/
 	
+	/*
 	paper-menu-button paper-item {
-		min-width: 200px; 
+		//min-width: 200px; 
 	}
+	*/
 }
 
 .breadcrumbs paper-button {

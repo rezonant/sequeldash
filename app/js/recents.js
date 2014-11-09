@@ -13,15 +13,11 @@ module.exports = {
 	 */
 	get: function()
 	{
-		return new Promise(function(resolve, reject) {
-			var data = persistence.data().then(function(data) {
-				if (!data.recents)
-					resolve([]);
+		return persistence.data().then(function(data) {
+			if (!data.recents)
+				return [];
 
-				resolve(data.recents);
-			}).catch(function(e) {
-				reject(e);
-			});
+			return data.recents;
 		});
 	},
 	
@@ -32,7 +28,7 @@ module.exports = {
 	 */
 	clear: function()
 	{
-		return persistence.data.then(function(data) {
+		return persistence.data().then(function(data) {
 			data.recents = [];
 			persistence.save(data);
 			return data.recents;
@@ -40,7 +36,8 @@ module.exports = {
 	},
 	
 	/**
-	 * Add an item to the recents
+	 * Add an item to the recents. Puts it to the top if
+	 * it is already recent'ed.
 	 * 
 	 * @param string url The URL of the favorite item
 	 * @param string name The name of the favorite item
@@ -48,11 +45,17 @@ module.exports = {
 	 */
 	add: function(url, name)
 	{
-		return persistence.data().then(function(data) {
+		return this.remove(url).then(function() {
+			return persistence.data();
+		}).then(function(data) {
 			if (!data.recents)
 				data.recents = [];
 
-			data.recents.push({
+			// Trim when we have too many recents.
+			if (data.recents.length > 4)
+				data.recents = data.recents.slice(0, 4);
+
+			data.recents.unshift({
 				name: name,
 				url: url
 			});

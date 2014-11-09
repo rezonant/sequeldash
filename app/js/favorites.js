@@ -62,11 +62,8 @@ module.exports = {
 	 */
 	add: function(url, name)
 	{
-		console.log('adding favorite "'+name+'" with url: '+url);
 		return this.isFavorited(url).then(function(favorited) {
 			if (favorited) {
-				console.log('already favorited "'+name+'" with url: '+url);
-				console.log('skipping.');
 				return;
 			}
 			
@@ -85,6 +82,49 @@ module.exports = {
 			
 			persistence.save(data);
 			return data.favorites;
+		});
+	},
+	
+	setNoCandidate: function() {
+		if (!$(document).scope())
+			return;
+		$(document).scope().favoriteCandidate = {available: false};
+	},
+	
+	/**
+	 * Set the current favorite candidate (for "Add Favorite" UI)
+	 * @returns {undefined}
+	 */
+	setCandidate: function(name, url)
+	{
+		return this.get().then(function(favs) {
+			var available = true;
+			for (var i = 0, max = favs.length; i < max; ++i) {
+				var fav = favs[i];
+				if (fav.url == url) {
+					available = false;
+					break;
+				}
+			}
+			
+			try {
+				var $globalScope = $('html').scope();
+				if ($globalScope) {
+					$globalScope.$apply(function($globalScope) {
+						$globalScope.favoriteCandidate = {
+							available: available,
+							name: name,
+							url: url
+						};
+					});	
+				}
+			} catch (e) {
+				alert('Error!');
+				console.error('Error!');
+				console.log(e);
+			}
+			
+			return true;
 		});
 	},
 	

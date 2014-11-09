@@ -206,16 +206,21 @@ api.persistence = persistence;
 
 					if ($model.redirectTo && window.location.hash != $model.redirectTo) {
 						window.location.hash = $model.redirectTo;
+						resolve($model);
 						return;
 					}
 
 					// Terminate this response if an error occurred.
 
-					if ($model.error)
+					if ($model.error) {
+						resolve($model);
 						return;
+					}
 
-					if (!$scope)
+					if (!$scope) {
+						resolve($model);
 						return;
+					}
 
 					var $root = $scope.$parent;
 					if ($root) {
@@ -236,7 +241,7 @@ api.persistence = persistence;
 					window.$state = $model;
 					$(document).trigger('page-ready');
 
-					resolve();
+					resolve($model);
 
 				}, 'json').error(function(e) {
 					console.log('While navigating, received an XHR Error: '+e);
@@ -414,70 +419,39 @@ api.persistence = persistence;
 				$scope.query = {};
 				$scope.database = '';
 				$scope.table = {name: '', schema: []};
+				
 				loadHash($scope).then(function() {
-					return favorites.get();
-				}).then(function(favs) {
-					var available = true;
 					var url = '#/dbs/'+$scope.database.name+'/tables/'+$scope.table.name;
 					var name = $scope.database.name+'.'+$scope.table.name;
-					
-					for (var i = 0, max = favs.length; i < max; ++i) {
-						var fav = favs[i];
-						if (fav.url == url) {
-							available = false;
-							break;
-						}
-					}
-					
-					var $globalScope = $('html').scope();
-					$globalScope.$apply(function($globalScope) {
-						$globalScope.favoriteCandidate = {
-							available: available,
-							name: name,
-							url: url
-						};
-					});
+					favorites.setCandidate(name, url);
+					recents.add(url, name);
 				});
 			}]);
 		
 			app.controller('DatabaseDetailsController', ['$scope', '$http', function($scope) {
 				$scope.database = {name: '', tables: []};
 				loadHash($scope).then(function() {
-					return favorites.get();
-				}).then(function(favs) {
-					
-					var available = true;
 					var url = '#/dbs/'+$scope.database.name;
 					var name = $scope.database.name;
-					
-					for (var i = 0, max = favs.length; i < max; ++i) {
-						var fav = favs[i];
-						if (fav.url == url) {
-							available = false;
-							break;
-						}
-					}
-					
-					var $globalScope = $('html').scope();
-					$globalScope.$apply(function($globalScope) {
-						$globalScope.favoriteCandidate = {
-							available: available,
-							name: name,
-							url: url
-						};
-					});
+					favorites.setCandidate(name, url);
+					recents.add(url, name);
+				}).catch(function(e) {
+					console.log('Caught exception:');
+					console.log(e);
+					throw e;
 				});
 			}]);
+		
 			app.controller('StaticController', ['$scope', '$http', function($scope) {
-				$(document).scope().favoriteCandidate = {available: false};
+				favorites.setNoCandidate();
 				loadHash($scope, true);
 			}]);
 			app.controller('DynamicController', ['$scope', '$http', function($scope) {
-				$(document).scope().favoriteCandidate = {available: false};
+				favorites.setNoCandidate();
 				loadHash($scope);
 			}]);
 			app.controller('QueryController', ['$scope', '$http', function($scope) {
-				$(document).scope().favoriteCandidate = {available: false};
+				favorites.setNoCandidate();
 				$scope.query = {};
 				$scope.database = '';
 				$scope.table = '';

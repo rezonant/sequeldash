@@ -30,9 +30,10 @@ module.exports = {
 	save: function(data)
 	{
 		var self = this;
-		
 		if (!data)
 			throw "You must pass the persisted data object";
+		
+		this.__data = data;
 		
 		(function() {
 			if (this.plugin) {
