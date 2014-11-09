@@ -261,9 +261,20 @@ paper-dialog {
 	}
 }
 
+.menu-nonitem {
+	padding:9px 16px;
+	color: #ddd;
+	font-weight: bold;	
+}
+
+.menu-separator {
+	border-bottom: 1px dashed #ccc;
+	height:1px;
+}
+
 .menu-section {
 	padding:9px 16px;
-	color: #ccc;
+	color: #bbb;
 	font-weight: bold;
 }
 

@@ -43,14 +43,32 @@
 				<div class="menu-section">
 					<core-icon icon="star-outline"></core-icon> Favorites
 				</div>
-				<paper-item><a href="#/dbs/ns4/tables/users">ns4.users</a></paper-item>
-				<paper-item><a href="#/dbs/ns4/tables/settings">ns4.users</a></paper-item>
+				<div ng-show="favoriteCandidate.available">
+					<paper-item icon="star-rate" class="addFavorite"
+								data-name="{{favoriteCandidate.name}}"
+								data-url="{{favoriteCandidate.url}}"
+						>Add {{favoriteCandidate.name}}</paper-item>
+				</div> 
+				
+				<div ng-repeat="item in persisted.favorites track by item.url">
+					<paper-item><a href="{{item.url}}" ng-bind="item.name"></a></paper-item>
+				</div>
+				<div class="menu-nonitem" ng-hide="persisted.favorites.length > 0">
+					No favorites yet!
+				</div>
+				
+				<div class="menu-separator">
+				</div>
 				
 				<div class="menu-section">
 					<core-icon icon="trending-up"></core-icon> Recent
 				</div>
-				<paper-item><a href="#/dbs/ns4/tables/users">ns4.users</a></paper-item>
-				<paper-item><a href="#/dbs/ns4/tables/settings">ns4.users</a></paper-item>
+				<div ng-repeat="item in persisted.recents track by item.url">
+					<paper-item><a href="{{item.url}}" ng-bind="item.name"></a></paper-item>
+				</div>
+				<div class="menu-nonitem" ng-hide="persisted.recents.length">
+					No recents yet!
+				</div>
 			</paper-menu-button>
 		</div>
 

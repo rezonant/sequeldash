@@ -10,6 +10,23 @@ var assert = require('./assert.js');
 var api = require('./api.js');
 var queryGenerator = require('./queryGenerator.js');
 window.queryGenerator = queryGenerator;
+var persistence = require('./persistence.js');
+var favorites = require('./favorites.js');
+var recents = require('./recents.js');
+
+window.console.resolve = function(promise) {
+	promise.then(function(r) {
+		console.log('Promise resolved: ');
+		console.log(r);
+	}).catch(function(e) {
+		console.log('Promise rejected: ');
+		console.log(e);
+	});
+};
+
+api.favorites = favorites;
+api.recents = recents;
+api.persistence = persistence;
 
 /**
  * Core
@@ -155,73 +172,80 @@ window.queryGenerator = queryGenerator;
 			var self = this;
 			
 			if (disableData) {
-				$(document).trigger('page-ready');
 				
-				return;
-				
-			}
-			$('.loading-indicator').addClass('active');
-			$.get(url, {
-				ajax: 1
-			}, function($model) {
-				$('.loading-indicator').removeClass('active');
-
-				// Show the error condition, if we have one
-				
-				if ($model.error) {
-					alert($model.error);
-					
-					if ($model.exceptionRendered) {
-						var errorDialog = $('#dialog-error').get(0);
-						errorDialog.opened = true;
-						$(errorDialog).find('.details').html($model.exceptionRendered);
-					}
-					
-				}
-
-				// Redirect if we need to, even with errors
-				
-				if ($model.redirectTo && window.location.hash != $model.redirectTo) {
-					window.location.hash = $model.redirectTo;
-					return;
-				}
-				
-				// Terminate this response if an error occurred.
-				
-				if ($model.error)
-					return;
-				
-				if (!$scope)
-					return;
-
-				var $root = $scope.$parent;
-				if ($root) {
-					$root.$apply(function($root) {
-						$root.breadcrumbs = $model.breadcrumbs;
-						$root.state = $model.state;
-					});
-				}
-
-				$scope.$apply(function($scope) { 
-					for (var key in window.$state) 
-						delete $scope[key];
-
-					for (var key in $model) 
-						$scope[key] = $model[key];
+				return new Promise(function(resolve, reject) {
+					$(document).trigger('page-ready');
+					resolve();
 				});
 				
-				window.$state = $model;
+			}
+			
+			$('.loading-indicator').addClass('active');
+			
+			return new Promise(function(resolve, reject) {
+				$.get(url, {
+					ajax: 1
+				}, function($model) {
+					$('.loading-indicator').removeClass('active');
 
-				$(document).trigger('page-ready');
+					// Show the error condition, if we have one
 
-			}, 'json').error(function(e) {
-				console.log('While navigating, received an XHR Error: '+e);
-				console.log(e);
-				if (window.location.hash != '#/error')
-					window.location.hash = '#/error';
+					if ($model.error) {
+						alert($model.error);
+
+						if ($model.exceptionRendered) {
+							var errorDialog = $('#dialog-error').get(0);
+							errorDialog.opened = true;
+							$(errorDialog).find('.details').html($model.exceptionRendered);
+						}
+
+					}
+
+					// Redirect if we need to, even with errors
+
+					if ($model.redirectTo && window.location.hash != $model.redirectTo) {
+						window.location.hash = $model.redirectTo;
+						return;
+					}
+
+					// Terminate this response if an error occurred.
+
+					if ($model.error)
+						return;
+
+					if (!$scope)
+						return;
+
+					var $root = $scope.$parent;
+					if ($root) {
+						$root.$apply(function($root) {
+							$root.breadcrumbs = $model.breadcrumbs;
+							$root.state = $model.state;
+						});
+					}
+
+					$scope.$apply(function($scope) { 
+						for (var key in window.$state) 
+							delete $scope[key];
+
+						for (var key in $model) 
+							$scope[key] = $model[key];
+					});
+
+					window.$state = $model;
+					$(document).trigger('page-ready');
+
+					resolve();
+
+				}, 'json').error(function(e) {
+					console.log('While navigating, received an XHR Error: '+e);
+					console.log(e);
+					if (window.location.hash != '#/error')
+						window.location.hash = '#/error';
+					
+					reject(e);
+				});
 			});
-
-			return false;	
 		},
 		
 		updateBreadcrumbs: function()
@@ -335,6 +359,21 @@ window.queryGenerator = queryGenerator;
 				var $scope = $('html').scope();
 				var $injector = angular.injector(['sequeldash']);
 				
+				persistence.watch(function(data) {
+					console.log('reacting newly persisted data to scope');
+					$scope.$apply(function($scope) {
+						console.log('reacting this:');
+						console.log(data);
+						$scope.persisted = data;
+					});
+				});
+				
+				$scope.$apply(function($scope) {
+					persistence.data().then(function(data) {
+						$scope.persisted = data;
+					});
+				});
+				
 				$injector.invoke(['$sce', function($sce) {
 				
 					if ($scope) {
@@ -362,7 +401,7 @@ window.queryGenerator = queryGenerator;
 			function loadHash($scope, disableData)
 			{
 				var apiPath = sequeldash.apiEndpoint;
-				self.loadPage($scope, sequeldash.apiEndpoint+window.location.hash.substr(1), disableData);
+				return self.loadPage($scope, sequeldash.apiEndpoint+window.location.hash.substr(1), disableData);
 			}
 			
 			// Some controllers (TODO: move out of here)
@@ -370,22 +409,74 @@ window.queryGenerator = queryGenerator;
 			require('./controllers/LoginController.js');
 			
 			app.controller('TableDetailsController', ['$scope', '$http', function($scope) {
+				
 				$scope.query = {};
 				$scope.database = '';
 				$scope.table = {name: '', schema: []};
-				loadHash($scope);
+				loadHash($scope).then(function() {
+					return favorites.get();
+				}).then(function(favs) {
+					var available = true;
+					var url = '#/dbs/'+$scope.database.name+'/tables/'+$scope.table.name;
+					var name = $scope.database.name+'.'+$scope.table.name;
+					
+					for (var i = 0, max = favs.length; i < max; ++i) {
+						var fav = favs[i];
+						if (fav.url == url) {
+							available = false;
+							break;
+						}
+					}
+					
+					var $globalScope = $('html').scope();
+					$globalScope.$apply(function($globalScope) {
+						$globalScope.favoriteCandidate = {
+							available: available,
+							name: name,
+							url: url
+						};
+					});
+				});
 			}]);
+		
 			app.controller('DatabaseDetailsController', ['$scope', '$http', function($scope) {
 				$scope.database = {name: '', tables: []};
-				loadHash($scope);
+				loadHash($scope).then(function() {
+					return favorites.get();
+				}).then(function(favs) {
+					
+					var available = true;
+					var url = '#/dbs/'+$scope.database.name;
+					var name = $scope.database.name;
+					
+					for (var i = 0, max = favs.length; i < max; ++i) {
+						var fav = favs[i];
+						if (fav.url == url) {
+							available = false;
+							break;
+						}
+					}
+					
+					var $globalScope = $('html').scope();
+					$globalScope.$apply(function($globalScope) {
+						$globalScope.favoriteCandidate = {
+							available: available,
+							name: name,
+							url: url
+						};
+					});
+				});
 			}]);
 			app.controller('StaticController', ['$scope', '$http', function($scope) {
+				$(document).scope().favoriteCandidate = {available: false};
 				loadHash($scope, true);
 			}]);
 			app.controller('DynamicController', ['$scope', '$http', function($scope) {
+				$(document).scope().favoriteCandidate = {available: false};
 				loadHash($scope);
 			}]);
 			app.controller('QueryController', ['$scope', '$http', function($scope) {
+				$(document).scope().favoriteCandidate = {available: false};
 				$scope.query = {};
 				$scope.database = '';
 				$scope.table = '';
@@ -609,6 +700,33 @@ window.queryGenerator = queryGenerator;
 			// Install custom behaviors
 
 			this.initFullscreen();
+			
+			$('body').on('click', '.addFavorite', function() {
+				var name = $(this).attr('data-name');
+				var url = $(this).attr('data-url');
+				
+				favorites.add(url, name);
+			});
+			
+			$(document).on('hashchange', function() {
+				var $scope = $(document).scope();
+				if (!$scope)
+					return;
+				
+				$scope.$apply(function($scope) {
+					$scope.hash = window.location.hash;
+				});
+			});
+			
+			$(document).on('app-ready', function() {
+				var $scope = $(document).scope();
+				if (!$scope)
+					return;
+				
+				$scope.$apply(function($scope) {
+					$scope.hash = window.location.hash;
+				});
+			});
 			
 			$('body').on('click', '.navigate', function(e) {
 				var href = $(this).attr('data-href');
