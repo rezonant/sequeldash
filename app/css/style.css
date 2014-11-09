@@ -260,18 +260,23 @@ html /deep/ paper-item::shadow ::content > a {
 	padding: 11px 16px;
 }
 
+paper-dialog::shadow #main {
+	overflow-x:hidden;
+}
+
 paper-dialog {
-	min-width:600px;
-	max-width:100%;
+	/*min-width:600px;*/
+	max-width:95%;
 }
 
 .flexgrid-medium {
 	flex-wrap: wrap;
-	
+	/* overflow-y: hidden; */
 }
 
 .flexgrid-medium > * {
-	min-width:20em;
+	width:20em;
+	max-width:100%;
 }
 
 #dialog-error {
