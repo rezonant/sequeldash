@@ -100,11 +100,7 @@ class DatabaseController extends Controller
 	
 		$route = $this->getEvent()->getRouteMatch();
 		$post = $this->getRequest()->getPost();
-		$error = null;
-
-		if (!isset($post->query)) {
-			$error = 'Invalid request';
-		}
+		$error = '';
 
 		$db = $route->getParam('db', null);
 		$query = $post->query;
@@ -149,25 +145,19 @@ class DatabaseController extends Controller
 			$offset = $post->offset;
 		if (isset($post->limit))
 			$limit = $post->limit;
-
-		if (!$query)
-			$error = 'No query provided';
-
-		// Query, if we need to
-
-		if (!$error) {
+		
+		$queryData = (object)array(
+			'string' => $query,
+			'error' => $error,
+			'verb' => '',
+			'offset' => $offset,
+			'limit' => $limit,
+			'count' => -1,
+			'results' => array(),
+		);
+		
+		if ($query) 
 			$queryData = $this->executeUserQuery($db, $query, $limit, $offset, $orderBy, $orderByDir);
-		} else {	
-			$queryData = (object)array(
-				'string' => $query,
-				'error' => $error,
-				'verb' => '',
-				'offset' => $offset,
-				'limit' => $limit,
-				'count' => -1,
-				'results' => array(),
-			);
-		}
 
 		$queryData->string = $wholeQuery;
 

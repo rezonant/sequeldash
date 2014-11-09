@@ -8,6 +8,10 @@ body {
 	box-sizing: border-box;
 }
 
+.small {
+	font-size: 85%;
+}
+
 core-scroll-header-panel /deep/ #headerLayout {
 	position:relative;
 	z-index:10;
@@ -88,6 +92,10 @@ core-scroll-header-panel::shadow #headerBg {
 
 .panel-body {
 	background:white;
+}
+
+.condensed-logo {
+	vertical-align:middle;
 }
 
 /* background for toolbar when it is condensed */

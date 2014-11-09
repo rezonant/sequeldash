@@ -169,7 +169,7 @@ window.queryGenerator = queryGenerator;
 				// Show the error condition, if we have one
 				
 				if ($model.error) {
-					alert($model.message);
+					alert($model.error);
 					
 					if ($model.exceptionRendered) {
 						var errorDialog = $('#dialog-error').get(0);
