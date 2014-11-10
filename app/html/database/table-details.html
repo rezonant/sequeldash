@@ -21,9 +21,9 @@
 			<div style="float:right">
 				<input style="width:8em;" type="text" placeholder="filter" class="filter" data-filter="database.tables" />
 			</div>
-        	        <h2><a href="{{state.basePath}}/dbs/{{database.name}}/tables">Tables</h2>
+        	        <h2><a href="#/dbs/{{database.name}}">Tables</h2>
 			<div ng-repeat="tableName in database.tables">
-				<a href="{{state.basePath}}/dbs/{{database.name}}/tables/{{tableName}}">{{tableName}}</a>
+				<a href="#/dbs/{{database.name}}/tables/{{tableName}}">{{tableName}}</a>
 			</div>
 
 		</div>
