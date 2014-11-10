@@ -2,10 +2,32 @@ body {
 	font-family: 'Roboto';
 	width:100%;
 	height:100%;
+	background:black;
+	color:white;
 }
 
 * { 
 	box-sizing: border-box;
+}
+
+core-scroll-header-panel {
+	background: black;
+}
+
+html core-scroll-header-panel {
+	transition: -webkit-filter 1s, transform 1s;
+	-webkit-filter: blur(0px);
+	transform: scale(1), translateY(0);
+}
+
+html.dialog-open core-scroll-header-panel {
+	transition: -webkit-filter 3s, transform 3s;
+	-webkit-filter: blur(15px);
+	transform: scale(1.1), translateY(50);
+}
+
+html .indented {
+	padding-left:3em;
 }
 
 paper-item.closeable {
@@ -138,10 +160,11 @@ paper-menu-button paper-item a {
 	text-overflow: ellipsis;
 	overflow-x:hidden;
 }
-
+/*
 html /deep/ .paper-menu-button-menu-container {
 	overflow: visible !important;
 }
+*/
 
 @media (max-width:900px) {
 	/* background for toolbar when it is condensed */

@@ -114,6 +114,7 @@ module.exports = function(grunt) {
 			'app/build/components/angular/angular.js',
 			'app/build/components/angular-route/angular-route.js',
 			'app/build/components/angular-sanitize/angular-sanitize.js',
+			'app/build/components/angular-bind-polymer/angular_bind_polymer.js',
 			'app/build/components/moment/moment.js',
 			'app/build/components/bootstrap/dist/js/bootstrap.js',
 			'app/build/components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js',

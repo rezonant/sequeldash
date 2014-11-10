@@ -1,3 +1,7 @@
+/**
+ * SEQUELDASH (C) 2014
+ * MIT License, see LICENSE.txt for details
+ */
 
 angular
 	.module('sequeldash')

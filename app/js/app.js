@@ -1,141 +1,16 @@
 /**
- * 
- * SEQUELDASH
- * (C) 2014
- * 
+ * SEQUELDASH (C) 2014
+ * MIT License, see LICENSE.txt for details
  */
 
-/** Dependencies **/
-var assert = require('./assert.js');
+// Dependencies
+
 var api = require('./api.js');
-var queryGenerator = require('./queryGenerator.js');
-window.queryGenerator = queryGenerator;
-var persistence = require('./persistence.js');
-var favorites = require('./favorites.js');
-var recents = require('./recents.js');
-
-window.console.resolve = function(promise) {
-	promise.then(function(r) {
-		console.log('Promise resolved: ');
-		console.log(r);
-	}).catch(function(e) {
-		console.log('Promise rejected: ');
-		console.log(e);
-	});
-};
-
-api.favorites = favorites;
-api.recents = recents;
-api.persistence = persistence;
 
 /**
  * Core
  */
 !function() {
-	function exitFullscreen() {
-		if (document.exitFullscreen) {
-			document.exitFullscreen();
-		} else if (document.webkitExitFullscreen) {
-			document.webkitExitFullscreen();
-		} else if (document.mozCancelFullScreen) {
-			document.mozCancelFullScreen();
-		} else if (document.msExitFullscreen) {
-			document.msExitFullscreen();
-		}
-		
-		console.log('No exitFullscreen available');
-	}
-	
-	function requestFullscreen(elem) {
-		if (elem.length)
-			elem = elem[0];
-		
-		if (elem.requestFullscreen) {
-		  elem.requestFullscreen();
-		} else if (elem.msRequestFullscreen) {
-		  elem.msRequestFullscreen();
-		} else if (elem.mozRequestFullScreen) {
-		  elem.mozRequestFullScreen();
-		} else if (elem.webkitRequestFullscreen) {
-		  elem.webkitRequestFullscreen();
-		}
-	}
-	
-	function hasFullscreen() {
-		var elem = document.body;
-		
-		if (elem.requestFullscreen || 
-			elem.msRequestFullscreen || 
-			elem.mozRequestFullScreen || 
-			elem.webkitRequestFullscreen) {
-		
-			return true;
-		}
-		
-		return false;
-	}
-	
-	function isFullscreen() {
-		
-		if (document.fullscreenElement || 
-			document.mozFullScreenElement ||
-			document.webkitFullscreenElement ||
-			document.msFullscreenElement) {
-		
-			return true;
-		}
-		
-		return false;
-	}
-
-	function updateFullscreen(value) {
-		if (typeof value == 'undefined') {
-			value = isFullscreen();
-		}
-		
-		if (value) {
-			$('html').addClass('fullscreen');
-		} else {
-			$('html').removeClass('fullscreen');
-		}
-	}
-	
-	var scrollbarWidth = -1;
-	function getScrollbarWidth() {
-		if (scrollbarWidth >= 0)
-			return scrollbarWidth;
-
-		var outer = document.createElement("div");
-		outer.style.visibility = "hidden";
-		outer.style.width = "100px";
-		outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
-
-		document.body.appendChild(outer);
-
-		var widthNoScroll = outer.offsetWidth;
-		// force scrollbars
-		outer.style.overflow = "scroll";
-
-		// add innerdiv
-		var inner = document.createElement("div");
-		inner.style.width = "100%";
-		outer.appendChild(inner);        
-
-		var widthWithScroll = inner.offsetWidth;
-
-		// remove divs
-		outer.parentNode.removeChild(outer);
-
-		return scrollbarWidth = (widthNoScroll - widthWithScroll);
-	}
-	/**
-	 * Retrieve the base path for the application
-	 * @returns string
-	 */
-	function basePath() {
-		var basePath = $('html').attr('data-base-path');
-		return basePath;
-	}
 	
 	/**
 	 * Defines the primary SequelDash frontend application interface
@@ -153,15 +28,29 @@ api.persistence = persistence;
 			
 			/** UI **/
 			$('.loading-indicator').addClass('active');
-
+			var self = this;
+			$(document).on('app-ready', function() {
+				self.initBehaviors();
+			});
+			
 			this.initAngular();
 			this.initHeroHeader();
 			this.initHeaderPanel();
-			this.initBehaviors();
-
-			$(document).trigger('app-ready');
 		},
 
+		/**
+		 * Load the page for the current hash
+		 * 
+		 * @param {scope} $scope
+		 * @returns {undefined}
+		 */
+		loadHash: function($scope, disableData)
+		{
+			return this.loadPage($scope,
+								 this.apiEndpoint+window.location.hash.substr(1),
+								 disableData);
+		},
+		
 		/**
 		 * Called to load the model for a URL during Angular routing
 		 * 
@@ -254,6 +143,9 @@ api.persistence = persistence;
 			});
 		},
 		
+		/**
+		 * Update the state of breadcrumbs from the current page
+		 */
 		updateBreadcrumbs: function()
 		{
 			//return false;
@@ -273,6 +165,10 @@ api.persistence = persistence;
 			}
 		},
 		
+		/**
+		 * Update the state of the hero header based on the current page.
+		 * @param bool firstPage True if this is the first page 
+		 */
 		updateHeroHeader: function(firstPage)
 		{
 			if ($('.content-container #no-logo').length > 0) {
@@ -349,115 +245,23 @@ api.persistence = persistence;
 		},
 		
 		/**
-		 * Initialize Angular
+		 * Require all necessary controllers.
+		 * TODO: Should this be farmed out to a single include?
 		 */
-		initAngular: function() {
-			var self = this;
-			
-			// Initialize Angular
-			var app = angular.module('sequeldash', [
-				'ngRoute',
-				'ngSanitize'
-			]);
-
-
-			$(document).on('app-ready', function() {
-				var $scope = $('html').scope();
-				var $injector = angular.injector(['sequeldash']);
-				
-				persistence.watch(function(data) {
-					console.log('reacting newly persisted data to scope');
-					$scope.$apply(function($scope) {
-						console.log('reacting this:');
-						console.log(data);
-						$scope.persisted = data;
-					});
-				});
-				
-				$scope.$apply(function($scope) {
-					persistence.data().then(function(data) {
-						$scope.persisted = data;
-					});
-				});
-				
-				$injector.invoke(['$sce', function($sce) {
-				
-					if ($scope) {
-						$scope.$apply(function($scope) {
-							$scope.startup = false;
-							if (window.$brand) {
-								$scope.brand = window.$brand;
-							}
-						});
-					}
-				}]);
-				$scope.$on('$viewContentLoaded', function() {
-					self.updateBreadcrumbs();
-					self.updateHeroHeader();
-				});
-
-			});
-			
-			/**
-			 * Load the page for the current hash
-			 * 
-			 * @param {type} $scope
-			 * @returns {undefined}
-			 */
-			function loadHash($scope, disableData)
-			{
-				var apiPath = sequeldash.apiEndpoint;
-				return self.loadPage($scope, sequeldash.apiEndpoint+window.location.hash.substr(1), disableData);
-			}
-			
-			// Some controllers (TODO: move out of here)
-
+		loadControllers: function() {
 			require('./controllers/LoginController.js');
-			
-			app.controller('TableDetailsController', ['$scope', '$http', function($scope) {
-				
-				$scope.query = {};
-				$scope.database = '';
-				$scope.table = {name: '', schema: []};
-				
-				loadHash($scope).then(function() {
-					var url = '#/dbs/'+$scope.database.name+'/tables/'+$scope.table.name;
-					var name = $scope.database.name+'.'+$scope.table.name;
-					favorites.setCandidate(name, url);
-					recents.add(url, name);
-				});
-			}]);
+			require('./controllers/TableDetailsController.js');
+			require('./controllers/DatabaseDetailsController.js');
+			require('./controllers/StaticController.js');
+			require('./controllers/DynamicController.js');
+			require('./controllers/QueryController.js');
+		},
 		
-			app.controller('DatabaseDetailsController', ['$scope', '$http', function($scope) {
-				$scope.database = {name: '', tables: []};
-				loadHash($scope).then(function() {
-					var url = '#/dbs/'+$scope.database.name;
-					var name = $scope.database.name;
-					favorites.setCandidate(name, url);
-					recents.add(url, name);
-				}).catch(function(e) {
-					console.log('Caught exception:');
-					console.log(e);
-					throw e;
-				});
-			}]);
-		
-			app.controller('StaticController', ['$scope', '$http', function($scope) {
-				favorites.setNoCandidate();
-				loadHash($scope, true);
-			}]);
-			app.controller('DynamicController', ['$scope', '$http', function($scope) {
-				favorites.setNoCandidate();
-				loadHash($scope);
-			}]);
-			app.controller('QueryController', ['$scope', '$http', function($scope) {
-				favorites.setNoCandidate();
-				$scope.query = {};
-				$scope.database = '';
-				$scope.table = '';
-				loadHash($scope);
-			}]);
-
+		/**
+		 * Specifies the routes used by angular routing
+		 * @param {module} app
+		 */
+		initRouting: function(app) {
 			app.config(['$routeProvider',
 				function($routeProvider) {
 					$routeProvider.
@@ -502,8 +306,107 @@ api.persistence = persistence;
 						});
 				}
 			]);
-
+		},
+		
+		/**
+		 * Initialize Angular
+		 * - Bootstraps Angular
+		 * - Waits for app-ready to initialize watches/syncing
+		 */
+		initAngular: function() {
+			var self = this;
+			
+			// Bootstrap Angular
+			
+			angular.element(document).ready(function() {
+				$(document).trigger('app-ready');
+			});
+			
+			var app = angular.module(
+				'sequeldash', 
+				['ngRoute', 'ngSanitize', 'eee-c.angularBindPolymer']);
+				
+			this.loadControllers();
+			this.initRouting(app);
 			angular.bootstrap(document, ['sequeldash']);
+			
+			// ------------------------------------------------------
+			// Wait for the app-ready signal. By then all components
+			// will be ready for the initialization bit.
+			
+			$(document).on('app-ready', function() {
+				var $scope = $(document).scope();
+				var skipNotify = false;
+				
+				/////////////////////////////////////////////////////////////
+				// Mirror changes two-way between Angular and
+				// the persistence layer (all held under angular persisted.*)
+				//
+				// First half, from persistence to angular
+				
+				api.persistence.watch(function(data) {
+					console.log('reacting newly persisted data to scope');
+					
+					if (skipNotify) {
+						skipNotify = false;
+						return;
+					}
+					
+					skipNotify = true;
+					$scope.$apply(function($scope) {
+						console.log('reacting this:');
+						console.log(data);
+						$scope.persisted = data;
+					});
+				});
+				
+				// Second half, from angular to persistence
+				
+				$scope.$watch('persisted', function() {
+					console.log('Copy from angular -> persistence');
+					api.persistence.data().then(function(data) {
+						if (skipNotify) {
+							skipNotify = false;
+							return;
+						}
+						
+						skipNotify = true;
+						api.persistence.save($scope.persisted);
+					});
+				}, true);
+				
+				// When we receive $viewContentLoaded from Angular,
+				// go ahead and update Angular state from the declarative bits 
+				// included within the template.
+				
+				$scope.$on('$viewContentLoaded', function() {
+					self.updateBreadcrumbs();
+					self.updateHeroHeader();
+				});
+				
+				// Initialize the $scope
+				
+				$scope.$apply(function($scope) {
+					
+					// Put the persisted data into Angular
+					// from the persistence API
+					api.persistence.data().then(function(data) {
+						$scope.persisted = data;
+					});
+					
+					// Incorporate branding. brand.html should include a
+					// script which declares window.$brand.
+					
+					if (window.$brand) {
+						$scope.brand = window.$brand;
+					}
+					
+					// We are started up now.
+					$scope.startup = false;
+				});
+
+			});
+			
 		},
 
 		/**
@@ -646,38 +549,22 @@ api.persistence = persistence;
 			
 		},
 		
-		initFullscreen: function() {
-			updateFullscreen();
-				
-			$(document).on('mozfullscreenchange', function() {
-				updateFullscreen();
-			});
-			
-			$(document).on('webkitfullscreenchange', function() {
-				console.log('webkit fullscreen change');
-				updateFullscreen();
-			});
-			
-			$(document).on('msfullscreenchange', function() {
-				updateFullscreen();
-			});
-			
-			$(document).on('fullscreenchange', function() {
-				console.log('standard fullscreen change');
-				updateFullscreen();
-			});
-		},
-		
 		/**
 		 * Initialize general app behaviors
 		 */
 		initBehaviors: function() {
 			// Install custom behaviors
-
-			this.initFullscreen();
+			$('body').on('core-overlay-open', 'paper-dialog', function() {
+				$('html').addClass('dialog-open');
+			});
+			$('body').on('core-overlay-close-completed', 'paper-dialog', function(e) {
+				if (!$(e.target).is('paper-dialog'))
+					return;
+				$('html').removeClass('dialog-open');
+			});
 			
 			$('body').on('click', '.removeFavorite', function() {
-				favorites.remove($(this).attr('data-url'));
+				api.favorites.remove($(this).attr('data-url'));
 			});
 			
 			$('body').on('click', '.addFavorite', function() {
@@ -691,7 +578,7 @@ api.persistence = persistence;
 						if ($scope.favoriteCandidate)
 							$scope.favoriteCandidate.available = false;
 					});
-					favorites.add(url, name);
+					api.favorites.add(url, name);
 				}
 			});
 			
@@ -720,22 +607,22 @@ api.persistence = persistence;
 				window.location.hash = "#"+href;
 			}); 
 
-			if (!hasFullscreen()) {
+			if (!api.fullscreen.supported()) {
 				$('html').addClass('no-fullscreen');
 			}
 
 			$('body').on('click', '.go-fullscreen', function(e) {
 				
-				if (isFullscreen()) {
-					exitFullscreen();
+				if (api.fullscreen.active()) {
+					api.fullscreen.exit();
 				} else {
 					var container = $('core-scroll-header-panel').get(0);
-					if (!hasFullscreen()) {
+					if (!api.fullscreen.supported()) {
 						alert('No fullscreen mode available');
 						return false;
 					}
 
-					requestFullscreen(document.body);
+					api.fullscreen.request(document.body);
 				}
 				return false;
 			});
@@ -744,6 +631,37 @@ api.persistence = persistence;
 				var prefs = $('#dialog-prefs').get(0);
 				prefs.opened = true;
 				return false;
+			});
+			
+			$(document).scope().$watch('persisted.settings', function() {
+				$('body').find('.setting').each(function() {
+					var $setting = $(this);
+					var setting = $(this).attr('data-setting');
+					var value = Object.getPath($(document).scope(), "persisted.settings."+setting);				
+
+					if ($setting.is('paper-checkbox')) {
+						$setting.attr('checked', value? true : false);
+					} else if ($setting.is('paper-radio-group')) {
+						$setting.prop('selected', value);
+					} else {
+						$setting.attr('value', value);
+					}
+				});
+			}, true);
+			$('body').on('change', '.setting', function() {
+				var setting = $(this).attr('data-setting');
+				var value = $(this).attr('value');
+				
+				if ($(this).is('paper-checkbox')) {
+					value = $(this).attr('checked') ? true : false;
+				} else if ($(this).is('paper-radio-group')) {
+					value = $(this).prop('selected');
+				}
+				
+				$(document).scope().$apply(function($scope) {
+					Object.setPath($scope, 'persisted.settings.'+setting, value, true);
+					console.log('set value to '+value);
+				});
 			});
 			
 			$('.loading-indicator').removeClass('active');
@@ -758,7 +676,7 @@ api.persistence = persistence;
 	};
 	
 	window.sequeldash = sequeldash;
-	
+	api.app = sequeldash;
 }();
 
 /**

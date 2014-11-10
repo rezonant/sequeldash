@@ -135,27 +135,70 @@
         </div> 
 	</core-scroll-header-panel>
 
-	<paper-dialog id="dialog-prefs" heading="Preferences" transition="paper-dialog-transition-center">
+	<paper-dialog id="dialog-prefs" heading="Preferences">
 		<div layout horizontal class="flexgrid-medium">
 			<div>
 				<h1>Interface</h1>
-				<paper-checkbox label="Hero animations"></paper-checkbox><br/>
-				<paper-checkbox label="Allow inline editing"></paper-checkbox><br/>
-				<paper-checkbox label="Stage inline edits"></paper-checkbox><br/>
+				<paper-checkbox class="setting" 
+								data-setting="interface.heroAnimations" 
+								label="Hero animations"></paper-checkbox><br/>
+				<paper-checkbox class="setting" 
+								data-setting="interface.inlineEditing" 
+								label="Allow inline editing"></paper-checkbox><br/>
+				<paper-checkbox class="setting" 
+								data-setting="interface.stageEdits" 
+								label="Stage inline edits"></paper-checkbox><br/>
+				<paper-checkbox class="setting" 
+								data-setting="interface.blurBackgrounds" 
+								label="Blur background during dialogs"></paper-checkbox><br/>
+				<paper-checkbox class="setting" 
+								data-setting="interface.blurScroll" 
+								label="Blur header on scroll"></paper-checkbox><br/>
 				<br/>
+				
+				Theme:
+				<div class="indented">
+					<paper-dropdown-menu class="setting" data-setting="interface.theme">
+						<paper-item name="forest" label="Forest"></paper-item>
+						<paper-item name="beach" label="Beach"></paper-item>
+						<paper-item name="city" label="City"></paper-item>
+					</paper-dropdown-menu>
+				</div>
+				<br/>
+				
+				SQL Theme:
+				<div class="indented">
+					<paper-dropdown-menu class="setting" data-setting="interface.sqlTheme">
+						<paper-item name="monokai" label="Monokai"></paper-item>
+						<paper-item name="chrome" label="Chrome"></paper-item>
+						<paper-item name="dark" label="Dark"></paper-item>
+						<paper-item name="halloween" label="Halloween"></paper-item>
+					</paper-dropdown-menu>
+				</div>
 			</div>
 			<div>
 				<h1>Application</h1>
 
-				<paper-checkbox label="Update automatically"></paper-checkbox><br/>
+				<paper-checkbox label="Update automatically"
+								class="setting"
+								data-setting="app.autoUpdate"
+								></paper-checkbox><br/>
 				
 				Updates channel:<br/>
-				<paper-radio-group>
-					<paper-radio-button name="updates" value="" label="Stable"></paper-radio-button><br/>
-					<paper-radio-button name="updates" value="" label="Beta"></paper-radio-button><br/>
-					<paper-radio-button name="updates" value="" label="Canary"></paper-radio-button><br/>
+				<paper-radio-group class="setting" data-setting="app.updateChannel">
+					<paper-radio-button name="stable" label="Stable"></paper-radio-button><br/>
+					<paper-radio-button name="beta" label="Beta"></paper-radio-button><br/>
+					<paper-radio-button name="canary" label="Canary"></paper-radio-button><br/>
 				</paper-radio-group>
+				<br/>
+				Persistence provider: <br/>
+				<paper-dropdown-menu class="setting" data-setting="app.persistenceProvider">
+					<paper-item name="none" label="No persistence"></paper-item>
+					<paper-item name="local" label="Local Storage"></paper-item>
+					<paper-item name="dataforest" label="dataforest.io"></paper-item>
+				</paper-dropdown-menu>
 				
+				<!-- 
 				<br/>
 				Connector: 
 				<paper-dropdown-menu>
@@ -167,17 +210,26 @@
 				</paper-dropdown-menu>
 				
 				<paper-input floatingLabel label="Server Address"></paper-input>
-				
+				-->
 			</div>
 			<div>
-				<h1>Persistence</h1>
+				<h1>Endpoints</h1>
 
-				<core-tooltip label="Turns off all features which require persistence on the database server.
-							  Setting persists on the database server.">
-					<paper-checkbox label="Disable all persistent features"></paper-checkbox>
-				</core-tooltip><br/>
-				<paper-checkbox label="Persist recently used tables"></paper-checkbox><br/>
-				<paper-checkbox label="Persist favorites"></paper-checkbox>
+				<paper-radio-group class="setting" data-setting="endpoints.provider">
+					<paper-radio-button name="cloud" label="Cloud Provider"></paper-radio-button><br/>
+					<p>Connect to a cloud provider for persisting your endpoints.</p>
+					
+					<div class="indented" ng-show="persisted.settings.endpoints.provider == 'cloud'">
+						<paper-input floatingLabel label="Cloud API Endpoint"></paper-input>
+					</div>
+					
+					<paper-radio-button name="local" label="Local"></paper-radio-button><br/>
+					<p>Persist your endpoints locally on the current browser.</p>
+					
+					<div class="indented" ng-show="persisted.settings.endpoints.provider == 'single'">
+						
+					</div>
+				</paper-radio-group>
 			</div>
 		</div>
 		
@@ -189,7 +241,7 @@
 		
 	</paper-dialog>
 	
-	<paper-dialog id="dialog-error" heading="Uh oh" transition="paper-dialog-transition-center">
+	<paper-dialog id="dialog-error" heading="Uh oh">
 		<p>It looks like an error occurred.</p>
 		
 		<pre class="details"></pre>
@@ -198,6 +250,16 @@
 	<script>
 	  // custom transformation: scale header's title
 	  var titleStyle = document.querySelector('.logo').style;
+	  var blurEnabled = false;
+
+	  $(document).on('app-ready', function() {
+		  blurEnabled = Object.getPath($(document).scope(), 'persisted.settings.interface.blurScroll', false);
+
+		  $(document).scope().$watch('persisted.settings.interface.blurScroll', function() {
+			blurEnabled = $(document).scope().persisted.settings.interface.blurScroll;
+		  });
+	  });
+
 	  addEventListener('core-header-transform', function(e) {
 		var d = e.detail;
 		var m = d.height - d.condensedHeight;
@@ -213,7 +275,14 @@
 
 		m = 60;
 		var opac = (m - d.y + 30) / (m);
+		var blurPx = d.y / m * 3;
 		opac = Math.max(0, opac);
+
+		
+		if (blurEnabled)
+			$('core-scroll-header-panel::shadow #headerContainer').css('-webkit-filter', 'blur('+blurPx+'px)');
+		else
+			$('core-scroll-header-panel::shadow #headerContainer').css('-webkit-filter', 'blur(0px)');
 
 		$('core-toolbar .middle').css('opacity', opac);
 //		  $('#username').css('opacity', opac);
