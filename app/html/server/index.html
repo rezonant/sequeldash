@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<div class="meta template-name" data-value="index"></div>
+<div id="hero-content" style="display:none;">
+	<div style="position:relative;top:-5em;font-size: 75%;text-shadow: 0px 0px 10px black;">
+		<span>{{state.service.status}}</span>
+		<br/>
+	</div>
+</div>
+<div id="breadcrumbs" style="display:none;">
+	<a href="#/">localhost</a>
+	
+</div>
+
+<div class="card">
+    <div>
+		<paper-shadow z="2"></paper-shadow>
+		<polymer-ui-card id="databases">
+			<div class="card-header">
+				<div style="float:right;">
+					<ng-filter name="databases" within="name"></ng-filter>
+				</div>
+				<h3 class="panel-title">Servers</h3>
+			</div>
+			<div class="panel-body">
+				<br/>
+				<div ng-repeat="server in servers track by server.id">
+					<div style="float:left;margin:0 10px 20px 0;">
+						<core-icon icon="cloud-circle"><core-icon>
+					</div>
+
+                    <core-menu-button halign="right" icon="arrow-drop-down-circle" class="menu" style="float:right;">
+                        <core-item data-name="rename"
+                               icon="loyalty"
+                               label="Rename"></core-item>
+                        <core-item data-name="index"
+                               icon="query-builder"
+                               label="Index"></core-item>
+                        <core-item data-name="alter"
+                               icon="perm-data-setting"
+                               label="Alter"></core-item>
+                        <core-item data-name="drop"
+                               icon="delete"
+                               label="Drop"></core-item>
+                    </core-menu-button>
+
+					<a href="#/servers/{{server.id}}" style="font-weight:bold;">{{server.name}}</a>
+					<br/>
+
+					<span class="explanation">{{server.hostname}}</span>
+					<hr/>
+				</div>
+				<div style="text-align:right;">
+					<paper-button raised label="Add" class="info go-add-server"></paper-button>
+				</div>
+			</div>
+		</polymer-ui-card>
+	</div>
+</div>
+
